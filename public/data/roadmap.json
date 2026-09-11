@@ -1,0 +1,448 @@
+{
+  "meta": {
+    "proyecto": "Digitalización Trámites ISSS",
+    "horizonte": "Abr – Dic 2026",
+    "metodologia": "Scrum · sprints de 2 semanas",
+    "paquetes_count": 3,
+    "spi_global": 0.86,
+    "progreso_global": 74,
+    "liberacion_final": "2026-11-09",
+    "gantt_inicio": "2026-04-01",
+    "gantt_fin": "2026-12-11",
+    "progreso_planif": 86,
+    "actualizado": "2026-09-10"
+  },
+  "paquetes": [
+    {
+      "id": "P1",
+      "color_class": "g1",
+      "nombre": "Constancias, Certificados e Inscripciones",
+      "estado": "En desarrollo",
+      "badge_class": "badge-prog",
+      "liberacion": "2026-09-21",
+      "progreso": 84,
+      "spi": 1.019,
+      "alcance": [
+        "Inscripción de patronos (externo + interno)",
+        "Inscripción de trabajadores y trabajadores independientes",
+        "Inscripción de beneficiarios (cónyuge / hijos 0–18)",
+        "Constancia a trabajadores no inscritos",
+        "Historial de cuenta individual",
+        "Emisión de constancia de no cotizantes",
+        "Rediseño UI/UX"
+      ],
+      "sprints": [
+        {
+          "id": "S13–S16",
+          "inicio": "2026-04-27",
+          "fin": "2026-06-12",
+          "descripcion": "Desarrollo del paquete"
+        }
+      ],
+      "gantt": [
+        {
+          "actividad": "Desarrollo",
+          "inicio": "2026-04-27",
+          "fin": "2026-06-12",
+          "progreso": 100
+        },
+        {
+          "actividad": "Requerimientos EM",
+          "inicio": "2026-07-03",
+          "fin": "2026-07-10",
+          "progreso": 95
+        },
+        {
+          "actividad": "Configuración e instalación Core Funcional ISSS",
+          "inicio": "2026-07-07",
+          "fin": "2026-07-29",
+          "progreso": 18
+        },
+        {
+          "actividad": "Tareas adicionales TCA/ EM",
+          "inicio": "2026-07-08",
+          "fin": "2026-08-10",
+          "progreso": 95
+        },
+        {
+          "actividad": "Pruebas DEV Ambiente ISSS",
+          "inicio": "2026-07-16",
+          "fin": "2026-09-21",
+          "progreso": 87
+        },
+        {
+          "actividad": "Ejecucion de prueba",
+          "inicio": "2026-07-16",
+          "fin": "2026-09-21",
+          "progreso": 86
+        },
+        {
+          "actividad": "Entrega Paquete 1 -GOES",
+          "inicio": "2026-07-20",
+          "fin": "2026-07-20",
+          "progreso": 100
+        },
+        {
+          "actividad": "Entrega completa del paquete",
+          "inicio": "2026-09-21",
+          "fin": "2026-09-21",
+          "tipo": "hito"
+        }
+      ],
+      "hitos": [
+        {
+          "fecha": "2026-06-12",
+          "titulo": "Fin de desarrollo",
+          "tipo": "dev"
+        },
+        {
+          "fecha": "2026-07-20",
+          "titulo": "Entrega Paquete 1 – GOES",
+          "tipo": "entrega"
+        },
+        {
+          "fecha": "2026-06-30",
+          "fecha_fin": "2026-07-09",
+          "titulo": "UAT GOES / Applaudo + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-07-10",
+          "fecha_fin": "2026-07-17",
+          "titulo": "SistemDemo ISSS + UAT ISSS + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-07-10",
+          "fecha_fin": "2026-07-29",
+          "titulo": "Ciberseguridad: pentest, re-test",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-07-29",
+          "titulo": "Certificación de ciberseguridad",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-09-16",
+          "titulo": "Liberación en Productivo Controlado",
+          "tipo": "lib"
+        }
+      ],
+      "pie": "Entrega completa del paquete — 21 sep 2026",
+      "progreso_planif": 82
+    },
+    {
+      "id": "P2",
+      "color_class": "g2",
+      "nombre": "Modificaciones, Anulaciones y Devoluciones",
+      "estado": "En desarrollo",
+      "badge_class": "badge-prog",
+      "liberacion": "2026-10-07",
+      "progreso": 57,
+      "spi": 0.6,
+      "alcance": [
+        "Modificación de información de patrono y derechohabiente",
+        "Renovación de tarjetas",
+        "Anulación de inscripciones (solicitud + administración)",
+        "Pasividad y reanudación de labores del patrono",
+        "Certificado de cesantía + administrador de documentos",
+        "Solicitud de información a instituciones públicas",
+        "Devolución de cotizaciones pagadas en exceso (empleador / trabajador)"
+      ],
+      "sprints": [
+        {
+          "id": "S17",
+          "inicio": "2026-06-15",
+          "fin": "2026-06-26",
+          "descripcion": "Inicio de desarrollo"
+        },
+        {
+          "id": "S18",
+          "inicio": "2026-06-29",
+          "fin": "2026-07-10",
+          "descripcion": "Desarrollo"
+        },
+        {
+          "id": "S19",
+          "inicio": "2026-07-13",
+          "fin": "2026-07-24",
+          "descripcion": "Fin de desarrollo"
+        }
+      ],
+      "gantt": [
+        {
+          "actividad": "Desarollo",
+          "inicio": "2026-06-15",
+          "fin": "2026-09-07",
+          "progreso": 100
+        },
+        {
+          "actividad": "Pruebas Iteración QA TCA",
+          "inicio": "2026-09-02",
+          "fin": "2026-09-09",
+          "progreso": 0
+        },
+        {
+          "actividad": "Pruebas QAS Ambiente ISSS",
+          "inicio": "2026-09-07",
+          "fin": "2026-09-25",
+          "progreso": 0
+        },
+        {
+          "actividad": "Pruebas DEV Ambiente ISSS",
+          "inicio": "2026-09-10",
+          "fin": "2026-09-18",
+          "progreso": 0
+        },
+        {
+          "actividad": "Certificacion pruebas en DEV",
+          "inicio": "2026-09-18",
+          "fin": "2026-09-18",
+          "progreso": 0
+        },
+        {
+          "actividad": "Pruebas de Carga Paq 1 y 2",
+          "inicio": "2026-09-21",
+          "fin": "2026-10-02",
+          "progreso": 0
+        },
+        {
+          "actividad": "Ciberseguridad Paq 1 y 2",
+          "inicio": "2026-09-28",
+          "fin": "2026-10-07",
+          "progreso": 0
+        },
+        {
+          "actividad": "Entrega completa del paquete",
+          "inicio": "2026-10-07",
+          "fin": "2026-10-07",
+          "tipo": "hito"
+        }
+      ],
+      "hitos": [
+        {
+          "fecha": "2026-07-24",
+          "titulo": "Fin de desarrollo",
+          "tipo": "dev"
+        },
+        {
+          "fecha": "2026-07-27",
+          "titulo": "Entrega Paquete 2 – GOES",
+          "tipo": "entrega"
+        },
+        {
+          "fecha": "2026-07-27",
+          "fecha_fin": "2026-07-31",
+          "titulo": "UAT GOES / Applaudo + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-08-10",
+          "fecha_fin": "2026-08-18",
+          "titulo": "SistemDemo ISSS + UAT ISSS + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-07-27",
+          "fecha_fin": "2026-08-19",
+          "titulo": "Ciberseguridad: pentest, re-test",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-08-19",
+          "titulo": "Certificación de ciberseguridad",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-10-19",
+          "titulo": "Liberación en Productivo Controlado",
+          "tipo": "lib"
+        }
+      ],
+      "pie": "Entrega completa del paquete — 7 oct 2026",
+      "progreso_planif": 95
+    },
+    {
+      "id": "P3",
+      "color_class": "g3",
+      "nombre": "Inspecciones y Prestaciones Económicas",
+      "estado": "En desarrollo",
+      "badge_class": "badge-prog",
+      "liberacion": "2026-11-05",
+      "progreso": 0,
+      "spi": null,
+      "alcance": [
+        "Pago de mora con y sin dispensa de multas y recargos",
+        "Mandamiento de pago de cuotas de convenios por mora",
+        "Inspección por denuncia + administrador de solicitudes",
+        "Seguimiento y visita de inspección",
+        "Trámite y pago de subsidio y auxilio por sepelio",
+        "Pensión por invalidez y muerte por riesgo profesional",
+        "Administración de usuarios y reportes"
+      ],
+      "sprints": [
+        {
+          "id": "S20",
+          "inicio": "2026-07-27",
+          "fin": "2026-08-07",
+          "descripcion": "Inicio de desarrollo"
+        },
+        {
+          "id": "S21",
+          "inicio": "2026-08-10",
+          "fin": "2026-08-21",
+          "descripcion": "Desarrollo"
+        },
+        {
+          "id": "S22",
+          "inicio": "2026-08-24",
+          "fin": "2026-09-04",
+          "descripcion": "Fin de desarrollo"
+        }
+      ],
+      "gantt": [
+        {
+          "actividad": "Desarollo",
+          "inicio": "2026-08-31",
+          "fin": "2026-10-21",
+          "progreso": 0
+        },
+        {
+          "actividad": "Capacitación",
+          "inicio": "2026-10-19",
+          "fin": "2026-11-05",
+          "progreso": 0
+        },
+        {
+          "actividad": "Entrega Paquete 3 -GOES",
+          "inicio": "2026-10-22",
+          "fin": "2026-10-22",
+          "progreso": 0
+        },
+        {
+          "actividad": "Pruebas UAT- Ambiente QAS",
+          "inicio": "2026-10-22",
+          "fin": "2026-10-30",
+          "progreso": 0
+        },
+        {
+          "actividad": "Liberación productivo",
+          "inicio": "2026-10-22",
+          "fin": "2026-10-29",
+          "progreso": 0
+        },
+        {
+          "actividad": "Ciberseguridad",
+          "inicio": "2026-10-22",
+          "fin": "2026-10-29",
+          "progreso": 0
+        },
+        {
+          "actividad": "Pruebas de carga",
+          "inicio": "2026-10-22",
+          "fin": "2026-10-22",
+          "progreso": 0
+        },
+        {
+          "actividad": "Entrega completa del paquete",
+          "inicio": "2026-11-05",
+          "fin": "2026-11-05",
+          "tipo": "hito"
+        },
+        {
+          "actividad": "GO LIVE",
+          "inicio": "2026-11-09",
+          "fin": "2026-11-09",
+          "tipo": "hito_final"
+        },
+        {
+          "actividad": "Soporte Estabilización",
+          "inicio": "2026-11-09",
+          "fin": "2026-12-04",
+          "progreso": 0
+        }
+      ],
+      "hitos": [
+        {
+          "fecha": "2026-09-04",
+          "titulo": "Fin de desarrollo",
+          "tipo": "dev"
+        },
+        {
+          "fecha": "2026-09-07",
+          "titulo": "Entrega Paquete 3 – GOES",
+          "tipo": "entrega"
+        },
+        {
+          "fecha": "2026-09-07",
+          "fecha_fin": "2026-09-10",
+          "titulo": "UAT GOES / Applaudo + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-09-11",
+          "fecha_fin": "2026-09-17",
+          "titulo": "SistemDemo ISSS + UAT ISSS + subsanación",
+          "tipo": "uat"
+        },
+        {
+          "fecha": "2026-09-07",
+          "fecha_fin": "2026-09-24",
+          "titulo": "Ciberseguridad: pentest, re-test",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-09-21",
+          "fecha_fin": "2026-09-23",
+          "titulo": "Capacitación técnica",
+          "tipo": "entrega"
+        },
+        {
+          "fecha": "2026-09-24",
+          "titulo": "Certificación de ciberseguridad",
+          "tipo": "ciber"
+        },
+        {
+          "fecha": "2026-11-16",
+          "titulo": "Liberación en Producción",
+          "tipo": "lib"
+        },
+        {
+          "fecha": "2026-11-16",
+          "fecha_fin": "2026-11-20",
+          "titulo": "Soporte y estabilización",
+          "tipo": "lib"
+        }
+      ],
+      "pie": "Entrega completa del paquete — 5 nov 2026",
+      "progreso_planif": 49
+    }
+  ],
+  "transversal": [
+    {
+      "nombre": "Catálogo de trámites, dashboard y API/webhook de estatus",
+      "rango": "mar – jun 2026",
+      "estado": "En desarrollo",
+      "badge_class": "badge-prog"
+    },
+    {
+      "nombre": "SSO Patrono + Key Management / Secret Manager",
+      "rango": "may – jun 2026",
+      "estado": "En desarrollo",
+      "badge_class": "badge-prog"
+    },
+    {
+      "nombre": "Integración API RNPN + Landing page",
+      "rango": "jun – jul 2026",
+      "estado": "Planificado",
+      "badge_class": "badge-plan"
+    },
+    {
+      "nombre": "Liberación Landing / Dashboard en producción",
+      "rango": "28 jul 2026",
+      "estado": "Hito",
+      "badge_class": "badge-hito"
+    }
+  ]
+}

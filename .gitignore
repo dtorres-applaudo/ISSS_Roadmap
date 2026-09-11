@@ -1,0 +1,4 @@
+node_modules/
+smartsheet_token.env
+.firebase/
+.claude/scheduled_tasks.lock
