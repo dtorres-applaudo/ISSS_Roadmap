@@ -92,6 +92,33 @@
     });
   }
 
+  // Avance de Producto: modelo de madurez (techos por estado + peso
+  // Desarrollo/QA) por trámite/paquete/producto, generado por
+  // scripts/sync-avance-producto.js a partir de Avance_tramite/tablas_dinamicas.
+  // Nunca se recalcula en el frontend — se muestra tal cual viene del JSON.
+  var AVANCE_PRODUCTO_KEY = 'avance_producto.json';
+  function fetchAvanceProductoNetwork(cb){
+    fetch('/data/avance_producto.json?v=' + Date.now())
+      .then(function(r){ return r.json(); })
+      .then(function(d){ cb(null, d); })
+      .catch(function(e){ cb('Error cargando avance_producto.json: ' + e.message, null); });
+  }
+  function fetchAvanceProducto(cb) {
+    if (_cache[AVANCE_PRODUCTO_KEY] === undefined) {
+      var persisted = lsGet(AVANCE_PRODUCTO_KEY);
+      if (persisted !== undefined) _cache[AVANCE_PRODUCTO_KEY] = persisted;
+    }
+    if (_cache[AVANCE_PRODUCTO_KEY] !== undefined) {
+      cb(null, _cache[AVANCE_PRODUCTO_KEY]);
+      revalidate(AVANCE_PRODUCTO_KEY, fetchAvanceProductoNetwork);
+      return;
+    }
+    fetchAvanceProductoNetwork(function(err, data){
+      if (!err) { _cache[AVANCE_PRODUCTO_KEY] = data; lsSet(AVANCE_PRODUCTO_KEY, data); }
+      cb(err, data);
+    });
+  }
+
   // ── HELPERS ───────────────────────────────────────────────────
   function fmt(v){ return (v===null||v===undefined||v==='') ? '—' : String(v); }
   function fechaDDMMYYYY(iso){
@@ -1121,6 +1148,83 @@
   }
 
   // ══════════════════════════════════════════════════════════════
+  // AVANCE DE PRODUCTO — modelo de madurez (techos por estado + peso
+  // Desarrollo/QA) por trámite/paquete/producto. Todos los porcentajes vienen
+  // ya calculados de scripts/sync-avance-producto.js (avance_producto.json):
+  // este módulo solo los pinta, nunca los recalcula. El semáforo (verde/ámbar/
+  // rojo) sí se deriva aquí con los mismos umbrales que el resto del portal
+  // (ragC/ragL), porque es distinto del "rag" de Resumen_Paquetes (ese es
+  // sobre avance de desarrollo puro, no sobre este modelo ponderado).
+  // ══════════════════════════════════════════════════════════════
+  function buildAvanceProducto(mount, data){
+    var paquetes = (data && data.paquetes) || [];
+    var tramites = (data && data.tramites) || [];
+    if(!paquetes.length){ mount.innerHTML = '<div class="seg-empty">Sin datos de avance de producto.</div>'; return; }
+    var producto = (data && data.producto) || {};
+    var param = (data && data.meta && data.meta.parametros) || {};
+
+    var html = '<div class="seg-kpis">'
+      +'<div class="seg-kpi kpi-dark"><div class="seg-kpi-lbl">Avance total del producto</div><div class="seg-kpi-val">'+pct(producto.avance_total)+'</div><div class="seg-kpi-sub">Desarrollo + QA, ponderado</div></div>'
+      +'<div class="seg-kpi"><div class="seg-kpi-lbl">Aporte Desarrollo</div><div class="seg-kpi-val">'+pct(producto.aporte_desarrollo)+'</div><div class="seg-kpi-sub">de '+pct(param.peso_desarrollo,0)+' del total</div></div>'
+      +'<div class="seg-kpi'+((parseFloat(producto.aporte_qa)||0)===0?' kpi-warn':'')+'"><div class="seg-kpi-lbl">Aporte QA</div><div class="seg-kpi-val">'+pct(producto.aporte_qa)+'</div><div class="seg-kpi-sub">de '+pct(param.peso_qa,0)+' del total</div></div>'
+      +'</div>';
+
+    html += '<div class="seg-section"><div class="seg-sh">Avance ponderado por paquete</div><div class="seg-pkg-cards">';
+    paquetes.forEach(function(p){
+      var pkgNum = String(p.paquete||'').replace(/\D/g,'');
+      var rc = ragC(p.avance_total);
+      html += '<div class="seg-pkg-card pkg-p'+pkgNum+'">'
+        +'<div class="seg-pkg-id">'+fmt(p.paquete)+'</div>'
+        +'<div class="seg-pkg-name">'+fmt(p.nombre)+'</div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--sg55);margin-bottom:6px;">'
+          +'<span>Avance ponderado</span><span class="seg-rag '+rc+'">'+ragL(p.avance_total)+'</span>'
+        +'</div>'
+        +'<div class="seg-prog-track"><div class="seg-prog-fill" style="width:'+(p.avance_total||0)+'%;background:'+pbGrad(rc)+';"></div></div>'
+        +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sg45);margin-top:6px;">'
+          +'<span>'+pct(p.avance_total)+'</span><span>Peso en el producto: '+pct(p.peso)+'</span>'
+        +'</div>'
+        +'</div>';
+    });
+    html += '</div></div>';
+
+    var byPaquete = {};
+    tramites.forEach(function(t){ (byPaquete[t.paquete]=byPaquete[t.paquete]||[]).push(t); });
+
+    html += '<div class="seg-section"><div class="seg-sh">Avance por trámite</div>'
+      +'<div class="seg-table-wrap"><table class="seg-table">'
+      +'<thead><tr><th>Paquete</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th><th>Peso</th></tr></thead><tbody>';
+    paquetes.forEach(function(p){
+      (byPaquete[p.paquete]||[]).slice().sort(function(a,b){ return (parseFloat(b.peso)||0)-(parseFloat(a.peso)||0); }).forEach(function(t){
+        // Si el Sheet no trae el desglose Desarrollo/QA por trámite, se pinta
+        // una sola barra con el avance_total (mismo color que el resto del
+        // portal) en vez de inventar una proporción dev/qa que no se conoce.
+        var tieneDesglose = t.aporte_desarrollo !== null && t.aporte_desarrollo !== undefined;
+        var barraHTML = tieneDesglose
+          ? '<div style="width:'+(parseFloat(t.aporte_desarrollo)||0)+'%;background:linear-gradient(90deg,#22C55E,#16A34A);height:8px;"></div>'
+            +'<div style="width:'+(parseFloat(t.aporte_qa)||0)+'%;background:linear-gradient(90deg,#3B82F6,#2563EB);height:8px;"></div>'
+          : '<div style="width:'+(parseFloat(t.avance_total)||0)+'%;background:'+pbGrad(ragC(t.avance_total))+';height:8px;"></div>';
+        html += '<tr>'
+          +'<td class="mono" style="color:var(--sb4);font-weight:600;font-size:11px;">'+fmt(t.paquete)+'</td>'
+          +'<td style="font-size:12px;max-width:320px;">'+fmt(t.nombre)+'</td>'
+          +'<td style="width:220px;"><div style="display:flex;align-items:center;gap:8px;">'
+            +'<div class="seg-prog-track" style="width:130px;display:flex;">'+barraHTML+'</div>'
+            +'<span class="mono" style="font-size:11px;white-space:nowrap;">'+pct(t.avance_total)+'</span>'
+          +'</div></td>'
+          +'<td class="mono" style="font-size:11px;color:var(--sg55);">'+pct(t.peso)+'</td>'
+          +'</tr>';
+      });
+    });
+    html += '</tbody></table></div>'
+      +'<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--sg45);">'
+        +'<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:linear-gradient(90deg,#22C55E,#16A34A);margin-right:5px;"></span>Desarrollo</span>'
+        +'<span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:linear-gradient(90deg,#3B82F6,#2563EB);margin-right:5px;"></span>QA</span>'
+      +'</div>'
+      +'</div>';
+
+    mount.innerHTML = html;
+  }
+
+  // ══════════════════════════════════════════════════════════════
   // OBSERVACIONES — listado de tareas de UAT (Generales + Diseño UX),
   // dentro de un contenedor colapsable al final de Resumen ejecutivo.
   // ══════════════════════════════════════════════════════════════
@@ -1266,6 +1370,8 @@
       +'</div><div id="seg-resumen-mount"></div>';
     var pp=document.getElementById('page-seg-paquetes');
     if(pp) pp.innerHTML='<div class="page-header"><div class="page-title">Resumen por paquete</div><div class="page-desc">Avance real vs. planificado, SPI y actividades por paquete (P1/P2/P3).</div></div><div id="seg-paquetes-mount"></div>';
+    var pd=document.getElementById('page-seg-producto');
+    if(pd) pd.innerHTML='<div class="page-header"><div class="page-title">Avance de Producto</div><div class="page-desc">Avance real del producto por trámite y paquete, ponderado por Desarrollo y QA.</div></div><div id="seg-producto-mount"></div>';
   }
 
   // loadResumen() hace el fetch+pintado y se puede llamar más de una vez: la
@@ -1361,6 +1467,30 @@
     loadPaquetes();
   }
 
+  // Mismo patrón, una sola fuente: avance_producto.json.
+  function loadProducto(){
+    var m=document.getElementById('seg-producto-mount');
+    if(!m) return;
+    fetchAvanceProducto(function(err, data){
+      if(err){ if(!m.dataset.rendered) m.innerHTML=errBlock(err); return; }
+      m.dataset.rendered='1';
+      buildAvanceProducto(m, data);
+    });
+  }
+
+  var _productoSubscribed = false;
+  function mountProducto(){
+    var m=document.getElementById('seg-producto-mount');
+    if(!m||m.dataset.mounted) return;
+    m.dataset.mounted='1';
+    m.innerHTML = loading('Cargando avance de producto…'); // se sobreescribe al toque si ya hay cache
+    if(!_productoSubscribed){
+      _productoSubscribed = true;
+      onSheetUpdate(AVANCE_PRODUCTO_KEY, loadProducto);
+    }
+    loadProducto();
+  }
+
   function hookNav(){
     var observer=new MutationObserver(function(muts){
       muts.forEach(function(m){
@@ -1369,6 +1499,7 @@
           if(el.classList.contains('active')){
             if(el.id==='page-seg-resumen')  mountResumen();
             if(el.id==='page-seg-paquetes') mountPaquetes();
+            if(el.id==='page-seg-producto') mountProducto();
           }
         }
       });
@@ -1379,6 +1510,7 @@
         var pg=el.dataset.page;
         if(pg==='seg-resumen')  setTimeout(mountResumen,60);
         if(pg==='seg-paquetes') setTimeout(mountPaquetes,60);
+        if(pg==='seg-producto') setTimeout(mountProducto,60);
       });
     });
     var redraw = function(){
@@ -1575,6 +1707,7 @@
     mountReportModal();
     if(document.getElementById('page-seg-resumen')  &&document.getElementById('page-seg-resumen').classList.contains('active'))  mountResumen();
     if(document.getElementById('page-seg-paquetes') &&document.getElementById('page-seg-paquetes').classList.contains('active')) mountPaquetes();
+    if(document.getElementById('page-seg-producto') &&document.getElementById('page-seg-producto').classList.contains('active')) mountProducto();
   }
 
   if(document.readyState==='loading'){

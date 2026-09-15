@@ -1,4 +1,6 @@
 node_modules/
 smartsheet_token.env
+google_sheets_token.env
 .firebase/
 .claude/scheduled_tasks.lock
+scripts/sync-avance-producto.log

@@ -1,0 +1,328 @@
+{
+  "meta": {
+    "actualizado": "2026-09-15",
+    "parametros": {
+      "techos": {
+        "closed": 100,
+        "resolved": 95,
+        "active": 85,
+        "new": 60
+      },
+      "peso_desarrollo": 70,
+      "peso_qa": 30
+    }
+  },
+  "producto": {
+    "avance_total": 38.6,
+    "aporte_desarrollo": 38.6,
+    "aporte_qa": 0
+  },
+  "paquetes": [
+    {
+      "paquete": "P1",
+      "nombre": "Constancias, Certificados e Inscripciones",
+      "avance_total": 56.6,
+      "peso": 29.5
+    },
+    {
+      "paquete": "P2",
+      "nombre": "Modificaciones, Anulaciones y Devoluciones",
+      "avance_total": 52.9,
+      "peso": 40.9
+    },
+    {
+      "paquete": "P3",
+      "nombre": "Inspecciones y Prestaciones Económicas",
+      "avance_total": 0.7,
+      "peso": 29.5
+    }
+  ],
+  "tramites": [
+    {
+      "paquete": "P1",
+      "orden": 1,
+      "nombre": "Inscripción de patronos",
+      "hu_count": 2,
+      "hijos_total": 339,
+      "avance_total": 59.5,
+      "aporte_desarrollo": 59.5,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P2",
+      "orden": 2,
+      "nombre": "Modificación en la inscripción de patronos",
+      "hu_count": 2,
+      "hijos_total": 100,
+      "avance_total": 56.7,
+      "aporte_desarrollo": 56.7,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P2",
+      "orden": 3,
+      "nombre": "Registro de pasividad o de reanudación de labores del patrono",
+      "hu_count": 3,
+      "hijos_total": 71,
+      "avance_total": 58,
+      "aporte_desarrollo": 58,
+      "aporte_qa": 0,
+      "peso": 6.82
+    },
+    {
+      "paquete": "P1",
+      "orden": 4,
+      "nombre": "Inscripción de trabajadores",
+      "hu_count": 4,
+      "hijos_total": 171,
+      "avance_total": 56.3,
+      "aporte_desarrollo": 56.3,
+      "aporte_qa": 0,
+      "peso": 9.09
+    },
+    {
+      "paquete": "P2",
+      "orden": 5,
+      "nombre": "Modificación de información del derechohabiente",
+      "hu_count": 1,
+      "hijos_total": 29,
+      "avance_total": 57.9,
+      "aporte_desarrollo": 57.9,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P1",
+      "orden": 6,
+      "nombre": "Inscripción de beneficiario (a) esposo (a) o compañero (a) de vida",
+      "hu_count": 1,
+      "hijos_total": 40,
+      "avance_total": 59.5,
+      "aporte_desarrollo": 59.5,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P1",
+      "orden": 7,
+      "nombre": "Inscripción de beneficiario hijo (a) de 0 a 18 años",
+      "hu_count": 1,
+      "hijos_total": 28,
+      "avance_total": 59.5,
+      "aporte_desarrollo": 59.5,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P3",
+      "orden": 8,
+      "nombre": "Inscripción o cambio de estatus a pensionado (invalidez, vejez, viudez)",
+      "hu_count": 0,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 0
+    },
+    {
+      "paquete": "P2",
+      "orden": 9,
+      "nombre": "Renovación de tarjetas (patrono, niños, trabajador extranjero)",
+      "hu_count": 1,
+      "hijos_total": 29,
+      "avance_total": 59.5,
+      "aporte_desarrollo": 59.5,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P3",
+      "orden": 10,
+      "nombre": "Actualización de estatus 6 anualidades (Decreto 787)",
+      "hu_count": 0,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 0
+    },
+    {
+      "paquete": "P1",
+      "orden": 11,
+      "nombre": "Constancias a trabajadores no inscritos en el ISSS",
+      "hu_count": 2,
+      "hijos_total": 46,
+      "avance_total": 53.5,
+      "aporte_desarrollo": 53.5,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P2",
+      "orden": 12,
+      "nombre": "Anulación de inscripciones",
+      "hu_count": 2,
+      "hijos_total": 38,
+      "avance_total": 53.5,
+      "aporte_desarrollo": 53.5,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P3",
+      "orden": 13,
+      "nombre": "Trámite y pago de subsidio",
+      "hu_count": 2,
+      "hijos_total": 2,
+      "avance_total": 2.4,
+      "aporte_desarrollo": 2.4,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P3",
+      "orden": 14,
+      "nombre": "Trámite y pago de auxilio de sepelio",
+      "hu_count": 2,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P3",
+      "orden": 15,
+      "nombre": "Pago por pensión por invalidez por riesgo profesional",
+      "hu_count": 3,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 6.82
+    },
+    {
+      "paquete": "P3",
+      "orden": 16,
+      "nombre": "Pensión por muerte por riesgo profesional",
+      "hu_count": 2,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P1",
+      "orden": 17,
+      "nombre": "Historial de cuenta individual",
+      "hu_count": 1,
+      "hijos_total": 27,
+      "avance_total": 59.5,
+      "aporte_desarrollo": 59.5,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P2",
+      "orden": 18,
+      "nombre": "Certificado de Cesantía",
+      "hu_count": 2,
+      "hijos_total": 35,
+      "avance_total": 51.6,
+      "aporte_desarrollo": 51.6,
+      "aporte_qa": 0,
+      "peso": 4.55
+    },
+    {
+      "paquete": "P3",
+      "orden": 19,
+      "nombre": "Solicitud de pago de mora con dispensa de multas y recargos",
+      "hu_count": 1,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P3",
+      "orden": 20,
+      "nombre": "Solicitud de pago de mora sin dispensa de multas y recargos",
+      "hu_count": 1,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P3",
+      "orden": 21,
+      "nombre": "Emisión de mandamiento de pago de cuotas de Convenios por mora",
+      "hu_count": 1,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P3",
+      "orden": 22,
+      "nombre": "Solicitud de inspección por denuncia",
+      "hu_count": 1,
+      "hijos_total": 2,
+      "avance_total": 4,
+      "aporte_desarrollo": 4,
+      "aporte_qa": 0,
+      "peso": 2.27
+    },
+    {
+      "paquete": "P2",
+      "orden": 23,
+      "nombre": "Solicitud notas de abono patronal",
+      "hu_count": 0,
+      "hijos_total": 0,
+      "avance_total": 0,
+      "aporte_desarrollo": 0,
+      "aporte_qa": 0,
+      "peso": 0
+    },
+    {
+      "paquete": "P2",
+      "orden": 24,
+      "nombre": "Solicitud de devolución de cotizaciones pagadas en exceso",
+      "hu_count": 4,
+      "hijos_total": 44,
+      "avance_total": 44,
+      "aporte_desarrollo": 44,
+      "aporte_qa": 0,
+      "peso": 9.09
+    },
+    {
+      "paquete": "P2",
+      "orden": 25,
+      "nombre": "Solicitud de información de instituciones públicas",
+      "hu_count": 3,
+      "hijos_total": 56,
+      "avance_total": 53.9,
+      "aporte_desarrollo": 53.9,
+      "aporte_qa": 0,
+      "peso": 6.82
+    },
+    {
+      "paquete": "P1",
+      "orden": 26,
+      "nombre": "Emisión de constancias de no cotizantes",
+      "hu_count": 2,
+      "hijos_total": 34,
+      "avance_total": 52.8,
+      "aporte_desarrollo": 52.8,
+      "aporte_qa": 0,
+      "peso": 4.55
+    }
+  ]
+}

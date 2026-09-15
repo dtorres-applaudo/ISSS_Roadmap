@@ -503,6 +503,7 @@ a{text-decoration:none;color:inherit;}
         <div class="sb-subnav" id="subnav-seguimiento">
           <div class="sb-subitem" data-page="seg-resumen">Resumen ejecutivo</div>
           <div class="sb-subitem" data-page="seg-paquetes">Resumen por paquete</div>
+          <div class="sb-subitem" data-page="seg-producto">Avance de Producto</div>
         </div>
       </div>
     </div>
@@ -561,6 +562,22 @@ a{text-decoration:none;color:inherit;}
           <div class="placeholder-text">
             Avance real vs esperado por paquete (PP1/PP2/PP3)
             con semáforo RAG y listado de tareas atrasadas.
+          </div>
+          <div class="placeholder-badge">PRÓXIMAMENTE</div>
+        </div>
+      </div>
+
+      <!-- PAGE: Seguimiento — Avance de Producto -->
+      <div class="page" id="page-seg-producto">
+        <div class="page-header">
+          <div class="page-title">Avance de Producto</div>
+        </div>
+        <div class="placeholder-card">
+          <div class="placeholder-icon">📊</div>
+          <div class="placeholder-title">Módulo en construcción</div>
+          <div class="placeholder-text">
+            Avance real del producto por trámite y paquete, ponderado por
+            Desarrollo y QA.
           </div>
           <div class="placeholder-badge">PRÓXIMAMENTE</div>
         </div>
@@ -724,6 +741,7 @@ const pages = {
   roadmap:        { title:'Roadmap de Producto', module:'Roadmap de Producto' },
   'seg-resumen':  { title:'Resumen ejecutivo',    module:'Seguimiento' },
   'seg-paquetes': { title:'Resumen por paquete',  module:'Seguimiento' },
+  'seg-producto': { title:'Avance de Producto',   module:'Seguimiento' },
 };
 
 function navigate(pageId){
