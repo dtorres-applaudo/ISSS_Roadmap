@@ -1,0 +1,49 @@
+// ============================================================
+// Notificacion instantanea a GitHub cuando cambia avance_tramite
+// PEGAR al final del Apps Script del Sheet "Data - Project ISSS"
+// (el mismo que tiene TABS_AVANCE, TRAMITES_AVANCE, etc.)
+//
+// Requiere antes de usarlo:
+//  1. Configuracion del proyecto (icono de engranaje) -> Propiedades del
+//     script -> Agregar propiedad: GITHUB_DISPATCH_TOKEN = <tu Personal
+//     Access Token de GitHub, scope "repo">
+//  2. Activadores (icono de reloj) -> Agregar activador:
+//       Funcion a ejecutar:        notificarCambioAvanceTramite
+//       Fuente del evento:         Desde la hoja de calculo
+//       Tipo de evento:            Al editar
+//     (esto es un trigger INSTALABLE, no el onEdit(e) simple automatico
+//     -- el simple no tiene permiso para llamar a UrlFetchApp)
+// ============================================================
+
+function notificarCambioAvanceTramite(e) {
+  try {
+    if (!e || !e.range) return;
+    var sheet = e.range.getSheet();
+    if (sheet.getName() !== TABS_AVANCE.AVANCE_TRAMITE) return; // solo avance_tramite
+
+    // Throttle: no disparar mas de 1 vez cada 20 segundos -- evita
+    // saturar GitHub Actions si se editan o pegan varias celdas seguidas.
+    var props = PropertiesService.getScriptProperties();
+    var ahora = Date.now();
+    var ultimo = Number(props.getProperty('ULTIMO_DISPATCH_TS') || 0);
+    if (ahora - ultimo < 20000) return;
+    props.setProperty('ULTIMO_DISPATCH_TS', String(ahora));
+
+    var token = props.getProperty('GITHUB_DISPATCH_TOKEN');
+    if (!token) { Logger.log('Falta GITHUB_DISPATCH_TOKEN en Propiedades del script.'); return; }
+
+    var res = UrlFetchApp.fetch('https://api.github.com/repos/dtorres-applaudo/ISSS_Roadmap/dispatches', {
+      method: 'post',
+      contentType: 'application/json',
+      headers: {
+        Authorization: 'token ' + token,
+        Accept: 'application/vnd.github+json'
+      },
+      payload: JSON.stringify({ event_type: 'avance-tramite-updated' }),
+      muteHttpExceptions: true
+    });
+    Logger.log('Dispatch a GitHub: ' + res.getResponseCode());
+  } catch (err) {
+    Logger.log('Error notificando a GitHub: ' + err);
+  }
+}
