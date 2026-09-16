@@ -13,15 +13,15 @@
     }
   },
   "producto": {
-    "avance_total": 27.6,
+    "avance_total": 34.9,
     "aporte_desarrollo": 27.6,
-    "aporte_qa": 0
+    "aporte_qa": 7.3
   },
   "paquetes": [
     {
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
-      "avance_total": 57.8,
+      "avance_total": 87.8,
       "peso": 24.2
     },
     {
@@ -50,10 +50,10 @@
       "multiplicador": 1.65,
       "horas_ponderadas": 1302,
       "avance_desarrollo": 85,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 59.5,
-      "aporte_qa": 0,
-      "avance_total": 59.5,
+      "aporte_qa": 30,
+      "avance_total": 89.5,
       "peso": 11.33
     },
     {
@@ -104,10 +104,10 @@
       "multiplicador": 1.35,
       "horas_ponderadas": 701,
       "avance_desarrollo": 85,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 59.5,
-      "aporte_qa": 0,
-      "avance_total": 59.5,
+      "aporte_qa": 30,
+      "avance_total": 89.5,
       "peso": 6.1
     },
     {
@@ -140,10 +140,10 @@
       "multiplicador": 1.35,
       "horas_ponderadas": 144,
       "avance_desarrollo": 85,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 59.5,
-      "aporte_qa": 0,
-      "avance_total": 59.5,
+      "aporte_qa": 30,
+      "avance_total": 89.5,
       "peso": 1.25
     },
     {
@@ -158,10 +158,10 @@
       "multiplicador": 1.35,
       "horas_ponderadas": 144,
       "avance_desarrollo": 85,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 59.5,
-      "aporte_qa": 0,
-      "avance_total": 59.5,
+      "aporte_qa": 30,
+      "avance_total": 89.5,
       "peso": 1.25
     },
     {
@@ -230,10 +230,10 @@
       "multiplicador": 1.5,
       "horas_ponderadas": 177,
       "avance_desarrollo": 64.8,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 45.4,
-      "aporte_qa": 0,
-      "avance_total": 45.4,
+      "aporte_qa": 30,
+      "avance_total": 75.4,
       "peso": 1.54
     },
     {
@@ -338,10 +338,10 @@
       "multiplicador": 1.3,
       "horas_ponderadas": 98,
       "avance_desarrollo": 85,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 59.5,
-      "aporte_qa": 0,
-      "avance_total": 59.5,
+      "aporte_qa": 30,
+      "avance_total": 89.5,
       "peso": 0.85
     },
     {
@@ -500,10 +500,10 @@
       "multiplicador": 1.35,
       "horas_ponderadas": 216,
       "avance_desarrollo": 70.1,
-      "aprobado_qa": "No",
+      "aprobado_qa": "Sí",
       "aporte_desarrollo": 49.1,
-      "aporte_qa": 0,
-      "avance_total": 49.1,
+      "aporte_qa": 30,
+      "avance_total": 79.1,
       "peso": 1.88
     }
   ]
