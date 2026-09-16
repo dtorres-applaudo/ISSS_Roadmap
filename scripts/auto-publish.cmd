@@ -49,7 +49,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-call "%FIREBASE%" deploy --only hosting --cwd "%PORTAL_DIR%" >> "%LOG%" 2>&1
+call "%FIREBASE%" deploy --only hosting --config "%PORTAL_DIR%\firebase.json" >> "%LOG%" 2>&1
 if errorlevel 1 (
   echo [auto-publish] ERROR: firebase deploy fallo - revisar sesion de 'firebase login'. El commit y push ya quedaron hechos. >> "%LOG%"
   echo. >> "%LOG%"
