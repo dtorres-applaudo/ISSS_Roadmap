@@ -59,8 +59,13 @@ jobs:
           git commit -m "Auto-sync avance_producto.json ($(date -u +'%Y-%m-%d %H:%M UTC'))"
           git push origin HEAD:main
 
+      # Siempre despliega, sin importar si hubo diff en este run: si una
+      # corrida anterior llego a comitear pero el deploy fallo (como paso
+      # el 2026-09-16), la proxima corrida ya no ve cambios en el JSON y
+      # se saltaria el deploy para siempre, dejando la web desactualizada
+      # sin que nadie se entere. Redeployar contenido identico es barato
+      # e inofensivo.
       - name: Deploy a Firebase Hosting
-        if: steps.diff.outputs.changed == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

@@ -34,27 +34,30 @@ if errorlevel 1 (
 
 "%GIT%" diff --quiet -- public\data\avance_producto.json
 if %errorlevel%==0 (
-  echo [auto-publish] avance_producto.json sin cambios - nada que publicar. >> "%LOG%"
-  echo. >> "%LOG%"
-  exit /b 0
+  echo [auto-publish] avance_producto.json sin cambios en este commit. >> "%LOG%"
+) else (
+  echo [auto-publish] Cambios detectados en avance_producto.json - comiteando y pusheando... >> "%LOG%"
+  "%GIT%" add public\data\avance_producto.json >> "%LOG%" 2>&1
+  "%GIT%" commit -m "Auto-sync avance_producto.json (%date% %time%)" >> "%LOG%" 2>&1
+  "%GIT%" push >> "%LOG%" 2>&1
+  if errorlevel 1 (
+    echo [auto-publish] ERROR: git push fallo - revisar autenticacion de Git Credential Manager, puede requerir volver a iniciar sesion. >> "%LOG%"
+    echo. >> "%LOG%"
+    exit /b 1
+  )
 )
 
-echo [auto-publish] Cambios detectados en avance_producto.json - publicando... >> "%LOG%"
-"%GIT%" add public\data\avance_producto.json >> "%LOG%" 2>&1
-"%GIT%" commit -m "Auto-sync avance_producto.json (%date% %time%)" >> "%LOG%" 2>&1
-"%GIT%" push >> "%LOG%" 2>&1
-if errorlevel 1 (
-  echo [auto-publish] ERROR: git push fallo - revisar autenticacion de Git Credential Manager, puede requerir volver a iniciar sesion. >> "%LOG%"
-  echo. >> "%LOG%"
-  exit /b 1
-)
-
+REM Deploy SIEMPRE corre, aunque este run no haya cambiado nada: si una
+REM corrida anterior alcanzo a comitear pero el deploy fallo, un chequeo
+REM de "hubo diff" aqui se saltaria el deploy para siempre y la web
+REM quedaria desactualizada sin que nadie se entere. Redeployar contenido
+REM identico es barato e inofensivo.
 call "%FIREBASE%" deploy --only hosting --config "%PORTAL_DIR%\firebase.json" >> "%LOG%" 2>&1
 if errorlevel 1 (
-  echo [auto-publish] ERROR: firebase deploy fallo - revisar sesion de 'firebase login'. El commit y push ya quedaron hechos. >> "%LOG%"
+  echo [auto-publish] ERROR: firebase deploy fallo - revisar sesion de 'firebase login'. >> "%LOG%"
   echo. >> "%LOG%"
   exit /b 1
 )
 
-echo [auto-publish] Publicado con exito (commit + push + deploy). >> "%LOG%"
+echo [auto-publish] Publicado con exito (deploy corrido; commit+push solo si hubo cambios). >> "%LOG%"
 echo. >> "%LOG%"
