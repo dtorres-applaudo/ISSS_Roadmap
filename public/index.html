@@ -502,7 +502,11 @@ a{text-decoration:none;color:inherit;}
         </div>
         <div class="sb-subnav" id="subnav-seguimiento">
           <div class="sb-subitem" data-page="seg-resumen">Resumen ejecutivo</div>
-          <div class="sb-subitem" data-page="seg-paquetes">Resumen por paquete</div>
+          <!-- "Resumen por paquete" oculto a pedido de Darío (2026-09-16) — el
+               código del módulo sigue intacto en seguimiento.js, solo se quitó
+               la entrada de navegación. Para reactivarlo, descomentar esta
+               línea y la entrada 'seg-paquetes' en el objeto `pages` de abajo. -->
+          <!-- <div class="sb-subitem" data-page="seg-paquetes">Resumen por paquete</div> -->
           <div class="sb-subitem" data-page="seg-producto">Avance de Producto</div>
         </div>
       </div>
@@ -740,7 +744,7 @@ sbToggle.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 const pages = {
   roadmap:        { title:'Roadmap de Producto', module:'Roadmap de Producto' },
   'seg-resumen':  { title:'Resumen ejecutivo',    module:'Seguimiento' },
-  'seg-paquetes': { title:'Resumen por paquete',  module:'Seguimiento' },
+  // 'seg-paquetes' oculto a pedido de Darío (2026-09-16) — ver nota en el subnav de arriba.
   'seg-producto': { title:'Avance de Producto',   module:'Seguimiento' },
 };
 
