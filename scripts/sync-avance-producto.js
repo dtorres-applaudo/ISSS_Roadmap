@@ -28,8 +28,19 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-const SA_EMAIL = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-const SA_KEY = (process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+// Tolerante a errores comunes de copiar/pegar la llave en un Secret de
+// GitHub Actions o en el .env local: comillas envolventes de más, espacios
+// en blanco al inicio/fin, \n literales en vez de saltos de línea reales.
+function normalizarPrivateKey(raw) {
+  let k = String(raw || '').trim();
+  if ((k.startsWith('"') && k.endsWith('"')) || (k.startsWith("'") && k.endsWith("'"))) {
+    k = k.slice(1, -1);
+  }
+  return k.replace(/\\n/g, '\n').trim();
+}
+
+const SA_EMAIL = (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '').trim();
+const SA_KEY = normalizarPrivateKey(process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY);
 const SHEET_ID = process.env.GOOGLE_SHEET_ID || '1jifTrIT85Lqy_RF1bxhnWAGc8VT44bRENGf3J8yOlzI';
 const WRITE = process.argv.includes('--write');
 
@@ -38,6 +49,12 @@ const OUT_PATH = path.join(__dirname, '..', 'public', 'data', 'avance_producto.j
 if (!SA_EMAIL || !SA_KEY) {
   console.error('Faltan GOOGLE_SERVICE_ACCOUNT_EMAIL o GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY en el entorno.');
   console.error('Ejecutar con: node --env-file=google_sheets_token.env scripts/sync-avance-producto.js');
+  process.exit(1);
+}
+if (!SA_KEY.includes('BEGIN PRIVATE KEY') && !SA_KEY.includes('BEGIN RSA PRIVATE KEY')) {
+  console.error('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY no tiene forma de llave PEM (falta "-----BEGIN PRIVATE KEY-----").');
+  console.error('Revisar que el Secret/variable tenga SOLO el valor de private_key del JSON de la cuenta de servicio,');
+  console.error('sin comillas alrededor ni el nombre de la variable, y con los saltos de línea (\\n) intactos.');
   process.exit(1);
 }
 
