@@ -125,7 +125,7 @@
     var m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})/);
     return m ? (m[3]+'/'+m[2]+'/'+m[1]) : fmt(iso);
   }
-  function pct(v,dec){ var n=parseFloat(v); if(isNaN(n)) return '—'; return n.toFixed(dec||1)+'%'; }
+  function pct(v,dec){ var n=parseFloat(v); if(isNaN(n)) return '—'; return n.toFixed(dec===undefined?1:dec)+'%'; }
   function ragC(p){ var n=parseFloat(p); if(isNaN(n)) return 'rag-gray'; if(n>=90) return 'rag-green'; if(n>=60) return 'rag-amber'; return 'rag-red'; }
   function ragL(p){ var n=parseFloat(p); if(isNaN(n)) return 'Sin datos'; if(n>=90) return 'En meta'; if(n>=60) return 'En riesgo'; return 'Atrasado'; }
   function pbGrad(rc){ return rc==='rag-green'?'linear-gradient(90deg,#22C55E,#16A34A)':rc==='rag-amber'?'linear-gradient(90deg,#F59E0B,#D97706)':'linear-gradient(90deg,#EF4444,#DC2626)'; }
@@ -1176,43 +1176,43 @@
       html += '<div class="seg-pkg-card pkg-p'+pkgNum+'">'
         +'<div class="seg-pkg-id">'+fmt(p.paquete)+'</div>'
         +'<div class="seg-pkg-name">'+fmt(p.nombre)+'</div>'
-        +'<div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--sg55);margin-bottom:6px;">'
-          +'<span>Avance ponderado</span><span class="seg-rag '+rc+'">'+ragL(p.avance_total)+'</span>'
+        +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">'
+          +'<span style="font-size:11px;color:var(--sg55);">Avance ponderado</span>'
+          +'<span style="font-size:26px;font-weight:700;color:var(--sg9);letter-spacing:-.02em;">'+pct(p.avance_total)+'</span>'
         +'</div>'
         +'<div class="seg-prog-track"><div class="seg-prog-fill" style="width:'+(p.avance_total||0)+'%;background:'+pbGrad(rc)+';"></div></div>'
-        +'<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--sg45);margin-top:6px;">'
-          +'<span>'+pct(p.avance_total)+'</span><span>Peso en el producto: '+pct(p.peso)+'</span>'
-        +'</div>'
+        +'<div style="font-size:11px;color:var(--sg45);margin-top:6px;">Peso en el producto: '+pct(p.peso,0)+'</div>'
         +'</div>';
     });
     html += '</div></div>';
 
-    var byPaquete = {};
-    tramites.forEach(function(t){ (byPaquete[t.paquete]=byPaquete[t.paquete]||[]).push(t); });
+    var tramitesOrdenados = tramites.slice().sort(function(a,b){ return (parseInt(a.orden,10)||0)-(parseInt(b.orden,10)||0); });
 
     html += '<div class="seg-section"><div class="seg-sh">Avance por trámite</div>'
+      +'<div class="seg-tabs" id="prod-tramite-filtro">'
+        +'<button class="seg-tab active" data-paquete-filtro="all">Todos</button>'
+        +paquetes.map(function(p){ return '<button class="seg-tab" data-paquete-filtro="'+fmt(p.paquete)+'">Paquete '+String(p.paquete||'').replace(/\D/g,'')+'</button>'; }).join('')
+      +'</div>'
       +'<div class="seg-table-wrap"><table class="seg-table">'
-      +'<thead><tr><th>Paquete</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th><th>Peso</th></tr></thead><tbody>';
-    paquetes.forEach(function(p){
-      (byPaquete[p.paquete]||[]).slice().sort(function(a,b){ return (parseFloat(b.peso)||0)-(parseFloat(a.peso)||0); }).forEach(function(t){
-        // Si el Sheet no trae el desglose Desarrollo/QA por trámite, se pinta
-        // una sola barra con el avance_total (mismo color que el resto del
-        // portal) en vez de inventar una proporción dev/qa que no se conoce.
-        var tieneDesglose = t.aporte_desarrollo !== null && t.aporte_desarrollo !== undefined;
-        var barraHTML = tieneDesglose
-          ? '<div style="width:'+(parseFloat(t.aporte_desarrollo)||0)+'%;background:linear-gradient(90deg,#22C55E,#16A34A);height:8px;"></div>'
-            +'<div style="width:'+(parseFloat(t.aporte_qa)||0)+'%;background:linear-gradient(90deg,#3B82F6,#2563EB);height:8px;"></div>'
-          : '<div style="width:'+(parseFloat(t.avance_total)||0)+'%;background:'+pbGrad(ragC(t.avance_total))+';height:8px;"></div>';
-        html += '<tr>'
-          +'<td class="mono" style="color:var(--sb4);font-weight:600;font-size:11px;">'+fmt(t.paquete)+'</td>'
-          +'<td style="font-size:12px;max-width:320px;">'+fmt(t.nombre)+'</td>'
-          +'<td style="width:220px;"><div style="display:flex;align-items:center;gap:8px;">'
-            +'<div class="seg-prog-track" style="width:130px;display:flex;">'+barraHTML+'</div>'
-            +'<span class="mono" style="font-size:11px;white-space:nowrap;">'+pct(t.avance_total)+'</span>'
-          +'</div></td>'
-          +'<td class="mono" style="font-size:11px;color:var(--sg55);">'+pct(t.peso)+'</td>'
-          +'</tr>';
-      });
+      +'<thead><tr><th>Paquete</th><th>No</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th></tr></thead><tbody>';
+    tramitesOrdenados.forEach(function(t){
+      // Si el Sheet no trae el desglose Desarrollo/QA por trámite, se pinta
+      // una sola barra con el avance_total (mismo color que el resto del
+      // portal) en vez de inventar una proporción dev/qa que no se conoce.
+      var tieneDesglose = t.aporte_desarrollo !== null && t.aporte_desarrollo !== undefined;
+      var barraHTML = tieneDesglose
+        ? '<div style="width:'+(parseFloat(t.aporte_desarrollo)||0)+'%;background:linear-gradient(90deg,#22C55E,#16A34A);height:8px;"></div>'
+          +'<div style="width:'+(parseFloat(t.aporte_qa)||0)+'%;background:linear-gradient(90deg,#3B82F6,#2563EB);height:8px;"></div>'
+        : '<div style="width:'+(parseFloat(t.avance_total)||0)+'%;background:'+pbGrad(ragC(t.avance_total))+';height:8px;"></div>';
+      html += '<tr data-paquete-row="'+fmt(t.paquete)+'">'
+        +'<td class="mono" style="color:var(--sb4);font-weight:600;font-size:11px;">'+fmt(t.paquete)+'</td>'
+        +'<td class="mono" style="font-size:11px;color:var(--sg55);">'+fmt(t.orden)+'</td>'
+        +'<td style="font-size:12px;max-width:320px;">'+fmt(t.nombre)+'</td>'
+        +'<td style="width:220px;"><div style="display:flex;align-items:center;gap:8px;">'
+          +'<div class="seg-prog-track" style="width:130px;display:flex;">'+barraHTML+'</div>'
+          +'<span class="mono" style="font-size:11px;white-space:nowrap;">'+pct(t.avance_total)+'</span>'
+        +'</div></td>'
+        +'</tr>';
     });
     html += '</tbody></table></div>'
       +'<div style="display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--sg45);">'
@@ -1222,6 +1222,20 @@
       +'</div>';
 
     mount.innerHTML = html;
+
+    var filtroBar = mount.querySelector('#prod-tramite-filtro');
+    if(filtroBar){
+      filtroBar.querySelectorAll('[data-paquete-filtro]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          filtroBar.querySelectorAll('[data-paquete-filtro]').forEach(function(x){ x.classList.remove('active'); });
+          btn.classList.add('active');
+          var sel = btn.dataset.paqueteFiltro;
+          mount.querySelectorAll('[data-paquete-row]').forEach(function(tr){
+            tr.style.display = (sel==='all' || tr.dataset.paqueteRow===sel) ? '' : 'none';
+          });
+        });
+      });
+    }
   }
 
   // ══════════════════════════════════════════════════════════════
