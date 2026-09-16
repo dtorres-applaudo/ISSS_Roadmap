@@ -158,7 +158,12 @@ const PARAMETROS_FALLBACK = {
 async function main() {
   const token = await getAccessToken();
 
-  const tramiteRaw = await fetchRange(token, 'avance_tramite!A1:S200');
+  // Rango con margen deliberado (Z, no la última columna real) — si se
+  // agregan columnas nuevas al Sheet (como pasó con "Grupo" el 2026-09-16,
+  // que corrió "% Peso" una columna a la derecha), esto evita que el fetch
+  // las corte de nuevo. Las columnas se leen siempre por nombre, no por
+  // posición, así que un margen amplio no cambia el resultado.
+  const tramiteRaw = await fetchRange(token, 'avance_tramite!A1:Z200');
   const paramRaw = await fetchRange(token, 'datos_hu!A1:B10');
 
   if (!tramiteRaw.length) throw new Error("'avance_tramite' vino vacío — revisar nombre de la hoja/rango.");
@@ -192,11 +197,15 @@ async function main() {
   console.log('Parámetros del modelo:', JSON.stringify(parametrosFinal), parametrosCompletos ? '(del Sheet)' : '(fallback)');
 
   // ── Trámites (1 fila = 1 trámite, ya viene todo calculado) ───────────────
+  // "Grupo" (agregado 2026-09-16): trámites que se desarrollan en paralelo
+  // comparten el mismo código de grupo (ej. "T01") — se guarda tal cual, no
+  // se usa para recalcular nada; es informativo por ahora.
   const tramites = rows.map(r => ({
     paquete: col(r, 'Paquete'),
     orden: parseInt(col(r, 'No'), 10) || null,
     nombre: col(r, 'Nombre de Trámite'),
-    hu_count: parseInt(col(r, 'N° HU', 'N HU'), 10) || 0,
+    grupo: col(r, 'Grupo') || null,
+    hu_count: parseInt(col(r, 'N° HU (grupo)', 'N° HU', 'N HU'), 10) || 0,
     tareas_construccion: parseInt(col(r, 'Tareas Constr.', 'Tareas Construcción'), 10) || 0,
     bugs: parseInt(col(r, 'Bugs'), 10) || 0,
     horas_esperadas: numOrNull(col(r, 'Horas Esperadas')),
