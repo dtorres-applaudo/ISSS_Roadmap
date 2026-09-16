@@ -15,6 +15,7 @@ REM publica nada a medias: se corta ahi y se registra el motivo en el log.
 
 setlocal
 cd /d "%~dp0.."
+for %%I in (".") do set "PORTAL_DIR=%%~fI"
 
 set "LOG=scripts\sync-avance-producto.log"
 set "GIT=C:\Users\DarioTorres\AppData\Local\Programs\Git\cmd\git.exe"
@@ -22,6 +23,7 @@ set "FIREBASE=C:\Users\DarioTorres\AppData\Roaming\npm\firebase.cmd"
 set "NODE=C:\Program Files\nodejs\node.exe"
 
 echo ==== %date% %time% ==== >> "%LOG%"
+echo [auto-publish] PORTAL_DIR=%PORTAL_DIR% >> "%LOG%"
 
 "%NODE%" --env-file=google_sheets_token.env scripts\sync-avance-producto.js --write >> "%LOG%" 2>&1
 if errorlevel 1 (
@@ -47,7 +49,7 @@ if errorlevel 1 (
   exit /b 1
 )
 
-"%FIREBASE%" deploy --only hosting >> "%LOG%" 2>&1
+call "%FIREBASE%" deploy --only hosting --cwd "%PORTAL_DIR%" >> "%LOG%" 2>&1
 if errorlevel 1 (
   echo [auto-publish] ERROR: firebase deploy fallo - revisar sesion de 'firebase login'. El commit y push ya quedaron hechos. >> "%LOG%"
   echo. >> "%LOG%"
