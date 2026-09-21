@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-09-20",
+    "actualizado": "2026-09-21",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -33,7 +33,7 @@
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 0.2,
+      "avance_total": 0.1,
       "peso": 42.7
     }
   ],
@@ -265,11 +265,11 @@
       "horas_esperadas": 48000,
       "multiplicador": 1.75,
       "horas_ponderadas": 840,
-      "avance_desarrollo": 0.9,
+      "avance_desarrollo": 0,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 0.6,
+      "aporte_desarrollo": 0,
       "aporte_qa": 0,
-      "avance_total": 0.6,
+      "avance_total": 0,
       "peso": 7.2
     },
     {
