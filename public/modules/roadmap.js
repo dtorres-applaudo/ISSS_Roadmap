@@ -274,8 +274,8 @@
 .rm-collapsible{border:1px solid var(--goes-gray-150);border-radius:14px;padding:16px 20px;background:var(--white);}
 .rm-collapsible summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-size:11px;font-family:'Geist Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--goes-blue-600);user-select:none;}
 .rm-collapsible summary::-webkit-details-marker{display:none;}
-.rm-collapsible summary::before{content:"▸";font-size:10px;flex:none;transition:transform .15s;}
-.rm-collapsible[open] summary::before{transform:rotate(90deg);}
+.rm-collapsible summary::before{content:"▼";font-size:15px;line-height:1;flex:none;}
+.rm-collapsible[open] summary::before{content:"▲";}
 .rm-collapsible summary::after{content:"";flex:1;height:1px;background:var(--goes-gray-150);}
 .rm-collapsible-body{margin-top:16px;}
 .tram-count-cards{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
@@ -1433,9 +1433,9 @@
     mount.innerHTML =
       renderMetaBar(data.meta)
       + renderResumen(data.paquetes)
-      + renderCatalogoTramites(data.paquetes)
       + renderGanttSection(data.meta, data.paquetes, axisStart, totalDays)
       + renderAvancesSection()
+      + renderCatalogoTramites(data.paquetes)
       + renderDetalle(data.paquetes)
       + renderTransversal(data.transversal)
       + '<div class="docfoot">'
