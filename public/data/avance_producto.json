@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-09-21",
+    "actualizado": "2026-09-22",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -22,7 +22,7 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 57.9,
-      "peso": 24.8
+      "peso": 24.9
     },
     {
       "paquete": "P2",
@@ -34,7 +34,7 @@
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
       "avance_total": 0.1,
-      "peso": 42.7
+      "peso": 42.6
     }
   ],
   "tramites": [
@@ -44,17 +44,17 @@
       "nombre": "Inscripción de patronos",
       "grupo": "T01",
       "hu_count": 2,
-      "tareas_construccion": 18100,
+      "tareas_construccion": 18200,
       "bugs": 158,
-      "horas_esperadas": 80100,
+      "horas_esperadas": 81600,
       "multiplicador": 1.65,
-      "horas_ponderadas": 1322,
+      "horas_ponderadas": 1346,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 11.33
+      "peso": 11.52
     },
     {
       "paquete": "P2",
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.7,
       "aporte_qa": 0,
       "avance_total": 55.7,
-      "peso": 5.2
+      "peso": 5.19
     },
     {
       "paquete": "P2",
@@ -90,7 +90,7 @@
       "aporte_desarrollo": 45,
       "aporte_qa": 0,
       "avance_total": 45,
-      "peso": 5.02
+      "peso": 5.01
     },
     {
       "paquete": "P1",
@@ -108,7 +108,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 6.56
+      "peso": 6.55
     },
     {
       "paquete": "P2",
@@ -144,7 +144,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.27
+      "peso": 1.26
     },
     {
       "paquete": "P1",
@@ -162,7 +162,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.27
+      "peso": 1.26
     },
     {
       "paquete": "P3",
@@ -180,7 +180,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 4.8
+      "peso": 4.79
     },
     {
       "paquete": "P2",
@@ -234,7 +234,7 @@
       "aporte_desarrollo": 45.4,
       "aporte_qa": 0,
       "avance_total": 45.4,
-      "peso": 1.52
+      "peso": 1.51
     },
     {
       "paquete": "P2",
@@ -252,7 +252,7 @@
       "aporte_desarrollo": 36.1,
       "aporte_qa": 0,
       "avance_total": 36.1,
-      "peso": 2.7
+      "peso": 2.69
     },
     {
       "paquete": "P3",
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 7.2
+      "peso": 7.19
     },
     {
       "paquete": "P3",
@@ -278,7 +278,7 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 0,
+      "tareas_construccion": 400,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
@@ -288,7 +288,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 3.6
+      "peso": 3.59
     },
     {
       "paquete": "P3",
@@ -306,7 +306,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 9.12
+      "peso": 9.1
     },
     {
       "paquete": "P3",
@@ -324,7 +324,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 6.52
+      "peso": 6.5
     },
     {
       "paquete": "P1",
@@ -351,7 +351,7 @@
       "grupo": "T18",
       "hu_count": 2,
       "tareas_construccion": 3100,
-      "bugs": 4,
+      "bugs": 5,
       "horas_esperadas": 20000,
       "multiplicador": 1.6,
       "horas_ponderadas": 320,
@@ -378,7 +378,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 2.61
+      "peso": 2.6
     },
     {
       "paquete": "P3",
@@ -386,7 +386,7 @@
       "nombre": "Solicitud de pago de mora sin dispensa de multas y recargos",
       "grupo": "T20",
       "hu_count": 1,
-      "tareas_construccion": 0,
+      "tareas_construccion": 200,
       "bugs": 0,
       "horas_esperadas": 16000,
       "multiplicador": 1.9,
@@ -396,7 +396,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 2.61
+      "peso": 2.6
     },
     {
       "paquete": "P3",
@@ -404,7 +404,7 @@
       "nombre": "Emisión de mandamiento de pago de cuotas de Convenios por mora",
       "grupo": "T21",
       "hu_count": 1,
-      "tareas_construccion": 0,
+      "tareas_construccion": 100,
       "bugs": 0,
       "horas_esperadas": 16000,
       "multiplicador": 1.9,
@@ -414,7 +414,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 2.61
+      "peso": 2.6
     },
     {
       "paquete": "P3",
@@ -432,7 +432,7 @@
       "aporte_desarrollo": 1.6,
       "aporte_qa": 0,
       "avance_total": 1.6,
-      "peso": 1.65
+      "peso": 1.64
     },
     {
       "paquete": "P2",
@@ -450,7 +450,7 @@
       "aporte_desarrollo": 25.5,
       "aporte_qa": 0,
       "avance_total": 25.5,
-      "peso": 4.65
+      "peso": 4.64
     },
     {
       "paquete": "P2",
@@ -468,7 +468,7 @@
       "aporte_desarrollo": 25.5,
       "aporte_qa": 0,
       "avance_total": 25.5,
-      "peso": 4.65
+      "peso": 4.64
     },
     {
       "paquete": "P2",
@@ -486,7 +486,7 @@
       "aporte_desarrollo": 55.5,
       "aporte_qa": 0,
       "avance_total": 55.5,
-      "peso": 4.5
+      "peso": 4.49
     },
     {
       "paquete": "P1",
