@@ -265,10 +265,10 @@
 .est-finalizado{background:var(--emerald-50);color:var(--emerald-700);}
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
-.crit-baja{background:var(--goes-gray-150);color:var(--goes-gray-550);}
-.crit-media{background:var(--goes-blue-150);color:var(--goes-blue-700);}
-.crit-alta{background:var(--amber-50);color:var(--amber-700);}
-.crit-critica{background:#FEE4E2;color:#B42318;}
+.prio-baja{background:var(--goes-gray-150);color:var(--goes-gray-550);}
+.prio-media{background:var(--goes-blue-150);color:var(--goes-blue-700);}
+.prio-alta{background:var(--amber-50);color:var(--amber-700);}
+.prio-critica{background:#FEE4E2;color:#B42318;}
 .avances-origen-col{width:34px;text-align:center;}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;line-height:1;border-radius:6px;font-size:11px;flex:none;overflow:hidden;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
@@ -713,8 +713,8 @@
   // "avances_actividades" del mismo Apps Script que ya usa Seguimiento
   // (lectura vía ?sheet=, escritura vía doPost).
   var ESTADOS_AVANCE = ['Pendiente','En Proceso','Finalizado','Replanificado','Atrasado'];
-  var CRITICIDAD_AVANCE = ['Baja','Media','Alta','Crítica'];
-  var CRITICIDAD_DEFAULT = 'Media';
+  var PRIORIDAD_AVANCE = ['Baja','Media','Alta','Crítica'];
+  var PRIORIDAD_DEFAULT = 'Media';
   var _avancesRows = [];
   var _avancesCatalogo = [];
   var _avancePickerSel = null;
@@ -734,14 +734,14 @@
     return 'est-pendiente';
   }
 
-  // Filas guardadas antes de este campo no traen "criticidad" — se tratan
+  // Filas guardadas antes de este campo no traen "prioridad" — se tratan
   // como Media por compatibilidad (mismo default que usa el formulario).
-  function criticidadBadgeClass(criticidad){
-    var key = String(criticidad||'').toLowerCase();
-    if(key==='crítica' || key==='critica') return 'crit-critica';
-    if(key==='alta') return 'crit-alta';
-    if(key==='baja') return 'crit-baja';
-    return 'crit-media';
+  function prioridadBadgeClass(prioridad){
+    var key = String(prioridad||'').toLowerCase();
+    if(key==='crítica' || key==='critica') return 'prio-critica';
+    if(key==='alta') return 'prio-alta';
+    if(key==='baja') return 'prio-baja';
+    return 'prio-media';
   }
 
   // Filas viejas (guardadas antes de este campo) no traen "origen" — se
@@ -790,12 +790,12 @@
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
       var editing = (_avanceEditingId === r.id);
 
-      var fechaCell, asignadoCell, criticidadCell, estatusCell, pctCell, accionesCell;
+      var fechaCell, asignadoCell, prioridadCell, estatusCell, pctCell, accionesCell;
       if(editing){
         fechaCell = '<input type="date" class="avance-inline-input" id="edit-fecha-'+escapeHtml(r.id)+'" value="'+escapeHtml(isoDateOnly(r.fecha_planeada))+'">';
         asignadoCell = '<input type="text" class="avance-inline-input" id="edit-asignado-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.asignado_a||'')+'">';
-        criticidadCell = '<select class="avance-inline-input" id="edit-criticidad-'+escapeHtml(r.id)+'">'
-          + CRITICIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===(r.criticidad||CRITICIDAD_DEFAULT)?' selected':'')+'>'+c+'</option>'; }).join('')
+        prioridadCell = '<select class="avance-inline-input" id="edit-prioridad-'+escapeHtml(r.id)+'">'
+          + PRIORIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===(r.prioridad||PRIORIDAD_DEFAULT)?' selected':'')+'>'+c+'</option>'; }).join('')
           + '</select>';
         estatusCell = '<select class="avance-inline-input" id="edit-estatus-'+escapeHtml(r.id)+'">'
           + ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'"'+(e===(r.estatus||'Pendiente')?' selected':'')+'>'+e+'</option>'; }).join('')
@@ -806,7 +806,7 @@
       } else {
         fechaCell = fmtLong(r.fecha_planeada);
         asignadoCell = escapeHtml(r.asignado_a);
-        criticidadCell = '<span class="est-badge '+criticidadBadgeClass(r.criticidad)+'">'+escapeHtml(r.criticidad||CRITICIDAD_DEFAULT)+'</span>';
+        prioridadCell = '<span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span>';
         estatusCell = '<span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span>';
         pctCell = pct+'%';
         accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎</button>'
@@ -824,7 +824,7 @@
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
         +'<td>'+asignadoCell+'</td>'
-        +'<td>'+criticidadCell+'</td>'
+        +'<td>'+prioridadCell+'</td>'
         +'<td class="mono" style="font-family:\'Geist Mono\',monospace;font-size:12px;color:var(--goes-gray-550);">'+fechaCell+'</td>'
         +'<td>'+estatusCell+'</td>'
         +'<td class="avances-pct">'+pctCell+'</td>'
@@ -882,8 +882,8 @@
           +'</div>'
           +'<div class="avance-field"><label>Fecha planeada <span style="font-weight:400;text-transform:none;color:var(--goes-gray-450);">— se completa del plan, editable</span></label><input type="date" id="avanceFecha"></div>'
           +'<div class="avance-field"><label>Asignado a <span style="font-weight:400;text-transform:none;color:var(--goes-gray-450);">— se completa del plan, editable</span></label><input type="text" id="avanceAsignado" placeholder="Ej. ISSS/GOES/TCA"></div>'
-          +'<div class="avance-field"><label>Prioridad</label><select id="avanceCriticidad">'
-            +CRITICIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===CRITICIDAD_DEFAULT?' selected':'')+'>'+c+'</option>'; }).join('')
+          +'<div class="avance-field"><label>Prioridad</label><select id="avancePrioridad">'
+            +PRIORIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===PRIORIDAD_DEFAULT?' selected':'')+'>'+c+'</option>'; }).join('')
           +'</select></div>'
           +'<div class="avance-field"><label>Estatus</label><select id="avanceEstatus">'
             +ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('')
@@ -943,7 +943,7 @@
     document.getElementById('avancePickerList').innerHTML = renderPickerList('');
     document.getElementById('avanceFecha').value = '';
     document.getElementById('avanceAsignado').value = '';
-    document.getElementById('avanceCriticidad').value = CRITICIDAD_DEFAULT;
+    document.getElementById('avancePrioridad').value = PRIORIDAD_DEFAULT;
     document.getElementById('avanceEstatus').value = 'Pendiente';
     document.getElementById('avancePct').value = 0;
     document.getElementById('avanceErr').style.display = 'none';
@@ -1060,7 +1060,7 @@
         origen: _avancePickerSel.origen || 'plan',
         fecha_planeada: fechaVal,
         asignado_a: document.getElementById('avanceAsignado').value,
-        criticidad: document.getElementById('avanceCriticidad').value || CRITICIDAD_DEFAULT,
+        prioridad: document.getElementById('avancePrioridad').value || PRIORIDAD_DEFAULT,
         estatus: document.getElementById('avanceEstatus').value,
         pct_avance: parseInt(document.getElementById('avancePct').value)||0
       };
@@ -1112,7 +1112,7 @@
           id: editId,
           fecha_planeada: fechaVal,
           asignado_a: document.getElementById('edit-asignado-'+editId).value,
-          criticidad: document.getElementById('edit-criticidad-'+editId).value || CRITICIDAD_DEFAULT,
+          prioridad: document.getElementById('edit-prioridad-'+editId).value || PRIORIDAD_DEFAULT,
           estatus: document.getElementById('edit-estatus-'+editId).value,
           pct_avance: parseInt(document.getElementById('edit-pct-'+editId).value)||0
         };
@@ -1122,7 +1122,7 @@
           id: updated.id,
           fecha_planeada: updated.fecha_planeada,
           asignado_a: updated.asignado_a,
-          criticidad: updated.criticidad,
+          prioridad: updated.prioridad,
           estatus: updated.estatus,
           pct_avance: updated.pct_avance
         }, function(err){
@@ -1130,7 +1130,7 @@
           if(err){ alert('No se pudieron guardar los cambios: '+err); return; }
           row.fecha_planeada = updated.fecha_planeada;
           row.asignado_a = updated.asignado_a;
-          row.criticidad = updated.criticidad;
+          row.prioridad = updated.prioridad;
           row.estatus = updated.estatus;
           row.pct_avance = updated.pct_avance;
           _avanceEditingId = null;
@@ -1212,7 +1212,7 @@
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
         +'<td>'+escapeHtml(r.asignado_a)+'</td>'
-        +'<td><span class="est-badge '+criticidadBadgeClass(r.criticidad)+'">'+escapeHtml(r.criticidad||CRITICIDAD_DEFAULT)+'</span></td>'
+        +'<td><span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span></td>'
         +'<td class="mono" style="font-family:\'Geist Mono\',monospace;color:var(--goes-gray-550);">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
         +'<td class="avances-pct">'+pct+'%</td>'
