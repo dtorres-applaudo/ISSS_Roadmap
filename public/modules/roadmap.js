@@ -278,13 +278,22 @@
 .rm-collapsible[open] summary::before{content:"▲";}
 .rm-collapsible summary::after{content:"";flex:1;height:1px;background:var(--goes-gray-150);}
 .rm-collapsible-body{margin-top:16px;}
-.tram-count-cards{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.tram-total-row{display:flex;justify-content:center;margin-bottom:16px;}
+.tram-total-row .tram-count-card{flex:none;width:min(320px,100%);text-align:center;}
+.tram-count-cards{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;}
 .tram-count-card{flex:1;min-width:140px;border:1px solid var(--goes-gray-150);border-radius:10px;padding:12px 16px;background:var(--goes-gray-50);}
 .tram-count-total{background:var(--goes-blue-150);border-color:var(--goes-blue-150);}
 .tram-count-val{font-size:22px;font-weight:700;color:var(--goes-blue-700);}
 .tram-count-lbl{font-size:11px;color:var(--goes-gray-550);margin-top:2px;}
 .pkg-id-chip{font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--goes-blue-150);color:var(--goes-blue-700);}
-.tram-table td:nth-child(2){font-family:'Geist Mono',monospace;color:var(--goes-gray-550);width:50px;}
+.tram-pkg-cards{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+.tram-pkg-card{flex:1;min-width:240px;border:1px solid var(--goes-gray-150);border-radius:10px;background:var(--white);overflow:hidden;}
+.tram-pkg-card-head{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--goes-gray-50);border-bottom:1px solid var(--goes-gray-150);font-size:12.5px;font-weight:600;color:var(--goes-gray-700);}
+.tram-pkg-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.tram-pkg-table th{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--goes-gray-550);background:var(--goes-gray-50);padding:8px 14px;text-align:left;border-bottom:1px solid var(--goes-gray-150);font-weight:500;}
+.tram-pkg-table td{padding:8px 14px;border-bottom:1px solid var(--goes-gray-150);color:var(--goes-gray-700);vertical-align:top;}
+.tram-pkg-table tr:last-child td{border-bottom:none;}
+.tram-pkg-no{font-family:'Geist Mono',monospace;color:var(--goes-gray-550);width:32px;}
 .avances-origen-col{width:34px;text-align:center;}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;line-height:1;border-radius:6px;font-size:11px;flex:none;overflow:hidden;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
@@ -557,9 +566,11 @@
 
   // ── Render resumen de entregas ────────────────────────────────────────────────
   // ── Catálogo de trámites por paquete ──────────────────────────────────────────
-  // Listado fijo de los 26 trámites comprometidos, agrupados por paquete
+  // Listado fijo de los trámites comprometidos, agrupados por paquete
   // productivo (a pedido de Darío, 2026-09-22). Referencia: Smartsheet,
-  // tarea "Desarrollo" de cada paquete.
+  // tarea "Desarrollo" de cada paquete. Se excluyen del listado los
+  // trámites 12 (Anulación de inscripciones) y 13 (Trámite y pago de
+  // subsidio) a pedido de Darío (2026-09-22).
   var TRAMITES_CATALOGO = [
     { paquete:'P1', no:1,  nombre:'Inscripción de patronos' },
     { paquete:'P2', no:2,  nombre:'Modificación en la inscripción de patronos' },
@@ -572,8 +583,6 @@
     { paquete:'P2', no:9,  nombre:'Renovación de tarjetas (Patrono, niños, trabajador extranjero)' },
     { paquete:'P3', no:10, nombre:'Actualización de estatus que optan a la devolución o asignación por invalidez, viudez o vejez en seis anualidades (decreto 787)' },
     { paquete:'P1', no:11, nombre:'Constancias a trabajadores no inscritos en el ISSS' },
-    { paquete:'P2', no:12, nombre:'Anulación de inscripciones' },
-    { paquete:'P3', no:13, nombre:'Trámite y pago de subsidio' },
     { paquete:'P3', no:14, nombre:'Trámite y pago de auxilio de sepelio' },
     { paquete:'P3', no:15, nombre:'Pago por pensión por invalidez por riesgo profesional' },
     { paquete:'P3', no:16, nombre:'Pensión por muerte por riesgo profesional' },
@@ -601,30 +610,30 @@
 
     var totalCount = TRAMITES_CATALOGO.length;
 
-    var countCards = '<div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div></div>'
-      + grupos.map(function(g){
-        return '<div class="tram-count-card"><div class="tram-count-val">'+g.items.length+'</div><div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div></div>';
-      }).join('');
+    var pkgCountCards = grupos.map(function(g){
+      return '<div class="tram-count-card"><div class="tram-count-val">'+g.items.length+'</div><div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div></div>';
+    }).join('');
 
-    var rows = grupos.map(function(g){
-      return g.items.map(function(t){
-        return '<tr>'
-          +'<td><span class="pkg-id-chip">'+g.id+'</span></td>'
-          +'<td>'+t.no+'</td>'
-          +'<td>'+escapeHtml(t.nombre)+'</td>'
-        +'</tr>';
+    var pkgListCards = grupos.map(function(g){
+      var rows = g.items.map(function(t){
+        return '<tr><td class="tram-pkg-no">'+t.no+'</td><td>'+escapeHtml(t.nombre)+'</td></tr>';
       }).join('');
+      return '<div class="tram-pkg-card">'
+        +'<div class="tram-pkg-card-head"><span class="pkg-id-chip">'+g.id+'</span>'+escapeHtml(g.nombre)+'</div>'
+        +'<table class="tram-pkg-table">'
+          +'<thead><tr><th>N°</th><th>Nombre del trámite</th></tr></thead>'
+          +'<tbody>'+rows+'</tbody>'
+        +'</table>'
+      +'</div>';
     }).join('');
 
     return '<div class="section" style="padding-top:0;">'
       +'<details class="rm-collapsible">'
         +'<summary>Catálogo de trámites por paquete ('+totalCount+')</summary>'
         +'<div class="rm-collapsible-body">'
-          +'<div class="tram-count-cards">'+countCards+'</div>'
-          +'<table class="avances-table tram-table">'
-            +'<thead><tr><th>Paquete</th><th>No.</th><th>Nombre de proceso</th></tr></thead>'
-            +'<tbody>'+rows+'</tbody>'
-          +'</table>'
+          +'<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div></div></div>'
+          +'<div class="tram-count-cards">'+pkgCountCards+'</div>'
+          +'<div class="tram-pkg-cards">'+pkgListCards+'</div>'
         +'</div>'
       +'</details>'
     +'</div>';
