@@ -4,13 +4,13 @@
     "horizonte": "Abr – Dic 2026",
     "metodologia": "Scrum · sprints de 2 semanas",
     "paquetes_count": 3,
-    "spi_global": 0.86,
-    "progreso_global": 74,
-    "liberacion_final": "2026-11-09",
+    "spi_global": 0.85,
+    "progreso_global": 75,
+    "liberacion_final": "2026-11-05",
     "gantt_inicio": "2026-04-01",
-    "gantt_fin": "2026-12-11",
-    "progreso_planif": 86,
-    "actualizado": "2026-09-11"
+    "gantt_fin": "2026-12-09",
+    "progreso_planif": 89,
+    "actualizado": "2026-09-22"
   },
   "paquetes": [
     {
@@ -20,8 +20,8 @@
       "estado": "En desarrollo",
       "badge_class": "badge-prog",
       "liberacion": "2026-09-21",
-      "progreso": 84,
-      "spi": 1.019,
+      "progreso": 88,
+      "spi": 1.068,
       "alcance": [
         "Inscripción de patronos (externo + interno)",
         "Inscripción de trabajadores y trabajadores independientes",
@@ -50,7 +50,7 @@
           "actividad": "Requerimientos EM",
           "inicio": "2026-07-03",
           "fin": "2026-07-10",
-          "progreso": 95
+          "progreso": 100
         },
         {
           "actividad": "Configuración e instalación Core Funcional ISSS",
@@ -68,13 +68,13 @@
           "actividad": "Pruebas DEV Ambiente ISSS",
           "inicio": "2026-07-16",
           "fin": "2026-09-21",
-          "progreso": 87
+          "progreso": 96
         },
         {
           "actividad": "Ejecucion de prueba",
           "inicio": "2026-07-16",
           "fin": "2026-09-21",
-          "progreso": 86
+          "progreso": 96
         },
         {
           "actividad": "Entrega Paquete 1 -GOES",
@@ -139,8 +139,8 @@
       "estado": "En desarrollo",
       "badge_class": "badge-prog",
       "liberacion": "2026-10-07",
-      "progreso": 57,
-      "spi": 0.6,
+      "progreso": 62,
+      "spi": 0.62,
       "alcance": [
         "Modificación de información de patrono y derechohabiente",
         "Renovación de tarjetas",
@@ -181,7 +181,7 @@
           "actividad": "Pruebas Iteración QA TCA",
           "inicio": "2026-09-02",
           "fin": "2026-09-09",
-          "progreso": 0
+          "progreso": 80
         },
         {
           "actividad": "Pruebas QAS Ambiente ISSS",
@@ -193,7 +193,7 @@
           "actividad": "Pruebas DEV Ambiente ISSS",
           "inicio": "2026-09-10",
           "fin": "2026-09-18",
-          "progreso": 0
+          "progreso": 1
         },
         {
           "actividad": "Certificacion pruebas en DEV",
@@ -261,7 +261,7 @@
         }
       ],
       "pie": "Entrega completa del paquete — 7 oct 2026",
-      "progreso_planif": 95
+      "progreso_planif": 100
     },
     {
       "id": "P3",
@@ -305,7 +305,7 @@
         {
           "actividad": "Desarollo",
           "inicio": "2026-08-31",
-          "fin": "2026-10-21",
+          "fin": "2026-10-09",
           "progreso": 0
         },
         {
@@ -352,14 +352,14 @@
         },
         {
           "actividad": "GO LIVE",
-          "inicio": "2026-11-09",
-          "fin": "2026-11-09",
+          "inicio": "2026-11-05",
+          "fin": "2026-11-05",
           "tipo": "hito_final"
         },
         {
           "actividad": "Soporte Estabilización",
-          "inicio": "2026-11-09",
-          "fin": "2026-12-04",
+          "inicio": "2026-11-05",
+          "fin": "2026-12-02",
           "progreso": 0
         }
       ],
@@ -416,7 +416,7 @@
         }
       ],
       "pie": "Entrega completa del paquete — 5 nov 2026",
-      "progreso_planif": 49
+      "progreso_planif": 68
     }
   ],
   "transversal": [
