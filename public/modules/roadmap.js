@@ -265,10 +265,26 @@
 .est-finalizado{background:var(--emerald-50);color:var(--emerald-700);}
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
+.est-na{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .prio-baja{background:var(--goes-gray-150);color:var(--goes-gray-550);}
 .prio-media{background:var(--goes-blue-150);color:var(--goes-blue-700);}
 .prio-alta{background:var(--amber-50);color:var(--amber-700);}
 .prio-critica{background:#FEE4E2;color:#B42318;}
+/* Catálogo de trámites por paquete (colapsable) */
+.rm-collapsible{border:1px solid var(--goes-gray-150);border-radius:14px;padding:16px 20px;background:var(--white);}
+.rm-collapsible summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-size:11px;font-family:'Geist Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--goes-blue-600);user-select:none;}
+.rm-collapsible summary::-webkit-details-marker{display:none;}
+.rm-collapsible summary::before{content:"▸";font-size:10px;flex:none;transition:transform .15s;}
+.rm-collapsible[open] summary::before{transform:rotate(90deg);}
+.rm-collapsible summary::after{content:"";flex:1;height:1px;background:var(--goes-gray-150);}
+.rm-collapsible-body{margin-top:16px;}
+.tram-count-cards{display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;}
+.tram-count-card{flex:1;min-width:140px;border:1px solid var(--goes-gray-150);border-radius:10px;padding:12px 16px;background:var(--goes-gray-50);}
+.tram-count-total{background:var(--goes-blue-150);border-color:var(--goes-blue-150);}
+.tram-count-val{font-size:22px;font-weight:700;color:var(--goes-blue-700);}
+.tram-count-lbl{font-size:11px;color:var(--goes-gray-550);margin-top:2px;}
+.pkg-id-chip{font-family:'Geist Mono',monospace;font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--goes-blue-150);color:var(--goes-blue-700);}
+.tram-table td:nth-child(2){font-family:'Geist Mono',monospace;color:var(--goes-gray-550);width:50px;}
 .avances-origen-col{width:34px;text-align:center;}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;line-height:1;border-radius:6px;font-size:11px;flex:none;overflow:hidden;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
@@ -540,6 +556,80 @@
   }
 
   // ── Render resumen de entregas ────────────────────────────────────────────────
+  // ── Catálogo de trámites por paquete ──────────────────────────────────────────
+  // Listado fijo de los 26 trámites comprometidos, agrupados por paquete
+  // productivo (a pedido de Darío, 2026-09-22). Referencia: Smartsheet,
+  // tarea "Desarrollo" de cada paquete.
+  var TRAMITES_CATALOGO = [
+    { paquete:'P1', no:1,  nombre:'Inscripción de patronos' },
+    { paquete:'P2', no:2,  nombre:'Modificación en la inscripción de patronos' },
+    { paquete:'P2', no:3,  nombre:'Registro de pasividad o de reanudación de labores del patrono' },
+    { paquete:'P1', no:4,  nombre:'Inscripción de trabajadores' },
+    { paquete:'P2', no:5,  nombre:'Modificación de información del derechohabiente' },
+    { paquete:'P1', no:6,  nombre:'Inscripción de beneficiario (a) esposo (a) o compañero (a) de vida' },
+    { paquete:'P1', no:7,  nombre:'Inscripción de beneficiario hijo (a) de 0 a 18 años' },
+    { paquete:'P3', no:8,  nombre:'Inscripción o cambio de estatus de trabajador activo a pensionado por invalidez o vejez, pensionado por anualidad y de beneficiario a pensionado por viudez' },
+    { paquete:'P2', no:9,  nombre:'Renovación de tarjetas (Patrono, niños, trabajador extranjero)' },
+    { paquete:'P3', no:10, nombre:'Actualización de estatus que optan a la devolución o asignación por invalidez, viudez o vejez en seis anualidades (decreto 787)' },
+    { paquete:'P1', no:11, nombre:'Constancias a trabajadores no inscritos en el ISSS' },
+    { paquete:'P2', no:12, nombre:'Anulación de inscripciones' },
+    { paquete:'P3', no:13, nombre:'Trámite y pago de subsidio' },
+    { paquete:'P3', no:14, nombre:'Trámite y pago de auxilio de sepelio' },
+    { paquete:'P3', no:15, nombre:'Pago por pensión por invalidez por riesgo profesional' },
+    { paquete:'P3', no:16, nombre:'Pensión por muerte por riesgo profesional' },
+    { paquete:'P1', no:17, nombre:'Historial de cuenta individual' },
+    { paquete:'P2', no:18, nombre:'Certificado de Cesantía' },
+    { paquete:'P3', no:19, nombre:'Solicitud de pago de mora con dispensa de multas y recargos' },
+    { paquete:'P3', no:20, nombre:'Solicitud de pago de mora sin dispensa de multas y recargos' },
+    { paquete:'P3', no:21, nombre:'Emisión de mandamiento de pago de cuotas de Convenios por mora de cotizaciones' },
+    { paquete:'P3', no:22, nombre:'Solicitud de inspección por denuncia' },
+    { paquete:'P2', no:23, nombre:'Solicitud notas de abono patronal' },
+    { paquete:'P2', no:24, nombre:'Solicitud de devolución de cotizaciones pagadas en exceso' },
+    { paquete:'P2', no:25, nombre:'Solicitud de información de instituciones públicas' },
+    { paquete:'P1', no:26, nombre:'Emisión de constancias de no cotizantes' }
+  ];
+
+  function renderCatalogoTramites(paquetes){
+    var nombrePorPaquete = {};
+    (paquetes||[]).forEach(function(p){ nombrePorPaquete[p.id] = p.nombre; });
+
+    var grupos = ['P1','P2','P3'].map(function(pid){
+      var items = TRAMITES_CATALOGO.filter(function(t){ return t.paquete === pid; })
+        .sort(function(a,b){ return a.no - b.no; });
+      return { id: pid, nombre: nombrePorPaquete[pid] || pid, items: items };
+    });
+
+    var totalCount = TRAMITES_CATALOGO.length;
+
+    var countCards = '<div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div></div>'
+      + grupos.map(function(g){
+        return '<div class="tram-count-card"><div class="tram-count-val">'+g.items.length+'</div><div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div></div>';
+      }).join('');
+
+    var rows = grupos.map(function(g){
+      return g.items.map(function(t){
+        return '<tr>'
+          +'<td><span class="pkg-id-chip">'+g.id+'</span></td>'
+          +'<td>'+t.no+'</td>'
+          +'<td>'+escapeHtml(t.nombre)+'</td>'
+        +'</tr>';
+      }).join('');
+    }).join('');
+
+    return '<div class="section" style="padding-top:0;">'
+      +'<details class="rm-collapsible">'
+        +'<summary>Catálogo de trámites por paquete ('+totalCount+')</summary>'
+        +'<div class="rm-collapsible-body">'
+          +'<div class="tram-count-cards">'+countCards+'</div>'
+          +'<table class="avances-table tram-table">'
+            +'<thead><tr><th>Paquete</th><th>No.</th><th>Nombre de proceso</th></tr></thead>'
+            +'<tbody>'+rows+'</tbody>'
+          +'</table>'
+        +'</div>'
+      +'</details>'
+    +'</div>';
+  }
+
   function renderResumen(paquetes){
     var cards = paquetes.map(function(p){
       var actual = p.progreso || 0;
@@ -712,7 +802,7 @@
   // siempre es manual. Las filas guardadas viven en la hoja
   // "avances_actividades" del mismo Apps Script que ya usa Seguimiento
   // (lectura vía ?sheet=, escritura vía doPost).
-  var ESTADOS_AVANCE = ['Pendiente','En Proceso','Finalizado','Replanificado','Atrasado'];
+  var ESTADOS_AVANCE = ['Pendiente','En Proceso','Finalizado','Replanificado','Atrasado','N/A'];
   var PRIORIDAD_AVANCE = ['Baja','Media','Alta','Crítica'];
   var PRIORIDAD_DEFAULT = 'Media';
   var _avancesRows = [];
@@ -731,6 +821,7 @@
     if(key==='finalizado') return 'est-finalizado';
     if(key==='replanificado') return 'est-replanificado';
     if(key==='atrasado') return 'est-atrasado';
+    if(key==='n/a') return 'est-na';
     return 'est-pendiente';
   }
 
@@ -1342,6 +1433,7 @@
     mount.innerHTML =
       renderMetaBar(data.meta)
       + renderResumen(data.paquetes)
+      + renderCatalogoTramites(data.paquetes)
       + renderGanttSection(data.meta, data.paquetes, axisStart, totalDays)
       + renderAvancesSection()
       + renderDetalle(data.paquetes)
