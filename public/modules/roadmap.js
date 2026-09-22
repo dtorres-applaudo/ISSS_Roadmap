@@ -265,6 +265,10 @@
 .est-finalizado{background:var(--emerald-50);color:var(--emerald-700);}
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
+.crit-baja{background:var(--goes-gray-150);color:var(--goes-gray-550);}
+.crit-media{background:var(--goes-blue-150);color:var(--goes-blue-700);}
+.crit-alta{background:var(--amber-50);color:var(--amber-700);}
+.crit-critica{background:#FEE4E2;color:#B42318;}
 .avances-origen-col{width:34px;text-align:center;}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;line-height:1;border-radius:6px;font-size:11px;flex:none;overflow:hidden;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
@@ -697,8 +701,8 @@
   }
 
   // ── Avances de actividades ────────────────────────────────────────────────────
-  // Tabla de seguimiento manual (Actividad / Fecha planeada / Asignado a /
-  // Estatus / % avance). La descripción SOLO puede elegirse de un catálogo —
+  // Tabla de seguimiento manual (Actividad / Responsable / Prioridad / Fecha
+  // planeada / Estatus / % avance). La descripción SOLO puede elegirse de un catálogo —
   // TODAS las líneas de la columna "Proyecto" del plan de trabajo
   // (Digitalización Trámites ISSS), en su mismo orden y con su mismo nivel
   // de sangría (agrupación de filas de Excel) — nunca se escribe libre.
@@ -709,6 +713,8 @@
   // "avances_actividades" del mismo Apps Script que ya usa Seguimiento
   // (lectura vía ?sheet=, escritura vía doPost).
   var ESTADOS_AVANCE = ['Pendiente','En Proceso','Finalizado','Replanificado','Atrasado'];
+  var CRITICIDAD_AVANCE = ['Baja','Media','Alta','Crítica'];
+  var CRITICIDAD_DEFAULT = 'Media';
   var _avancesRows = [];
   var _avancesCatalogo = [];
   var _avancePickerSel = null;
@@ -726,6 +732,16 @@
     if(key==='replanificado') return 'est-replanificado';
     if(key==='atrasado') return 'est-atrasado';
     return 'est-pendiente';
+  }
+
+  // Filas guardadas antes de este campo no traen "criticidad" — se tratan
+  // como Media por compatibilidad (mismo default que usa el formulario).
+  function criticidadBadgeClass(criticidad){
+    var key = String(criticidad||'').toLowerCase();
+    if(key==='crítica' || key==='critica') return 'crit-critica';
+    if(key==='alta') return 'crit-alta';
+    if(key==='baja') return 'crit-baja';
+    return 'crit-media';
   }
 
   // Filas viejas (guardadas antes de este campo) no traen "origen" — se
@@ -767,17 +783,20 @@
   var _avanceEditingId = null;
 
   function renderAvancesRows(rows){
-    if(!rows.length) return '<tr><td colspan="8" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
+    if(!rows.length) return '<tr><td colspan="9" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
     return rows.map(function(r, i){
       var pct = parseInt(r.pct_avance)||0;
       var upDisabled = i===0 ? 'disabled' : '';
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
       var editing = (_avanceEditingId === r.id);
 
-      var fechaCell, asignadoCell, estatusCell, pctCell, accionesCell;
+      var fechaCell, asignadoCell, criticidadCell, estatusCell, pctCell, accionesCell;
       if(editing){
         fechaCell = '<input type="date" class="avance-inline-input" id="edit-fecha-'+escapeHtml(r.id)+'" value="'+escapeHtml(isoDateOnly(r.fecha_planeada))+'">';
         asignadoCell = '<input type="text" class="avance-inline-input" id="edit-asignado-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.asignado_a||'')+'">';
+        criticidadCell = '<select class="avance-inline-input" id="edit-criticidad-'+escapeHtml(r.id)+'">'
+          + CRITICIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===(r.criticidad||CRITICIDAD_DEFAULT)?' selected':'')+'>'+c+'</option>'; }).join('')
+          + '</select>';
         estatusCell = '<select class="avance-inline-input" id="edit-estatus-'+escapeHtml(r.id)+'">'
           + ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'"'+(e===(r.estatus||'Pendiente')?' selected':'')+'>'+e+'</option>'; }).join('')
           + '</select>';
@@ -787,12 +806,16 @@
       } else {
         fechaCell = fmtLong(r.fecha_planeada);
         asignadoCell = escapeHtml(r.asignado_a);
+        criticidadCell = '<span class="est-badge '+criticidadBadgeClass(r.criticidad)+'">'+escapeHtml(r.criticidad||CRITICIDAD_DEFAULT)+'</span>';
         estatusCell = '<span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span>';
         pctCell = pct+'%';
         accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎</button>'
           +'<button class="avances-edit-btn avances-del-btn" type="button" data-del-id="'+escapeHtml(r.id)+'" title="Eliminar">✕</button>';
       }
 
+      // Orden de columnas: Actividades, Responsables, Prioridad, Fecha,
+      // Estatus, % de avance (a pedido de Darío, 2026-09-22) — reorder y
+      // origen quedan al inicio, acciones al final, sin cambios.
       return '<tr data-avance-id="'+escapeHtml(r.id)+'">'
         +'<td class="avances-reorder-col">'
           +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir">▲</button>'
@@ -800,8 +823,9 @@
         +'</td>'
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
-        +'<td class="mono" style="font-family:\'Geist Mono\',monospace;font-size:12px;color:var(--goes-gray-550);">'+fechaCell+'</td>'
         +'<td>'+asignadoCell+'</td>'
+        +'<td>'+criticidadCell+'</td>'
+        +'<td class="mono" style="font-family:\'Geist Mono\',monospace;font-size:12px;color:var(--goes-gray-550);">'+fechaCell+'</td>'
         +'<td>'+estatusCell+'</td>'
         +'<td class="avances-pct">'+pctCell+'</td>'
         +'<td class="avances-del-col">'+accionesCell+'</td>'
@@ -814,8 +838,8 @@
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
         +'<table class="avances-table">'
-          +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th><th></th></tr></thead>'
-          +'<tbody id="avancesTbody"><tr><td colspan="8" class="avances-empty">Cargando…</td></tr></tbody>'
+          +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th><th></th></tr></thead>'
+          +'<tbody id="avancesTbody"><tr><td colspan="9" class="avances-empty">Cargando…</td></tr></tbody>'
         +'</table>'
         +'<div class="avances-foot">'
           +'<button class="avances-add-btn" id="btnAddAvance" type="button">+ Agregar actividad</button>'
@@ -858,6 +882,9 @@
           +'</div>'
           +'<div class="avance-field"><label>Fecha planeada <span style="font-weight:400;text-transform:none;color:var(--goes-gray-450);">— se completa del plan, editable</span></label><input type="date" id="avanceFecha"></div>'
           +'<div class="avance-field"><label>Asignado a <span style="font-weight:400;text-transform:none;color:var(--goes-gray-450);">— se completa del plan, editable</span></label><input type="text" id="avanceAsignado" placeholder="Ej. ISSS/GOES/TCA"></div>'
+          +'<div class="avance-field"><label>Prioridad</label><select id="avanceCriticidad">'
+            +CRITICIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===CRITICIDAD_DEFAULT?' selected':'')+'>'+c+'</option>'; }).join('')
+          +'</select></div>'
           +'<div class="avance-field"><label>Estatus</label><select id="avanceEstatus">'
             +ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('')
           +'</select></div>'
@@ -916,6 +943,7 @@
     document.getElementById('avancePickerList').innerHTML = renderPickerList('');
     document.getElementById('avanceFecha').value = '';
     document.getElementById('avanceAsignado').value = '';
+    document.getElementById('avanceCriticidad').value = CRITICIDAD_DEFAULT;
     document.getElementById('avanceEstatus').value = 'Pendiente';
     document.getElementById('avancePct').value = 0;
     document.getElementById('avanceErr').style.display = 'none';
@@ -1032,6 +1060,7 @@
         origen: _avancePickerSel.origen || 'plan',
         fecha_planeada: fechaVal,
         asignado_a: document.getElementById('avanceAsignado').value,
+        criticidad: document.getElementById('avanceCriticidad').value || CRITICIDAD_DEFAULT,
         estatus: document.getElementById('avanceEstatus').value,
         pct_avance: parseInt(document.getElementById('avancePct').value)||0
       };
@@ -1083,6 +1112,7 @@
           id: editId,
           fecha_planeada: fechaVal,
           asignado_a: document.getElementById('edit-asignado-'+editId).value,
+          criticidad: document.getElementById('edit-criticidad-'+editId).value || CRITICIDAD_DEFAULT,
           estatus: document.getElementById('edit-estatus-'+editId).value,
           pct_avance: parseInt(document.getElementById('edit-pct-'+editId).value)||0
         };
@@ -1092,6 +1122,7 @@
           id: updated.id,
           fecha_planeada: updated.fecha_planeada,
           asignado_a: updated.asignado_a,
+          criticidad: updated.criticidad,
           estatus: updated.estatus,
           pct_avance: updated.pct_avance
         }, function(err){
@@ -1099,6 +1130,7 @@
           if(err){ alert('No se pudieron guardar los cambios: '+err); return; }
           row.fecha_planeada = updated.fecha_planeada;
           row.asignado_a = updated.asignado_a;
+          row.criticidad = updated.criticidad;
           row.estatus = updated.estatus;
           row.pct_avance = updated.pct_avance;
           _avanceEditingId = null;
@@ -1179,18 +1211,19 @@
       return '<tr>'
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
-        +'<td class="mono" style="font-family:\'Geist Mono\',monospace;color:var(--goes-gray-550);">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td>'+escapeHtml(r.asignado_a)+'</td>'
+        +'<td><span class="est-badge '+criticidadBadgeClass(r.criticidad)+'">'+escapeHtml(r.criticidad||CRITICIDAD_DEFAULT)+'</span></td>'
+        +'<td class="mono" style="font-family:\'Geist Mono\',monospace;color:var(--goes-gray-550);">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
         +'<td class="avances-pct">'+pct+'%</td>'
         +'</tr>';
-    }).join('') : '<tr><td colspan="6" class="avances-empty">Sin actividades agregadas todavía.</td></tr>';
+    }).join('') : '<tr><td colspan="7" class="avances-empty">Sin actividades agregadas todavía.</td></tr>';
 
     var tableWrap = document.createElement('div');
     tableWrap.className = 'avances-wrap';
     tableWrap.style.width = 'max-content';
     tableWrap.innerHTML = '<table class="avances-table" style="font-size:17px;">'
-      +'<thead><tr><th></th><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th></tr></thead>'
+      +'<thead><tr><th></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th></tr></thead>'
       +'<tbody>'+rowsHtml+'</tbody></table>';
     wrap.appendChild(tableWrap);
 
