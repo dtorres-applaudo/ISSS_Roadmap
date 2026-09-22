@@ -265,7 +265,12 @@
 .est-finalizado{background:var(--emerald-50);color:var(--emerald-700);}
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
+.avances-origen-col{width:34px;text-align:center;}
+.origen-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:12px;flex:none;}
+.origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
+.origen-adicional{background:var(--amber-50);color:var(--amber-700);}
 /* Modal agregar actividad */
+.avance-field-hint{font-size:11px;color:var(--goes-gray-450);margin:-4px 0 8px;}
 .avance-modal-overlay{position:fixed;inset:0;background:rgba(14,48,90,.6);backdrop-filter:blur(3px);z-index:9998;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .avance-modal-overlay.open{opacity:1;pointer-events:auto;}
 .avance-modal{background:var(--white);border-radius:14px;width:min(560px,92vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.25);overflow:hidden;}
@@ -283,8 +288,11 @@
 .avance-picker-item{padding:8px 12px;font-size:12.5px;color:var(--goes-gray-700);cursor:pointer;}
 .avance-picker-item:hover{background:var(--goes-blue-150);}
 .avance-picker-item.is-selected{background:var(--goes-blue-700);color:#fff;}
+.avance-picker-freetext{border-top:1px solid var(--goes-gray-150);font-style:italic;color:var(--goes-blue-700);}
+.avance-picker-freetext.is-selected{color:#fff;}
 .avance-picker-empty{padding:14px;text-align:center;color:var(--goes-gray-450);font-size:12px;}
-.avance-selected-chip{display:flex;align-items:center;justify-content:space-between;background:var(--goes-blue-150);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--goes-gray-900);margin-bottom:8px;}
+.avance-selected-chip{display:flex;align-items:center;gap:8px;background:var(--goes-blue-150);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--goes-gray-900);margin-bottom:8px;}
+.avance-selected-chip span{flex:1;}
 .avance-selected-chip button{border:none;background:none;color:var(--goes-blue-700);font-size:11px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;}
 .avance-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--goes-gray-150);background:var(--goes-gray-50);flex:none;}
 .avance-btn-cancel{font-family:'Geist',sans-serif;font-size:12.5px;font-weight:500;color:var(--goes-gray-550);background:none;border:1px solid var(--goes-gray-150);border-radius:8px;padding:9px 16px;cursor:pointer;}
@@ -720,6 +728,14 @@
     return 'est-pendiente';
   }
 
+  // Filas viejas (guardadas antes de este campo) no traen "origen" — se
+  // tratan como 'plan' por compatibilidad, ya que antes TODA actividad
+  // venía forzosamente del catálogo.
+  function origenBadge(origen){
+    var esPlan = origen !== 'adicional';
+    return '<span class="origen-badge '+(esPlan?'origen-plan':'origen-adicional')+'" title="'+(esPlan?'Del plan de trabajo':'Actividad adicional, no estaba en el plan')+'">'+(esPlan?'📋':'➕')+'</span>';
+  }
+
   // Orden manual: cada fila guarda un "orden" numérico (columna nueva en la
   // hoja). Filas sin orden todavía (viejas, o recién cargadas antes de mover
   // algo) usan su posición de llegada como orden implícito — así una lista
@@ -751,7 +767,7 @@
   var _avanceEditingId = null;
 
   function renderAvancesRows(rows){
-    if(!rows.length) return '<tr><td colspan="7" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
+    if(!rows.length) return '<tr><td colspan="8" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
     return rows.map(function(r, i){
       var pct = parseInt(r.pct_avance)||0;
       var upDisabled = i===0 ? 'disabled' : '';
@@ -782,6 +798,7 @@
           +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir">▲</button>'
           +'<button class="avances-move-btn" type="button" data-move="down" data-id="'+escapeHtml(r.id)+'" '+downDisabled+' title="Bajar">▼</button>'
         +'</td>'
+        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
         +'<td class="mono" style="font-family:\'Geist Mono\',monospace;font-size:12px;color:var(--goes-gray-550);">'+fechaCell+'</td>'
         +'<td>'+asignadoCell+'</td>'
@@ -797,15 +814,15 @@
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
         +'<table class="avances-table">'
-          +'<thead><tr><th></th><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th><th></th></tr></thead>'
-          +'<tbody id="avancesTbody"><tr><td colspan="7" class="avances-empty">Cargando…</td></tr></tbody>'
+          +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th><th></th></tr></thead>'
+          +'<tbody id="avancesTbody"><tr><td colspan="8" class="avances-empty">Cargando…</td></tr></tbody>'
         +'</table>'
         +'<div class="avances-foot">'
           +'<button class="avances-add-btn" id="btnAddAvance" type="button">+ Agregar actividad</button>'
           +'<button class="avances-add-btn avances-preview-btn" id="btnPreviewAvances" type="button">Vista previa (PNG)</button>'
         +'</div>'
       +'</div>'
-      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción se elige del catálogo de actividades del cronograma — no se escribe libre. Usá las flechas ▲▼ para reordenar filas y ✎ para editar Fecha/Asignado a/Estatus/% de avance de una fila ya guardada.</div>'
+      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Fecha/Asignado a/Estatus/% de avance de una fila ya guardada.</div>'
     +'</div>'
     // Modal de vista previa / descarga de imagen
     +'<div class="avance-modal-overlay" id="avanceExportModal" aria-hidden="true">'
@@ -833,7 +850,8 @@
         +'</div>'
         +'<div class="avance-modal-body">'
           +'<div class="avance-field">'
-            +'<label>Actividad (del plan de trabajo)</label>'
+            +'<label>Actividad</label>'
+            +'<div class="avance-field-hint">Elegí una sugerencia del plan o escribí una actividad adicional.</div>'
             +'<div id="avanceSelectedChip"></div>'
             +'<input type="text" class="avance-picker-search" id="avancePickerSearch" placeholder="Escribí para buscar…">'
             +'<div class="avance-picker-list" id="avancePickerList"></div>'
@@ -857,12 +875,21 @@
   function renderPickerList(filterText){
     var f = String(filterText||'').trim().toLowerCase();
     var htmlRows = [];
+    var hayCoincidenciaExacta = false;
     _avancesCatalogo.forEach(function(it, idx){
       if(f && it.actividad.toLowerCase().indexOf(f)===-1) return;
+      if(f && it.actividad.toLowerCase()===f) hayCoincidenciaExacta = true;
       var sel = _avancePickerSel && _avancePickerSel.idx===idx;
       var pad = 12 + Math.min(it.level||0, 6)*16;
       htmlRows.push('<div class="avance-picker-item'+(sel?' is-selected':'')+'" style="padding-left:'+pad+'px;" data-idx="'+idx+'">'+escapeHtml(it.actividad)+'</div>');
     });
+    // Texto que no coincide exacto con ninguna fila del catálogo: se ofrece
+    // como actividad adicional, seleccionable igual que una fila normal.
+    var textoOriginal = String(filterText||'').trim();
+    if(textoOriginal && !hayCoincidenciaExacta){
+      var sel = _avancePickerSel && _avancePickerSel.idx===-1;
+      htmlRows.push('<div class="avance-picker-item avance-picker-freetext'+(sel?' is-selected':'')+'" data-idx="-1">➕ Agregar "'+escapeHtml(textoOriginal)+'" como actividad adicional</div>');
+    }
     if(!htmlRows.length) return '<div class="avance-picker-empty">Sin coincidencias.</div>';
     return htmlRows.join('');
   }
@@ -872,7 +899,7 @@
     var btnSave = document.getElementById('btnSaveAvance');
     if(!chip) return;
     if(_avancePickerSel){
-      chip.innerHTML = '<div class="avance-selected-chip"><span>'+escapeHtml(_avancePickerSel.actividad)+'</span><button type="button" id="btnClearAvancePick">Cambiar</button></div>';
+      chip.innerHTML = '<div class="avance-selected-chip">'+origenBadge(_avancePickerSel.origen)+'<span>'+escapeHtml(_avancePickerSel.actividad)+'</span><button type="button" id="btnClearAvancePick">Cambiar</button></div>';
       var clearBtn = document.getElementById('btnClearAvancePick');
       if(clearBtn) clearBtn.addEventListener('click', function(){ _avancePickerSel=null; refreshSelectedChip(); document.getElementById('avancePickerList').innerHTML = renderPickerList(document.getElementById('avancePickerSearch').value); });
     } else {
@@ -951,9 +978,19 @@
       var el = e.target.closest('.avance-picker-item');
       if(!el) return;
       var idx = parseInt(el.getAttribute('data-idx'), 10);
+      if(idx===-1){
+        // Actividad adicional (texto libre) — no viene del catálogo, así
+        // que no hay Fecha/Asignado/%avance que autocompletar.
+        var texto = search.value.trim();
+        if(!texto) return;
+        _avancePickerSel = { idx: -1, actividad: texto, origen: 'adicional' };
+        refreshSelectedChip();
+        list.innerHTML = renderPickerList(search.value);
+        return;
+      }
       var it = _avancesCatalogo[idx];
       if(!it) return;
-      _avancePickerSel = { idx: idx, actividad: it.actividad };
+      _avancePickerSel = { idx: idx, actividad: it.actividad, origen: 'plan' };
       // Autocompleta desde el plan (Fecha fin=col K, Responsable=col M,
       // % Progreso=col H) — quedan editables por si hace falta ajustarlas.
       document.getElementById('avanceFecha').value = it.fin || '';
@@ -976,6 +1013,7 @@
       var payload = {
         action: 'add_avance',
         actividad: _avancePickerSel.actividad,
+        origen: _avancePickerSel.origen || 'plan',
         fecha_planeada: fechaVal,
         asignado_a: document.getElementById('avanceAsignado').value,
         estatus: document.getElementById('avanceEstatus').value,
@@ -1123,19 +1161,20 @@
     var rowsHtml = rows.length ? rows.map(function(r){
       var pct = parseInt(r.pct_avance)||0;
       return '<tr>'
+        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
         +'<td class="mono" style="font-family:\'Geist Mono\',monospace;color:var(--goes-gray-550);">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td>'+escapeHtml(r.asignado_a)+'</td>'
         +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
         +'<td class="avances-pct">'+pct+'%</td>'
         +'</tr>';
-    }).join('') : '<tr><td colspan="5" class="avances-empty">Sin actividades agregadas todavía.</td></tr>';
+    }).join('') : '<tr><td colspan="6" class="avances-empty">Sin actividades agregadas todavía.</td></tr>';
 
     var tableWrap = document.createElement('div');
     tableWrap.className = 'avances-wrap';
     tableWrap.style.width = 'max-content';
     tableWrap.innerHTML = '<table class="avances-table" style="font-size:17px;">'
-      +'<thead><tr><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th></tr></thead>'
+      +'<thead><tr><th></th><th>Actividades</th><th>Fecha Planeada</th><th>Asignado a</th><th>Estatus</th><th>% de Avance</th></tr></thead>'
       +'<tbody>'+rowsHtml+'</tbody></table>';
     wrap.appendChild(tableWrap);
 
