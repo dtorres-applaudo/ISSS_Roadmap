@@ -266,7 +266,7 @@
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
 .avances-origen-col{width:34px;text-align:center;}
-.origen-badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:12px;flex:none;}
+.origen-badge{display:inline-flex;align-items:center;justify-content:center;padding:0 8px;height:22px;line-height:1;border-radius:6px;font-size:12px;flex:none;box-sizing:border-box;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
 .origen-adicional{background:var(--amber-50);color:var(--amber-700);}
 /* Modal agregar actividad */
@@ -973,19 +973,35 @@
     if(btnCancel) btnCancel.addEventListener('click', closeAvanceModal);
     if(overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeAvanceModal(); });
 
+    // Actividad adicional (texto libre) — no viene del catálogo, así que no
+    // hay Fecha/Asignado/%avance que autocompletar. Se usa tanto al hacer
+    // clic en la fila "+ Agregar…" como al presionar Enter en el buscador.
+    function seleccionarTextoLibre(texto){
+      texto = String(texto||'').trim();
+      if(!texto) return;
+      _avancePickerSel = { idx: -1, actividad: texto, origen: 'adicional' };
+      refreshSelectedChip();
+      list.innerHTML = renderPickerList(search.value);
+    }
+
     if(search) search.addEventListener('input', function(){ list.innerHTML = renderPickerList(search.value); });
+    if(search) search.addEventListener('keydown', function(e){
+      if(e.key !== 'Enter') return;
+      e.preventDefault();
+      var texto = search.value.trim();
+      if(!texto) return;
+      // Si el texto coincide exacto con una fila del catálogo, Enter no hace
+      // nada especial — esa fila se elige haciendo clic, igual que siempre.
+      var coincidenciaExacta = _avancesCatalogo.some(function(it){ return it.actividad.toLowerCase()===texto.toLowerCase(); });
+      if(coincidenciaExacta) return;
+      seleccionarTextoLibre(texto);
+    });
     if(list) list.addEventListener('click', function(e){
       var el = e.target.closest('.avance-picker-item');
       if(!el) return;
       var idx = parseInt(el.getAttribute('data-idx'), 10);
       if(idx===-1){
-        // Actividad adicional (texto libre) — no viene del catálogo, así
-        // que no hay Fecha/Asignado/%avance que autocompletar.
-        var texto = search.value.trim();
-        if(!texto) return;
-        _avancePickerSel = { idx: -1, actividad: texto, origen: 'adicional' };
-        refreshSelectedChip();
-        list.innerHTML = renderPickerList(search.value);
+        seleccionarTextoLibre(search.value);
         return;
       }
       var it = _avancesCatalogo[idx];
