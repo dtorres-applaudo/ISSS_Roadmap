@@ -266,7 +266,7 @@
 .est-replanificado{background:var(--goes-gray-150);color:var(--goes-gray-450);}
 .est-atrasado{background:#FEE4E2;color:#B42318;}
 .avances-origen-col{width:34px;text-align:center;}
-.origen-badge{display:inline-flex;align-items:center;justify-content:center;padding:0 8px;height:22px;line-height:1;border-radius:6px;font-size:12px;flex:none;box-sizing:border-box;}
+.origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;line-height:1;border-radius:6px;font-size:11px;flex:none;overflow:hidden;}
 .origen-plan{background:var(--goes-gray-150);color:var(--goes-gray-550);}
 .origen-adicional{background:var(--amber-50);color:var(--amber-700);}
 /* Modal agregar actividad */
@@ -292,7 +292,7 @@
 .avance-picker-freetext.is-selected{color:#fff;}
 .avance-picker-empty{padding:14px;text-align:center;color:var(--goes-gray-450);font-size:12px;}
 .avance-selected-chip{display:flex;align-items:center;gap:8px;background:var(--goes-blue-150);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--goes-gray-900);margin-bottom:8px;}
-.avance-selected-chip span{flex:1;}
+.avance-selected-chip span:not(.origen-badge){flex:1;}
 .avance-selected-chip button{border:none;background:none;color:var(--goes-blue-700);font-size:11px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;}
 .avance-modal-footer{display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--goes-gray-150);background:var(--goes-gray-50);flex:none;}
 .avance-btn-cancel{font-family:'Geist',sans-serif;font-size:12.5px;font-weight:500;color:var(--goes-gray-550);background:none;border:1px solid var(--goes-gray-150);border-radius:8px;padding:9px 16px;cursor:pointer;}
