@@ -1,7 +1,13 @@
 // modules/roadmap.js — Portal ISSS-SYDT · data-driven desde /data/roadmap.json
+//
+// Nota: este archivo se carga también, tal cual, desde el resumen HTML
+// standalone que genera el botón "Generar resumen" (ver sección REPORTE al
+// final) — esa página no tiene #roadmap-mount, así que el bloque de
+// fetch+render automático de abajo queda condicionado a que exista, pero el
+// resto del módulo (CSS, funciones de render, RM_RENDER_REPORT_FROM_DATA)
+// se define siempre, sin depender de #roadmap-mount.
 (function(){
   var mount = document.getElementById('roadmap-mount');
-  if(!mount) return;
 
   // Mismo endpoint de Apps Script que ya usa Seguimiento — hoja nueva
   // "avances_actividades" (lectura vía ?sheet=, escritura vía doPost).
@@ -328,6 +334,81 @@
 .avance-btn-save{font-family:'Geist',sans-serif;font-size:12.5px;font-weight:600;color:#fff;background:var(--goes-blue-700);border:none;border-radius:8px;padding:9px 18px;cursor:pointer;}
 .avance-btn-save:disabled{opacity:.5;cursor:not-allowed;}
 .avance-err{color:#B42318;font-size:12px;margin-top:8px;}
+
+/* ── Botón "Generar resumen" + modal (HTML interactivo / PDF) ────────────────── */
+.roadmap-topbar{display:flex;justify-content:flex-end;margin-bottom:14px;}
+.rm-btn-report{flex:none;background:var(--goes-blue-700);color:#fff;border:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.rm-btn-report:hover{background:var(--goes-blue-800);}
+.rm-btn-secondary{background:var(--white);color:var(--goes-gray-700);border:1px solid var(--goes-gray-150);border-radius:10px;padding:10px 18px;font-size:13px;font-weight:600;font-family:'Geist',sans-serif;cursor:pointer;}
+.rm-btn-secondary:hover{border-color:var(--goes-gray-350);}
+.rm-modal-overlay{position:fixed;inset:0;background:rgba(11,31,58,.45);display:none;align-items:center;justify-content:center;z-index:200;padding:20px;}
+.rm-modal-overlay.rm-modal-open{display:flex;}
+.rm-modal{background:var(--white);border-radius:16px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.25);overflow:hidden;}
+.rm-modal-head{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--goes-gray-150);}
+.rm-modal-title{font-size:15px;font-weight:700;color:var(--goes-gray-900);}
+.rm-modal-close{background:none;border:none;font-size:16px;color:var(--goes-gray-450);cursor:pointer;line-height:1;padding:4px;}
+.rm-modal-close:hover{color:var(--goes-gray-900);}
+.rm-modal-body{padding:20px 22px;}
+.rm-modal-foot{display:flex;justify-content:flex-end;gap:10px;padding:16px 22px;border-top:1px solid var(--goes-gray-150);}
+.rm-report-options{display:flex;flex-direction:column;gap:10px;}
+.rm-report-opt{display:flex;align-items:center;gap:12px;text-align:left;width:100%;border:1.5px solid var(--goes-gray-150);border-radius:12px;padding:12px 14px;background:var(--white);cursor:pointer;transition:all .15s;font-family:'Geist',sans-serif;}
+.rm-report-opt:hover{border-color:var(--goes-blue-500);}
+.rm-report-opt.active{border-color:var(--goes-blue-700);background:var(--goes-blue-150);}
+.rm-report-opt-radio{flex:none;width:16px;height:16px;border-radius:50%;border:1.5px solid var(--goes-gray-350);position:relative;}
+.rm-report-opt.active .rm-report-opt-radio{border-color:var(--goes-blue-700);}
+.rm-report-opt.active .rm-report-opt-radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--goes-blue-700);}
+.rm-report-opt-title{font-size:13px;font-weight:600;color:var(--goes-gray-900);}
+.rm-report-status{display:flex;align-items:center;gap:10px;color:var(--goes-gray-550);font-size:13px;padding:8px 0;}
+.rm-spinner{width:18px;height:18px;border-radius:50%;border:2px solid var(--goes-gray-350);border-top-color:var(--goes-blue-700);animation:rm-spin .7s linear infinite;}
+@keyframes rm-spin{to{transform:rotate(360deg);}}
+.rm-report-error{background:#FEF2F2;border:1px solid #FECDCA;border-radius:10px;color:#B42318;font-size:13px;padding:12px 16px;}
+.rm-report-ok{color:#16A34A;font-size:13px;font-weight:600;padding:8px 0;}
+
+/* ── Carrusel del resumen (HTML interactivo exportado) ─────────────────────────
+   #E4E8EC es el mismo gris de fondo de página que usa el resto del portal
+   (--bg / --gg-150 en index.html, que roadmap.js no puede referenciar porque
+   el resumen standalone no carga index.html) — así las tarjetas (blancas o
+   var(--goes-gray-50), más claras) contrastan contra el fondo en vez de
+   fundirse con él (a pedido de Darío, 2026-09-22). Toda la tipografía del
+   resumen se fuerza a Nunito (cargada por Google Fonts en el <head> del HTML
+   exportado) para que sea consistente en las 3 slides, incluidas las
+   etiquetas que en la web app usan Geist Mono. */
+.rm-report-carousel, .rm-report-carousel *,
+#rm-report-print-root, #rm-report-print-root *{font-family:'Nunito',sans-serif !important;}
+.rm-report-carousel{position:relative;height:100vh;background:#E4E8EC;overflow:hidden;}
+.rm-slide{display:none;height:100%;}
+.rm-slide.active{display:block;}
+.rm-slide-inner{height:100%;box-sizing:border-box;padding:60px 28px 64px;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
+.rm-slide-fit{width:100%;max-width:1180px;transform-origin:top center;}
+/* Red de seguridad: en pantallas muy angostas, si aun así la tabla de
+   avances no entra ni escalada, que sea desplazable en vez de recortarse
+   sin poder verse (la tabla editable del roadmap en vivo no se toca, esto
+   solo aplica dentro del resumen). Un padding de celda más chico reduce
+   el ancho mínimo que la tabla necesita, así hace falta escalar menos. */
+.rm-slide-fit .avances-wrap{overflow-x:auto;}
+.rm-slide-fit .avances-table td, .rm-slide-fit .avances-table th{padding:8px 10px;}
+.rm-slide-counter{position:fixed;top:18px;left:50%;transform:translateX(-50%);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--goes-gray-550);background:var(--white);border:1px solid var(--goes-gray-150);border-radius:999px;padding:6px 16px;z-index:20;box-shadow:0 2px 8px rgba(0,0,0,.06);white-space:nowrap;}
+.rm-slide-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:var(--white);border:1px solid var(--goes-gray-150);box-shadow:0 4px 14px rgba(0,0,0,.1);cursor:pointer;font-size:20px;color:var(--goes-blue-700);display:flex;align-items:center;justify-content:center;z-index:20;}
+.rm-slide-nav:hover{background:var(--goes-gray-50);}
+.rm-slide-nav:disabled{opacity:.3;cursor:not-allowed;}
+.rm-slide-prev{left:20px;}
+.rm-slide-next{right:20px;}
+.rm-slide-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:20;}
+.rm-dot{width:8px;height:8px;padding:0;border-radius:999px;background:var(--goes-gray-350);border:none;cursor:pointer;transition:width .15s,background .15s;}
+.rm-dot.active{background:var(--goes-blue-700);width:22px;}
+
+/* ── Reporte PDF: 3 slides apiladas, una por página ───────────────────────────── */
+#rm-report-print-root{display:none;}
+@media print{
+  body > *:not(#rm-report-print-root){display:none !important;}
+  html, body{height:auto !important;overflow:visible !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  #rm-report-print-root{display:block !important;}
+  .rm-print-slide{page-break-after:always;min-height:100vh;box-sizing:border-box;background:#E4E8EC;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .rm-print-slide:last-child{page-break-after:auto;}
+  .rm-print-slide-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--goes-gray-450);padding:0 24px;margin-top:16px;}
+  .rm-print-slide-inner{padding:16px 24px 24px;box-sizing:border-box;}
+  @page{ size:landscape; margin:12mm; }
+}
 `;
   document.head.appendChild(style);
 
@@ -353,26 +434,32 @@
   }
 
   // ── Fetch JSON ────────────────────────────────────────────────────────────────
-  var cachedRoadmap = lsGetRoadmap();
-  if (cachedRoadmap) {
-    // Diferido un tick: acá arriba todavía no corrieron los "var" de más abajo
-    // (MESES_CORTO, etc.) — llamar render() en el mismo turno síncrono revienta
-    // por hoisting. Un microtask alcanza y sigue siendo imperceptible.
-    Promise.resolve().then(function(){ render(cachedRoadmap); });
-    fetchRoadmapNetwork(function(err, fresh){
-      if (err) return; // revalidación silenciosa: si falla, se queda con lo último bueno
-      if (JSON.stringify(fresh) !== JSON.stringify(cachedRoadmap)) {
-        lsSetRoadmap(fresh);
-        render(fresh);
-      }
-    });
-  } else {
-    mount.innerHTML = '<div style="padding:32px;text-align:center;color:#7C8896;font-size:13px;font-family:Geist,sans-serif;">Cargando datos del roadmap…</div>';
-    fetchRoadmapNetwork(function(err, data){
-      if (err) { mount.innerHTML = '<div style="padding:24px;color:#DC2626;font-size:13px;">Error al cargar datos del roadmap: '+err.message+'</div>'; return; }
-      lsSetRoadmap(data);
-      render(data);
-    });
+  // Guardado con "if(mount)": en el resumen HTML standalone (ver RM_RENDER_
+  // REPORT_FROM_DATA al final) no existe #roadmap-mount, y ese fetch+render
+  // automático no debe correr ahí — el resumen se pinta con los datos ya
+  // embebidos, no volviendo a pedirlos por red.
+  if (mount) {
+    var cachedRoadmap = lsGetRoadmap();
+    if (cachedRoadmap) {
+      // Diferido un tick: acá arriba todavía no corrieron los "var" de más abajo
+      // (MESES_CORTO, etc.) — llamar render() en el mismo turno síncrono revienta
+      // por hoisting. Un microtask alcanza y sigue siendo imperceptible.
+      Promise.resolve().then(function(){ render(cachedRoadmap); });
+      fetchRoadmapNetwork(function(err, fresh){
+        if (err) return; // revalidación silenciosa: si falla, se queda con lo último bueno
+        if (JSON.stringify(fresh) !== JSON.stringify(cachedRoadmap)) {
+          lsSetRoadmap(fresh);
+          render(fresh);
+        }
+      });
+    } else {
+      mount.innerHTML = '<div style="padding:32px;text-align:center;color:#7C8896;font-size:13px;font-family:Geist,sans-serif;">Cargando datos del roadmap…</div>';
+      fetchRoadmapNetwork(function(err, data){
+        if (err) { mount.innerHTML = '<div style="padding:24px;color:#DC2626;font-size:13px;">Error al cargar datos del roadmap: '+err.message+'</div>'; return; }
+        lsSetRoadmap(data);
+        render(data);
+      });
+    }
   }
 
   // ── Helpers de fecha y gantt ──────────────────────────────────────────────────
@@ -598,7 +685,8 @@
     { paquete:'P1', no:26, nombre:'Emisión de constancias de no cotizantes' }
   ];
 
-  function renderCatalogoTramites(paquetes){
+  function renderCatalogoTramites(paquetes, opts){
+    opts = opts || {};
     var nombrePorPaquete = {};
     (paquetes||[]).forEach(function(p){ nombrePorPaquete[p.id] = p.nombre; });
 
@@ -628,7 +716,7 @@
     }).join('');
 
     return '<div class="section" style="padding-top:0;">'
-      +'<details class="rm-collapsible">'
+      +'<details class="rm-collapsible"'+(opts.forceOpen?' open':'')+'>'
         +'<summary>Catálogo de trámites por paquete ('+totalCount+')</summary>'
         +'<div class="rm-collapsible-body">'
           +'<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div></div></div>'
@@ -1433,6 +1521,387 @@
     });
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // REPORTE — botón "Generar resumen" → modal (HTML interactivo / PDF)
+  // ══════════════════════════════════════════════════════════════
+  // Último dato de /data/roadmap.json usado para pintar la página — es lo
+  // que alimenta el resumen HTML/PDF (ver construirReporteHTMLStandalone).
+  var _lastRoadmapData = null;
+
+  var REPORT_SLIDE_TITULOS = ['Resumen general', 'Avances de actividades', 'Trámites por paquete'];
+
+  // Expuesta globalmente: el resumen HTML exportado carga este mismo archivo
+  // (modules/roadmap.js) desde el portal y la usa para renderizarse con los
+  // datos embebidos, en vez de volver a pedirlos por red. Así el resumen usa
+  // exactamente el mismo código (tarjetas, tabla, catálogo) que la web app.
+  window.RM_RENDER_REPORT_FROM_DATA = function(mountEl, data){
+    data = data || {};
+    mountEl.innerHTML = renderReportCarousel(data.meta||{}, data.paquetes||[], data.avances||[]);
+    initReportCarousel(mountEl);
+  };
+
+  function avancesSnapshotParaReporte(){
+    return getSortedAvances().map(function(r){
+      return {
+        actividad: r.actividad, asignado_a: r.asignado_a, prioridad: r.prioridad,
+        fecha_planeada: r.fecha_planeada, estatus: r.estatus, pct_avance: r.pct_avance,
+        origen: r.origen
+      };
+    });
+  }
+
+  // Tabla de Avances de actividades de solo lectura — mismas columnas y
+  // badges que la tabla editable, sin reordenar/editar/eliminar ni el
+  // botón "+ Agregar actividad" (a pedido de Darío, 2026-09-22: el resumen
+  // es para compartir, no para editar).
+  function renderAvancesRowsReadOnly(rows){
+    if(!rows || !rows.length) return '<tr><td colspan="7" class="avances-empty">Sin actividades registradas.</td></tr>';
+    return rows.map(function(r){
+      var pct = parseInt(r.pct_avance)||0;
+      return '<tr>'
+        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
+        +'<td>'+escapeHtml(r.actividad)+'</td>'
+        +'<td>'+escapeHtml(r.asignado_a)+'</td>'
+        +'<td><span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span></td>'
+        +'<td style="font-family:\'Geist Mono\',monospace;font-size:12px;color:var(--goes-gray-550);">'+fmtLong(r.fecha_planeada)+'</td>'
+        +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
+        +'<td class="avances-pct">'+pct+'%</td>'
+      +'</tr>';
+    }).join('');
+  }
+
+  // Contenido de las 3 slides — compartido entre el HTML interactivo
+  // (carrusel) y el PDF (apiladas con salto de página), reutilizando
+  // exactamente los mismos render que usa la web app.
+  function buildReportSlides(meta, paquetes, avancesRows){
+    var slide1 = renderMetaBar(meta) + renderResumen(paquetes);
+    var slide2 = '<div class="section" style="padding-top:0;">'
+      +'<div class="section-h">Avances de actividades</div>'
+      +'<div class="avances-wrap">'
+        +'<table class="avances-table">'
+          +'<thead><tr><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th></tr></thead>'
+          +'<tbody>'+renderAvancesRowsReadOnly(avancesRows)+'</tbody>'
+        +'</table>'
+      +'</div>'
+    +'</div>';
+    var slide3 = renderCatalogoTramites(paquetes, {forceOpen:true});
+    return [slide1, slide2, slide3];
+  }
+
+  function renderReportCarousel(meta, paquetes, avancesRows){
+    var slides = buildReportSlides(meta, paquetes, avancesRows);
+    var slidesHtml = slides.map(function(html, i){
+      return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="rm-slide-fit">'+html+'</div></div></div>';
+    }).join('');
+    var dots = slides.map(function(_, i){
+      return '<button type="button" class="rm-dot'+(i===0?' active':'')+'" data-goto="'+i+'" aria-label="Ir a: '+REPORT_SLIDE_TITULOS[i]+'"></button>';
+    }).join('');
+    return '<div class="rm-report-carousel">'
+      +'<div class="rm-slide-counter"><span class="rm-slide-counter-cur">1</span> / '+slides.length+' · <span class="rm-slide-counter-title">'+REPORT_SLIDE_TITULOS[0]+'</span></div>'
+      + slidesHtml
+      +'<button class="rm-slide-nav rm-slide-prev" type="button" aria-label="Slide anterior" disabled>‹</button>'
+      +'<button class="rm-slide-nav rm-slide-next" type="button" aria-label="Slide siguiente">›</button>'
+      +'<div class="rm-slide-dots">'+dots+'</div>'
+    +'</div>';
+  }
+
+  // Ajusta el tamaño de una slide a la pantalla donde se está presentando:
+  // mide el alto/ancho natural de su contenido (.rm-slide-fit) contra el
+  // espacio disponible y, si no entra, lo achica con transform:scale (nunca
+  // lo agranda) — así se ve completo sin scroll en cualquier pantalla, como
+  // una slide real (a pedido de Darío, 2026-09-22).
+  function fitSlide(slideEl){
+    if(!slideEl) return;
+    var inner = slideEl.querySelector('.rm-slide-inner');
+    var fit = slideEl.querySelector('.rm-slide-fit');
+    if(!inner || !fit) return;
+    fit.style.transform = 'none';
+    var availH = inner.clientHeight;
+    var availW = inner.clientWidth;
+    // Contenedores internos con overflow:hidden (p.ej. .avances-wrap, para
+    // redondear la tabla) esconden de scrollWidth el ancho real que la
+    // tabla necesita — se destapan un instante para medir el tamaño
+    // natural completo y se restauran enseguida (a pedido de Darío,
+    // 2026-09-22: antes esa parte se recortaba en vez de achicarse).
+    var clipped = fit.querySelectorAll('*');
+    var restore = [];
+    for(var i=0;i<clipped.length;i++){
+      var el = clipped[i];
+      var cs = getComputedStyle(el);
+      if(cs.overflowX==='hidden' || cs.overflow==='hidden'){
+        restore.push([el, el.style.overflow, el.style.overflowX]);
+        el.style.overflow = 'visible';
+        el.style.overflowX = 'visible';
+      }
+    }
+    var naturalH = fit.scrollHeight;
+    var naturalW = fit.scrollWidth;
+    restore.forEach(function(r){ r[0].style.overflow = r[1]; r[0].style.overflowX = r[2]; });
+    if(!availH || !naturalH) return;
+    var scale = Math.min(availH/naturalH, availW/naturalW, 1);
+    if(scale < 0.999){
+      fit.style.transform = 'scale('+scale+')';
+    }
+  }
+
+  // Navegación del carrusel: flechas, puntos y flechas de teclado. Cada
+  // slide se reescala (fitSlide) al mostrarla y al cambiar el tamaño de
+  // ventana, para que quede ajustada a la pantalla donde se presenta.
+  function initReportCarousel(root){
+    var slides = root.querySelectorAll('.rm-slide');
+    var dots   = root.querySelectorAll('.rm-dot');
+    var prevBtn = root.querySelector('.rm-slide-prev');
+    var nextBtn = root.querySelector('.rm-slide-next');
+    var counterCur = root.querySelector('.rm-slide-counter-cur');
+    var counterTitle = root.querySelector('.rm-slide-counter-title');
+    var idx = 0;
+    function show(i){
+      idx = Math.max(0, Math.min(slides.length-1, i));
+      slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
+      dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
+      if(prevBtn) prevBtn.disabled = idx===0;
+      if(nextBtn) nextBtn.disabled = idx===slides.length-1;
+      if(counterCur) counterCur.textContent = idx+1;
+      if(counterTitle) counterTitle.textContent = REPORT_SLIDE_TITULOS[idx]||'';
+      requestAnimationFrame(function(){ fitSlide(slides[idx]); });
+    }
+    if(prevBtn) prevBtn.addEventListener('click', function(){ show(idx-1); });
+    if(nextBtn) nextBtn.addEventListener('click', function(){ show(idx+1); });
+    dots.forEach(function(d,j){ d.addEventListener('click', function(){ show(j); }); });
+    document.addEventListener('keydown', function(e){
+      if(!document.body.contains(root)) return;
+      if(e.key==='ArrowRight') show(idx+1);
+      if(e.key==='ArrowLeft') show(idx-1);
+    });
+    window.addEventListener('resize', function(){ fitSlide(slides[idx]); });
+    show(0);
+  }
+
+  // Fuente de este mismo archivo (roadmap.js), pedida una sola vez y
+  // cacheada — se embebe tal cual en el resumen HTML (ver más abajo) en vez
+  // de referenciarla con <script src>. Un <script src> con URL absoluta
+  // (location.origin + '/modules/roadmap.js') solo funciona si el resumen
+  // se sigue sirviendo desde el portal; abierto como archivo local
+  // (file://, que es como termina abriéndose casi siempre un HTML
+  // descargado) location.origin es inválido y el script nunca carga, dejando
+  // "Cargando resumen…" para siempre. Embebido, el resumen es 100%
+  // autocontenido (a pedido de Darío, 2026-09-22 — bug reportado).
+  var _roadmapScriptSourceCache = null;
+  function fetchRoadmapScriptSource(cb){
+    if(_roadmapScriptSourceCache){ cb(_roadmapScriptSourceCache); return; }
+    fetch('/modules/roadmap.js?v=' + Date.now())
+      .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); })
+      .then(function(txt){ _roadmapScriptSourceCache = txt; cb(txt); })
+      .catch(function(){ cb(null); });
+  }
+
+  function construirReporteHTMLStandalone(scriptSource){
+    if(!_lastRoadmapData) return null;
+    var payload = { meta:_lastRoadmapData.meta, paquetes:_lastRoadmapData.paquetes, avances:avancesSnapshotParaReporte() };
+    // Escapar "<" evita que un nombre de trámite/actividad con literalmente
+    // "</script>" cierre el bloque de datos antes de tiempo — JSON.parse lo
+    // revierte igual.
+    var dataJson = JSON.stringify(payload).replace(/</g,'\\u003c');
+    // Mismo motivo para el código fuente embebido: si en algún momento
+    // aparece literalmente "</script" adentro (comentario, string), cerraría
+    // el bloque antes de tiempo. Al navegador no le importa que esté dentro
+    // de un string JS — solo busca la secuencia de caracteres.
+    var scriptSafe = String(scriptSource||'').replace(/<\/script/gi, '<\\/script');
+    var generadoTs = new Date().toLocaleString('es-SV', {dateStyle:'medium', timeStyle:'short'});
+    return '<!doctype html>'
+      +'<html lang="es"><head><meta charset="utf-8">'
+      +'<meta name="viewport" content="width=device-width, initial-scale=1">'
+      +'<title>Resumen de Roadmap — ISSS-SYDT</title>'
+      +'<meta name="generado" content="'+generadoTs+'">'
+      +'<link rel="preconnect" href="https://fonts.googleapis.com">'
+      +'<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>'
+      +'<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">'
+      +'<style>html,body{margin:0;height:100%;background:#E4E8EC;font-family:\'Nunito\',sans-serif;}</style>'
+      +'</head><body>'
+      +'<div id="roadmap-report-mount"><div style="padding:80px 24px;text-align:center;color:#7C8896;font-family:\'Nunito\',sans-serif;font-size:13px;">Cargando resumen…</div></div>'
+      +'<script type="application/json" id="rm-report-data">'+dataJson+'<\/script>'
+      +'<script>'+scriptSafe+'<\/script>'
+      +'<script>'
+        +'document.addEventListener("DOMContentLoaded",function(){'
+          +'(function tryRender(){'
+            +'if(typeof RM_RENDER_REPORT_FROM_DATA!=="function"){ setTimeout(tryRender,150); return; }'
+            +'var data=JSON.parse(document.getElementById("rm-report-data").textContent);'
+            +'RM_RENDER_REPORT_FROM_DATA(document.getElementById("roadmap-report-mount"), data);'
+          +'})();'
+        +'});'
+      +'<\/script>'
+      +'</body></html>';
+  }
+
+  function descargarTextoComoArchivo(nombre, contenido, mime){
+    var blob = new Blob([contenido], {type: mime});
+    var url = URL.createObjectURL(blob);
+    downloadFile(url, nombre);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+  }
+
+  // PDF = las 3 slides apiladas con salto de página, impresas por el
+  // navegador (Guardar como PDF) — "información plana" a pedido de Darío
+  // (2026-09-22), sin el carrusel ni la navegación interactiva.
+  function renderReportPrintStack(meta, paquetes, avancesRows){
+    var slides = buildReportSlides(meta, paquetes, avancesRows);
+    return '<div id="rm-report-print-root">'
+      + slides.map(function(html, i){
+          return '<div class="rm-print-slide">'
+            +'<div class="rm-print-slide-label">Resumen de Roadmap — ISSS-SYDT · Slide '+(i+1)+'/'+slides.length+' · '+REPORT_SLIDE_TITULOS[i]+'</div>'
+            +'<div class="rm-print-slide-inner">'+html+'</div>'
+          +'</div>';
+        }).join('')
+    +'</div>';
+  }
+
+  // El PDF se imprime dentro de la página viva del portal (que usa Geist,
+  // no Nunito) — hay que cargar Nunito ahí antes de imprimir para que el
+  // PDF salga con la misma tipografía que el resumen HTML.
+  function ensureNunitoFontLoaded(){
+    if(document.getElementById('rm-nunito-font')) return;
+    var pre1 = document.createElement('link'); pre1.rel='preconnect'; pre1.href='https://fonts.googleapis.com';
+    var pre2 = document.createElement('link'); pre2.rel='preconnect'; pre2.href='https://fonts.gstatic.com'; pre2.crossOrigin='anonymous';
+    var sheet = document.createElement('link'); sheet.id='rm-nunito-font'; sheet.rel='stylesheet';
+    sheet.href='https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap';
+    document.head.appendChild(pre1);
+    document.head.appendChild(pre2);
+    document.head.appendChild(sheet);
+  }
+
+  function generarReportePDF(){
+    if(!_lastRoadmapData) return false;
+    ensureNunitoFontLoaded();
+    var existente = document.getElementById('rm-report-print-root');
+    if(existente) existente.parentNode.removeChild(existente);
+    var wrap = document.createElement('div');
+    wrap.innerHTML = renderReportPrintStack(_lastRoadmapData.meta, _lastRoadmapData.paquetes, avancesSnapshotParaReporte());
+    document.body.appendChild(wrap.firstChild);
+    var tituloOriginal = document.title;
+    document.title = 'Resumen Roadmap ISSS-SYDT ' + new Date().toISOString().slice(0,10);
+    function limpiar(){
+      var root = document.getElementById('rm-report-print-root');
+      if(root && root.parentNode) root.parentNode.removeChild(root);
+      document.title = tituloOriginal;
+      window.removeEventListener('afterprint', limpiar);
+    }
+    window.addEventListener('afterprint', limpiar);
+    // document.fonts.ready espera a que Nunito (recién solicitada arriba)
+    // termine de cargar antes de abrir el diálogo de impresión — si no,
+    // la primera vez el PDF podría salir con la tipografía de respaldo.
+    var esperarFuente = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    Promise.race([esperarFuente, new Promise(function(r){ setTimeout(r, 800); })]).then(function(){
+      window.print();
+    });
+    return true;
+  }
+
+  function mountReportModal(){
+    var btn = document.getElementById('rm-btn-generar-resumen');
+    if(!btn) return;
+
+    var overlay = document.getElementById('rm-report-overlay');
+    if(!overlay){
+      overlay = document.createElement('div');
+      overlay.className = 'rm-modal-overlay';
+      overlay.id = 'rm-report-overlay';
+      overlay.innerHTML =
+        '<div class="rm-modal">'
+          +'<div class="rm-modal-head"><div class="rm-modal-title">Generar resumen</div><button class="rm-modal-close" id="rm-report-close" aria-label="Cerrar">✕</button></div>'
+          +'<div class="rm-modal-body" id="rm-report-body">'
+            +'<div class="rm-report-options">'
+              +'<button type="button" class="rm-report-opt active" data-fmt="html">'
+                +'<span class="rm-report-opt-radio"></span>'
+                +'<span class="rm-report-opt-title">HTML interactivo</span>'
+              +'</button>'
+              +'<button type="button" class="rm-report-opt" data-fmt="pdf">'
+                +'<span class="rm-report-opt-radio"></span>'
+                +'<span class="rm-report-opt-title">PDF</span>'
+              +'</button>'
+            +'</div>'
+          +'</div>'
+          +'<div class="rm-modal-foot" id="rm-report-foot">'
+            +'<button class="rm-btn-secondary" id="rm-report-cancel">Cancelar</button>'
+            +'<button class="rm-btn-report" id="rm-report-generar">Generar</button>'
+          +'</div>'
+        +'</div>';
+      document.body.appendChild(overlay);
+
+      var body = overlay.querySelector('#rm-report-body');
+      var foot = overlay.querySelector('#rm-report-foot');
+      var bodyHTMLOriginal = body.innerHTML;
+      var footHTMLOriginal = foot.innerHTML;
+      var fmtSeleccionado = 'html';
+
+      function wireOpciones(){
+        body.querySelectorAll('.rm-report-opt').forEach(function(opt){
+          opt.addEventListener('click', function(){
+            body.querySelectorAll('.rm-report-opt').forEach(function(o){ o.classList.remove('active'); });
+            opt.classList.add('active');
+            fmtSeleccionado = opt.dataset.fmt;
+          });
+        });
+      }
+      function wireFoot(){
+        var cancelBtn = foot.querySelector('#rm-report-cancel');
+        var generarBtn = foot.querySelector('#rm-report-generar');
+        if(cancelBtn) cancelBtn.addEventListener('click', cerrar);
+        if(generarBtn) generarBtn.addEventListener('click', generar);
+      }
+      function generar(){
+        if(!_lastRoadmapData){
+          body.innerHTML = '<div class="rm-report-error">Todavía se está cargando el Roadmap. Esperá unos segundos e intentá de nuevo.</div>';
+          foot.innerHTML = '<button class="rm-btn-secondary" id="rm-report-cancel">Cerrar</button>';
+          wireFoot();
+          return;
+        }
+        body.innerHTML = '<div class="rm-report-status"><div class="rm-spinner"></div>Generando resumen…</div>';
+        foot.innerHTML = '';
+        // setTimeout deja pintar el spinner antes del trabajo síncrono (el
+        // print() bloquea hasta cerrar el diálogo).
+        setTimeout(function(){
+          if(fmtSeleccionado==='pdf'){
+            generarReportePDF();
+            cerrar();
+            return;
+          }
+          fetchRoadmapScriptSource(function(src){
+            if(!src){
+              body.innerHTML = '<div class="rm-report-error">No se pudo generar el resumen. Intentá de nuevo.</div>';
+              foot.innerHTML = '<button class="rm-btn-secondary" id="rm-report-cancel">Cerrar</button>';
+              wireFoot();
+              return;
+            }
+            var html = construirReporteHTMLStandalone(src);
+            var fecha = new Date().toISOString().slice(0,10);
+            descargarTextoComoArchivo('resumen-roadmap-isss-sydt-'+fecha+'.html', html, 'text/html;charset=utf-8');
+            body.innerHTML = '<div class="rm-report-ok">✓ Resumen descargado.</div>';
+            setTimeout(cerrar, 900);
+          });
+        }, 50);
+      }
+
+      var abrir = function(){
+        body.innerHTML = bodyHTMLOriginal;
+        foot.innerHTML = footHTMLOriginal;
+        fmtSeleccionado = 'html';
+        wireOpciones();
+        wireFoot();
+        overlay.classList.add('rm-modal-open');
+      };
+      var cerrar = function(){ overlay.classList.remove('rm-modal-open'); };
+
+      overlay.querySelector('#rm-report-close').addEventListener('click', cerrar);
+      overlay.addEventListener('click', function(e){ if(e.target===overlay) cerrar(); });
+      overlay._rmAbrir = abrir;
+    }
+
+    // El botón se recrea en cada render() (mount.innerHTML se reemplaza
+    // entero), así que solo hace falta re-enlazar el click al abrir()
+    // persistido en el overlay — el modal en sí se crea una sola vez.
+    btn.addEventListener('click', overlay._rmAbrir);
+  }
+
   // ── Render principal ──────────────────────────────────────────────────────────
   function render(data){
     var axisStart = parseDate(data.meta.gantt_inicio);
@@ -1440,7 +1909,8 @@
     var totalDays = (axisEnd - axisStart) / 86400000;
 
     mount.innerHTML =
-      renderMetaBar(data.meta)
+      '<div class="roadmap-topbar"><button class="rm-btn-report" id="rm-btn-generar-resumen" type="button">Generar resumen</button></div>'
+      + renderMetaBar(data.meta)
       + renderResumen(data.paquetes)
       + renderGanttSection(data.meta, data.paquetes, axisStart, totalDays)
       + renderAvancesSection()
@@ -1452,10 +1922,12 @@
           +'<div class="mono">Plan actualizado: '+data.meta.actualizado+'</div>'
         +'</div>';
 
+    _lastRoadmapData = data;
     bindTabs();
     bindModal();
     bindGanttScrollSync();
     initAvances();
+    mountReportModal();
     // Asegura que el layout ya está resuelto (ancho real del contenedor) antes de
     // calcular los px de la franja de fechas y la línea de hoy. rAF cubre el caso
     // normal; el setTimeout es respaldo si el tab no está pintando activamente.
