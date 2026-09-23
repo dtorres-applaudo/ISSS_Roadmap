@@ -4,13 +4,13 @@
     "horizonte": "Abr – Dic 2026",
     "metodologia": "Scrum · sprints de 2 semanas",
     "paquetes_count": 3,
-    "spi_global": 0.85,
-    "progreso_global": 75,
-    "liberacion_final": "2026-11-05",
+    "spi_global": 0.86,
+    "progreso_global": 76,
+    "liberacion_final": "2026-11-17",
     "gantt_inicio": "2026-04-01",
-    "gantt_fin": "2026-12-09",
+    "gantt_fin": "2026-12-22",
     "progreso_planif": 89,
-    "actualizado": "2026-09-22"
+    "actualizado": "2026-09-23"
   },
   "paquetes": [
     {
@@ -138,9 +138,9 @@
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
       "estado": "En desarrollo",
       "badge_class": "badge-prog",
-      "liberacion": "2026-10-07",
-      "progreso": 62,
-      "spi": 0.62,
+      "liberacion": "2026-10-08",
+      "progreso": 68,
+      "spi": 0.68,
       "alcance": [
         "Modificación de información de patrono y derechohabiente",
         "Renovación de tarjetas",
@@ -186,8 +186,8 @@
         {
           "actividad": "Pruebas QAS Ambiente ISSS",
           "inicio": "2026-09-07",
-          "fin": "2026-09-25",
-          "progreso": 0
+          "fin": "2026-10-01",
+          "progreso": 59
         },
         {
           "actividad": "Pruebas DEV Ambiente ISSS",
@@ -204,19 +204,19 @@
         {
           "actividad": "Pruebas de Carga Paq 1 y 2",
           "inicio": "2026-09-21",
-          "fin": "2026-10-02",
+          "fin": "2026-10-08",
           "progreso": 0
         },
         {
           "actividad": "Ciberseguridad Paq 1 y 2",
-          "inicio": "2026-09-28",
-          "fin": "2026-10-07",
+          "inicio": "2026-10-01",
+          "fin": "2026-10-08",
           "progreso": 0
         },
         {
           "actividad": "Entrega completa del paquete",
-          "inicio": "2026-10-07",
-          "fin": "2026-10-07",
+          "inicio": "2026-10-08",
+          "fin": "2026-10-08",
           "tipo": "hito"
         }
       ],
@@ -260,7 +260,7 @@
           "tipo": "lib"
         }
       ],
-      "pie": "Entrega completa del paquete — 7 oct 2026",
+      "pie": "Entrega completa del paquete — 8 oct 2026",
       "progreso_planif": 100
     },
     {
@@ -269,7 +269,7 @@
       "nombre": "Inspecciones y Prestaciones Económicas",
       "estado": "En desarrollo",
       "badge_class": "badge-prog",
-      "liberacion": "2026-11-05",
+      "liberacion": "2026-11-13",
       "progreso": 0,
       "spi": null,
       "alcance": [
@@ -305,61 +305,61 @@
         {
           "actividad": "Desarollo",
           "inicio": "2026-08-31",
-          "fin": "2026-10-09",
-          "progreso": 0
-        },
-        {
-          "actividad": "Capacitación",
-          "inicio": "2026-10-19",
-          "fin": "2026-11-05",
+          "fin": "2026-10-21",
           "progreso": 0
         },
         {
           "actividad": "Entrega Paquete 3 -GOES",
-          "inicio": "2026-10-22",
-          "fin": "2026-10-22",
+          "inicio": "2026-10-29",
+          "fin": "2026-10-29",
           "progreso": 0
         },
         {
           "actividad": "Pruebas UAT- Ambiente QAS",
-          "inicio": "2026-10-22",
-          "fin": "2026-10-30",
+          "inicio": "2026-10-29",
+          "fin": "2026-11-12",
           "progreso": 0
         },
         {
           "actividad": "Liberación productivo",
-          "inicio": "2026-10-22",
-          "fin": "2026-10-29",
+          "inicio": "2026-10-29",
+          "fin": "2026-11-12",
           "progreso": 0
         },
         {
           "actividad": "Ciberseguridad",
-          "inicio": "2026-10-22",
-          "fin": "2026-10-29",
+          "inicio": "2026-10-29",
+          "fin": "2026-11-12",
           "progreso": 0
         },
         {
           "actividad": "Pruebas de carga",
-          "inicio": "2026-10-22",
-          "fin": "2026-10-22",
+          "inicio": "2026-10-29",
+          "fin": "2026-11-09",
+          "progreso": 0
+        },
+        {
+          "actividad": "Capacitación",
+          "inicio": "2026-11-02",
+          "fin": "2026-11-13",
           "progreso": 0
         },
         {
           "actividad": "Entrega completa del paquete",
-          "inicio": "2026-11-05",
-          "fin": "2026-11-05",
+          "inicio": "2026-11-13",
+          "fin": "2026-11-13",
           "tipo": "hito"
         },
         {
           "actividad": "GO LIVE",
-          "inicio": "2026-11-05",
-          "fin": "2026-11-05",
+          "inicio": "2026-11-17",
+          "fin": "2026-11-17",
           "tipo": "hito_final"
         },
         {
           "actividad": "Soporte Estabilización",
-          "inicio": "2026-11-05",
-          "fin": "2026-12-02",
+          "inicio": "2026-11-18",
+          "fin": "2026-12-15",
           "progreso": 0
         }
       ],
@@ -415,7 +415,7 @@
           "tipo": "lib"
         }
       ],
-      "pie": "Entrega completa del paquete — 5 nov 2026",
+      "pie": "Entrega completa del paquete — 13 nov 2026",
       "progreso_planif": 68
     }
   ],
