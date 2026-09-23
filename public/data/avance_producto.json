@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-09-22",
+    "actualizado": "2026-09-23",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -278,7 +278,7 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 400,
+      "tareas_construccion": 500,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
