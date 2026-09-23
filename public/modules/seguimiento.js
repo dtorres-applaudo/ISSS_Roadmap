@@ -389,7 +389,7 @@
    y por eso NO se puede alternar con overlay.hidden — se controla por clase. */
 .seg-modal-overlay.seg-modal-open{display:flex;}
 .seg-modal{width:min(440px,100%);max-height:88vh;display:flex;flex-direction:column;overflow:hidden;
-  background:var(--ds-surface-overlay);border-radius:var(--ds-radius-small);box-shadow:var(--ds-shadow-overlay);}
+  background:var(--ds-surface-overlay);border-radius:var(--ds-radius-xlarge);box-shadow:var(--ds-shadow-overlay);}
 .seg-modal-head{display:flex;align-items:center;justify-content:space-between;gap:var(--ds-space-200);padding:var(--ds-space-300) var(--ds-space-300) var(--ds-space-100);}
 .seg-modal-title{font:var(--ds-font-heading-medium);color:var(--ds-text);}
 .seg-modal-close{width:32px;height:32px;display:flex;align-items:center;justify-content:center;border:none;border-radius:var(--ds-radius-small);
@@ -400,7 +400,7 @@
 .seg-report-desc{font:var(--ds-font-body);color:var(--ds-text-subtle);margin-bottom:var(--ds-space-200);}
 .seg-report-options{display:flex;flex-direction:column;gap:var(--ds-space-100);}
 .seg-report-opt{display:flex;align-items:center;gap:var(--ds-space-150);width:100%;padding:var(--ds-space-150) var(--ds-space-200);text-align:left;cursor:pointer;
-  border:none;border-radius:var(--ds-radius-small);box-shadow:inset 0 0 0 1px var(--ds-border);background:var(--ds-surface);
+  border:none;border-radius:var(--ds-radius-large);box-shadow:inset 0 0 0 1px var(--ds-border);background:var(--ds-surface);
   font:var(--ds-font-body);transition:box-shadow var(--ds-motion),background var(--ds-motion);}
 .seg-report-opt:hover{background:var(--ds-surface-hovered);}
 .seg-report-opt.active{background:var(--ds-background-selected);box-shadow:inset 0 0 0 2px var(--ds-border-selected);}
@@ -408,7 +408,6 @@
 .seg-report-opt.active .seg-report-opt-radio{border-color:var(--ds-border-selected);}
 .seg-report-opt.active .seg-report-opt-radio::after{content:"";position:absolute;inset:2px;border-radius:50%;background:var(--ds-background-selected-bold);}
 .seg-report-opt-title{font:var(--ds-font-heading-xsmall);color:var(--ds-text);}
-.seg-report-opt-sub{font:var(--ds-font-body-small);color:var(--ds-text-subtle);margin-top:var(--ds-space-025);display:inline-block;}
 .seg-report-status{display:flex;align-items:center;gap:var(--ds-space-150);padding:var(--ds-space-100) 0;color:var(--ds-text-subtle);}
 .seg-report-error{padding:var(--ds-space-200);border-radius:var(--ds-radius-small);background:var(--ds-background-danger);color:var(--ds-text);}
 .seg-report-ok{padding:var(--ds-space-200);border-radius:var(--ds-radius-small);background:var(--ds-background-success);color:var(--ds-text);font-weight:600;}
@@ -1668,11 +1667,11 @@
           +'<div class="seg-report-options">'
             +'<button type="button" class="seg-report-opt active" data-fmt="html">'
               +'<span class="seg-report-opt-radio"></span>'
-              +'<span><span class="seg-report-opt-title">HTML interactivo</span><br><span class="seg-report-opt-sub">Con filtro de sprint y contenedores colapsables, igual que en la web app.</span></span>'
+              +'<span class="seg-report-opt-title">HTML interactivo</span>'
             +'</button>'
             +'<button type="button" class="seg-report-opt" data-fmt="pdf">'
               +'<span class="seg-report-opt-radio"></span>'
-              +'<span><span class="seg-report-opt-title">PDF</span><br><span class="seg-report-opt-sub">Vista estática del sprint que estás viendo ahora.</span></span>'
+              +'<span class="seg-report-opt-title">PDF</span>'
             +'</button>'
           +'</div>'
         +'</div>'

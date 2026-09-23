@@ -168,7 +168,7 @@
 .rm-modal-overlay{position:fixed;inset:0;background:var(--ds-blanket);display:none;align-items:center;justify-content:center;z-index:9998;padding:var(--ds-space-200);}
 .rm-modal-overlay.rm-modal-open{display:flex;}
 .gantt-modal,.avance-modal,.rm-modal{display:flex;flex-direction:column;max-height:88vh;width:min(560px,100%);overflow:hidden;
-  background:var(--ds-surface-overlay);border-radius:var(--ds-radius-small);box-shadow:var(--ds-shadow-overlay);}
+  background:var(--ds-surface-overlay);border-radius:var(--ds-radius-xlarge);box-shadow:var(--ds-shadow-overlay);}
 .gantt-modal{width:min(1200px,96vw);}
 .rm-modal{width:min(400px,100%);}
 .gantt-modal-head,.avance-modal-head,.rm-modal-head{flex:none;display:flex;align-items:center;justify-content:space-between;gap:var(--ds-space-200);
@@ -371,7 +371,7 @@
 /* ── "Generar resumen": opciones y estados ── */
 .rm-report-options{display:flex;flex-direction:column;gap:var(--ds-space-100);}
 .rm-report-opt{display:flex;align-items:center;gap:var(--ds-space-150);width:100%;padding:var(--ds-space-150) var(--ds-space-200);text-align:left;cursor:pointer;
-  border:none;border-radius:var(--ds-radius-small);box-shadow:inset 0 0 0 1px var(--ds-border);background:var(--ds-surface);
+  border:none;border-radius:var(--ds-radius-large);box-shadow:inset 0 0 0 1px var(--ds-border);background:var(--ds-surface);
   font:var(--ds-font-body);transition:box-shadow var(--ds-motion),background var(--ds-motion);}
 .rm-report-opt:hover{background:var(--ds-surface-hovered);}
 .rm-report-opt.active{background:var(--ds-background-selected);box-shadow:inset 0 0 0 2px var(--ds-border-selected);}

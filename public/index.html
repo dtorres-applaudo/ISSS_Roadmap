@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Portal ISSS-SYDT</title>
+<!-- Vista inicial antes del primer pintado: si en esta máquina ya hubo una
+     sesión válida, se arranca directo en la app (Firebase confirma la sesión
+     en segundo plano); si no, se muestra una pantalla de carga neutra —nunca
+     el login— hasta que Firebase responda. Evita el "flash" del login al
+     recargar (F5) o al abrir el portal con la sesión ya iniciada. -->
+<script>
+  (function(){
+    var hint = null;
+    try { hint = localStorage.getItem('issssydt_session_email'); } catch(e){}
+    document.documentElement.setAttribute('data-auth', hint ? 'app' : 'pending');
+  })();
+</script>
 <!-- Design system (tokens + componentes base) — debe cargar antes que los módulos -->
 <script src="modules/ds.js"></script>
 <style>
@@ -28,7 +40,15 @@ a{text-decoration:none;color:var(--ds-link);}
 #login-screen{position:fixed;inset:0;z-index:1000;overflow-y:auto;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:var(--ds-space-400) var(--ds-space-200);background:var(--ds-surface-sunken);}
-#login-screen.hidden{display:none;}
+/* Solo una de las tres vistas es visible, según html[data-auth]. */
+#boot-screen,#login-screen,#app-shell{display:none !important;}
+html[data-auth="pending"] #boot-screen{display:flex !important;}
+html[data-auth="login"] #login-screen{display:flex !important;}
+html[data-auth="app"] #app-shell{display:flex !important;}
+#boot-screen{position:fixed;inset:0;z-index:1000;flex-direction:column;align-items:center;justify-content:center;
+  gap:var(--ds-space-200);background:var(--ds-surface);}
+#boot-screen .tn-logo{width:40px;height:40px;border-radius:var(--ds-radius-large);}
+#boot-screen .tn-logo svg{width:24px;height:24px;}
 .login-card{width:100%;max-width:400px;background:var(--ds-surface-raised);
   border-radius:var(--ds-radius-small);box-shadow:var(--ds-shadow-overlay);
   padding:var(--ds-space-400) var(--ds-space-500);}
@@ -67,7 +87,6 @@ a{text-decoration:none;color:var(--ds-link);}
 
 /* ── APP SHELL ──────────────────────────────────────── */
 #app-shell{display:flex;flex-direction:column;height:100vh;overflow:hidden;}
-#app-shell.hidden{display:none;}
 .app-body{flex:1;display:flex;min-height:0;}
 
 /* TOP NAV */
@@ -162,7 +181,9 @@ a{text-decoration:none;color:var(--ds-link);}
 .page-breadcrumb{display:flex;align-items:center;gap:var(--ds-space-050);flex-wrap:wrap;
   margin-bottom:var(--ds-space-100);font:var(--ds-font-body);color:var(--ds-text-subtle);}
 .page-breadcrumb .bc-sep{color:var(--ds-text-subtlest);padding:0 var(--ds-space-025);}
-#bc-page:empty{display:none;}
+.page-breadcrumb a{color:var(--ds-text-subtle);border-radius:var(--ds-radius-xsmall);}
+.page-breadcrumb a:hover{color:var(--ds-text);text-decoration:underline;}
+.page-breadcrumb [aria-current="page"]{color:var(--ds-text-subtle);}
 
 /* ── RESPONSIVE ─────────────────────────────────────── */
 @media (max-width: 880px){
@@ -194,6 +215,14 @@ a{text-decoration:none;color:var(--ds-link);}
 <script src="datos.js"></script>
 </head>
 <body>
+
+<!-- ═══════════ CARGA INICIAL (mientras Firebase resuelve la sesión) ═══════════ -->
+<div id="boot-screen" role="status" aria-label="Cargando">
+  <span class="tn-logo" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none"><path d="M6 4h8l4 4v12H6V4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 13.5l2 2 4-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </span>
+  <div class="ds-spinner"></div>
+</div>
 
 <!-- ═══════════ LOGIN SCREEN ═══════════ -->
 <div id="login-screen">
@@ -255,7 +284,7 @@ a{text-decoration:none;color:var(--ds-link);}
 </div>
 
 <!-- ═══════════ APP SHELL ═══════════ -->
-<div id="app-shell" class="hidden">
+<div id="app-shell">
 
   <!-- TOP NAV -->
   <header class="main-topbar">
@@ -337,13 +366,8 @@ a{text-decoration:none;color:var(--ds-link);}
   <!-- MAIN -->
   <div id="main">
     <div id="page-content">
-      <nav class="page-breadcrumb" aria-label="Ruta de navegación">
-        <span>ISSS-SYDT</span>
-        <span class="bc-sep">/</span>
-        <span id="bc-module">Portal</span>
-        <span class="bc-sep" id="bc-sep" style="display:none">/</span>
-        <span id="bc-page"></span>
-      </nav>
+      <!-- Se arma en navigate(): cada nivel salvo el último es un link navegable -->
+      <nav class="page-breadcrumb" id="page-breadcrumb" aria-label="Ruta de navegación"></nav>
 
       <!-- PAGE: Roadmap -->
       <div class="page active" id="page-roadmap">
@@ -413,8 +437,6 @@ const allowed = (email) =>
   cfg.allowedEmails.map(e => e.toLowerCase()).includes((email||'').toLowerCase());
 
 // ── DOM refs ──
-const loginScreen = document.getElementById('login-screen');
-const appShell    = document.getElementById('app-shell');
 const loginError  = document.getElementById('login-error');
 const sbUserEmail = document.getElementById('sb-user-email');
 const sbAvatar    = document.getElementById('sb-avatar');
@@ -528,26 +550,39 @@ avatarBtn.addEventListener('click', e => {
 document.addEventListener('click', e => { if(!userMenu.hidden && !userMenu.contains(e.target)) closeUserMenu(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape' && !userMenu.hidden) closeUserMenu(); });
 
+// ── Vista activa (boot / login / app) ──
+// Se controla con html[data-auth] (ver el <script> del <head>). La marca
+// "issssydt_session_email" solo decide qué se pinta primero al recargar; el
+// acceso real lo sigue validando Firebase en onAuthStateChanged.
+const SESSION_HINT_KEY = 'issssydt_session_email';
+function setAuthView(view){ document.documentElement.setAttribute('data-auth', view); }
+function getSessionHint(){ try { return localStorage.getItem(SESSION_HINT_KEY); } catch(e){ return null; } }
+function setSessionHint(email){ try { email ? localStorage.setItem(SESSION_HINT_KEY, email) : localStorage.removeItem(SESSION_HINT_KEY); } catch(e){} }
+
+function enterApp(email){
+  setAuthView('app');
+  sbUserEmail.textContent = email;
+  sbAvatar.textContent = (email[0]||'?').toUpperCase();
+  if(window.__roadmapLoaded) return;
+  window.__roadmapLoaded = true;
+  loadRoadmap();
+  loadSeguimiento();
+  restoreLastPage();
+}
+
 // auth state
 onAuthStateChanged(auth, user => {
   if(user && allowed(user.email)){
-    loginScreen.classList.add('hidden');
-    appShell.classList.remove('hidden');
-    sbUserEmail.textContent = user.email;
-    sbAvatar.textContent = (user.email[0]||'?').toUpperCase();
-    if(window.__roadmapLoaded) return;
-    window.__roadmapLoaded = true;
-    loadRoadmap();
-    loadSeguimiento();
-    restoreLastPage();
+    setSessionHint(user.email);
+    enterApp(user.email);
   } else if(user && !allowed(user.email)){
+    setSessionHint(null);
     signOut(auth);
-    loginScreen.classList.remove('hidden');
-    appShell.classList.add('hidden');
+    setAuthView('login');
     showError(`Tu cuenta (${user.email}) no está autorizada.`);
   } else {
-    loginScreen.classList.remove('hidden');
-    appShell.classList.add('hidden');
+    setSessionHint(null);
+    setAuthView('login');
   }
 });
 
@@ -563,14 +598,49 @@ document.querySelectorAll('.sb-item, .sb-subitem').forEach(el => {
     if(e.key==='Enter' || e.key===' '){ e.preventDefault(); el.click(); }
   });
 });
-document.getElementById('tn-home').addEventListener('click', e => { e.preventDefault(); navigate('roadmap'); });
+document.getElementById('tn-home').addEventListener('click', e => { e.preventDefault(); goTo('roadmap'); });
 
+// group = id del grupo del menú lateral (nav-<group> / subnav-<group>).
+// moduleHome = página a la que lleva el nivel "módulo" del breadcrumb.
 const pages = {
-  roadmap:        { title:'Roadmap de Producto', module:'Roadmap de Producto' },
-  'seg-resumen':  { title:'Resumen ejecutivo',    module:'Seguimiento' },
+  roadmap:        { title:'Roadmap de Producto', module:'Roadmap de Producto', moduleHome:'roadmap' },
+  'seg-resumen':  { title:'Resumen ejecutivo',    module:'Seguimiento', group:'seguimiento', moduleHome:'seg-resumen' },
   // 'seg-paquetes' oculto a pedido de Darío (2026-09-16) — ver nota en el subnav de arriba.
-  'seg-producto': { title:'Avance de Producto',   module:'Seguimiento' },
+  'seg-producto': { title:'Avance de Producto',   module:'Seguimiento', group:'seguimiento', moduleHome:'seg-resumen' },
 };
+
+// Navega y además abre el grupo del menú lateral de la página destino, para
+// que el ítem activo quede visible (lo usan el breadcrumb y el logo).
+function goTo(pageId){
+  const info = pages[pageId];
+  if(!info) return;
+  if(info.group){
+    const subnav = document.getElementById('subnav-'+info.group);
+    const btn = document.getElementById('nav-'+info.group);
+    if(subnav) subnav.classList.add('open');
+    if(btn) btn.classList.add('open');
+  }
+  navigate(pageId);
+  document.getElementById('page-content').scrollTop = 0;
+}
+
+function renderBreadcrumb(pageId){
+  const bc = document.getElementById('page-breadcrumb');
+  const info = pages[pageId]||{};
+  const crumbs = [{ label:'ISSS-SYDT', page:'roadmap' }];
+  if(info.module) crumbs.push({ label:info.module, page:info.moduleHome });
+  if(info.title && info.title !== info.module) crumbs.push({ label:info.title });
+  bc.innerHTML = '';
+  crumbs.forEach((c, i) => {
+    const last = i === crumbs.length-1;
+    if(i>0){ const sep=document.createElement('span'); sep.className='bc-sep'; sep.textContent='/'; sep.setAttribute('aria-hidden','true'); bc.appendChild(sep); }
+    let el;
+    if(last){ el=document.createElement('span'); el.setAttribute('aria-current','page'); }
+    else { el=document.createElement('a'); el.href='#'; el.addEventListener('click', e => { e.preventDefault(); goTo(c.page); }); }
+    el.textContent = c.label;
+    bc.appendChild(el);
+  });
+}
 
 function navigate(pageId){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -578,14 +648,7 @@ function navigate(pageId){
   document.querySelectorAll('.sb-subitem').forEach(i => i.classList.remove('active'));
   const pg = document.getElementById('page-'+pageId);
   if(pg) pg.classList.add('active');
-  // breadcrumb
-  const info = pages[pageId]||{};
-  document.getElementById('bc-module').textContent = info.module||'Portal';
-  const sep  = document.getElementById('bc-sep');
-  const bcp  = document.getElementById('bc-page');
-  if(info.title && info.title !== info.module){
-    sep.style.display=''; bcp.textContent=info.title;
-  } else { sep.style.display='none'; bcp.textContent=''; }
+  renderBreadcrumb(pageId);
   // mark active
   const direct = document.querySelector(`.sb-item[data-page="${pageId}"]`);
   if(direct) direct.classList.add('active');
@@ -664,6 +727,15 @@ document.querySelectorAll('.sb-item[data-page], .sb-subitem[data-page]').forEach
     navigateWithLoad(el.dataset.page);
   });
 });
+
+// Sesión recordada: se entra a la app de inmediato, sin esperar a Firebase
+// (que en onAuthStateChanged confirma o, si ya no es válida, manda al login).
+// Va al final porque enterApp() usa `pages`/navigate() definidos arriba.
+{
+  const hint = getSessionHint();
+  if(hint && allowed(hint)) enterApp(hint);
+  else if(hint){ setSessionHint(null); setAuthView('pending'); }
+}
 </script>
 </body>
 </html>
