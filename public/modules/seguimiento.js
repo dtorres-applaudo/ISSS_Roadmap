@@ -347,8 +347,8 @@
 .seg-collapsible{border:1px solid var(--sg15);border-radius:14px;padding:16px 20px;margin-bottom:20px;background:var(--w);}
 .seg-collapsible summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;font-size:11px;font-family:'Geist Mono',monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--sb4);user-select:none;}
 .seg-collapsible summary::-webkit-details-marker{display:none;}
-.seg-collapsible summary::before{content:"▸";font-size:10px;flex:none;transition:transform .15s;}
-.seg-collapsible[open] summary::before{transform:rotate(90deg);}
+.seg-collapsible summary::before{content:"▼";font-size:15px;line-height:1;flex:none;}
+.seg-collapsible[open] summary::before{content:"▲";}
 .seg-collapsible summary::after{content:"";flex:1;height:1px;background:var(--sg15);}
 .seg-collapsible-body{margin-top:16px;}
 
