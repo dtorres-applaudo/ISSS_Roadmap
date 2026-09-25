@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-09-24",
+    "actualizado": "2026-09-25",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -22,7 +22,7 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 57.9,
-      "peso": 24.9
+      "peso": 25
     },
     {
       "paquete": "P2",
@@ -44,17 +44,17 @@
       "nombre": "Inscripción de patronos",
       "grupo": "T01",
       "hu_count": 2,
-      "tareas_construccion": 18200,
-      "bugs": 158,
-      "horas_esperadas": 81600,
+      "tareas_construccion": 18300,
+      "bugs": 159,
+      "horas_esperadas": 82200,
       "multiplicador": 1.65,
-      "horas_ponderadas": 1346,
+      "horas_ponderadas": 1356,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 11.52
+      "peso": 11.59
     },
     {
       "paquete": "P2",
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.7,
       "aporte_qa": 0,
       "avance_total": 55.7,
-      "peso": 5.19
+      "peso": 5.18
     },
     {
       "paquete": "P2",
@@ -90,7 +90,7 @@
       "aporte_desarrollo": 45.7,
       "aporte_qa": 0,
       "avance_total": 45.7,
-      "peso": 5.01
+      "peso": 5
     },
     {
       "paquete": "P1",
@@ -108,7 +108,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 6.55
+      "peso": 6.54
     },
     {
       "paquete": "P2",
@@ -247,11 +247,11 @@
       "horas_esperadas": 26500,
       "multiplicador": 1.2,
       "horas_ponderadas": 318,
-      "avance_desarrollo": 49.7,
+      "avance_desarrollo": 51.3,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 34.8,
+      "aporte_desarrollo": 35.9,
       "aporte_qa": 0,
-      "avance_total": 34.8,
+      "avance_total": 35.9,
       "peso": 2.72
     },
     {
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 7.19
+      "peso": 7.18
     },
     {
       "paquete": "P3",
@@ -278,7 +278,7 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 800,
+      "tareas_construccion": 1100,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
@@ -306,7 +306,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 9.1
+      "peso": 9.09
     },
     {
       "paquete": "P3",
@@ -360,7 +360,7 @@
       "aporte_desarrollo": 52.7,
       "aporte_qa": 0,
       "avance_total": 52.7,
-      "peso": 2.74
+      "peso": 2.73
     },
     {
       "paquete": "P3",
