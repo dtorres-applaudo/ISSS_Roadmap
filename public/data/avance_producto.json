@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-09-25",
+    "actualizado": "2026-09-26",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -98,7 +98,7 @@
       "nombre": "Inscripción de trabajadores",
       "grupo": "T04",
       "hu_count": 4,
-      "tareas_construccion": 11300,
+      "tareas_construccion": 11400,
       "bugs": 63,
       "horas_esperadas": 56700,
       "multiplicador": 1.35,
