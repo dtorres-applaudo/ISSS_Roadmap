@@ -18,7 +18,8 @@ window.PORTAL_CONFIG = {
     "ebernal@tca.com",
     "kmhernandez@techsolutions-sv.com",
     "crivera@applaudostudios.com",
-    "magreda@applaudostudios.com"
+    "magreda@applaudostudios.com",
+    "edgard.landaverde@goes.gob.sv"
     // "nombre@dominio.com",
   ],
 
