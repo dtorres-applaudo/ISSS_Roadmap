@@ -330,6 +330,14 @@
 .tram-count-total .tram-count-val{color:var(--ds-text-selected);}
 .tram-count-lbl{font:var(--ds-font-body-small);color:var(--ds-text-subtle);margin-top:var(--ds-space-025);}
 .tram-count-cert{font:var(--ds-font-body-small);font-weight:700;color:var(--ds-text-success);margin-top:var(--ds-space-050);}
+/* Resumen de certificados en una sola fila (slide 1 del resumen HTML/PDF) —
+   a pedido de Darío, 2026-09-30. La tarjeta de total va más angosta porque
+   no lleva listado; las de paquete se reparten el resto del ancho. */
+.tram-cert-summary{display:flex;gap:var(--ds-space-150);align-items:stretch;}
+.tram-cert-card{flex:1;min-width:0;border:1px solid var(--ds-border);border-radius:var(--ds-radius-large);
+  padding:var(--ds-space-150) var(--ds-space-200);background:var(--ds-surface);}
+.tram-cert-card--total{flex:0 0 190px;background:var(--ds-background-selected);border-color:transparent;}
+.tram-cert-card--total .tram-count-val{color:var(--ds-text-selected);}
 .pkg-id-chip{display:inline-flex;align-items:center;justify-content:center;height:20px;min-width:24px;padding:0 var(--ds-space-050);
   border-radius:var(--ds-radius-small);font:700 .6875rem/1 var(--ds-font-family-body);color:var(--ds-text-inverse);background:var(--ds-pkg-1);}
 .pkg-id-chip.p2{background:var(--ds-pkg-2);} .pkg-id-chip.p3{background:var(--ds-pkg-3);}
@@ -775,23 +783,21 @@
     return items.filter(function(t){ return (estatusMap[t.no]||TRAMITE_ESTATUS_DEFAULT)==='Certificado'; }).length;
   }
 
-  // Cuerpo dinámico del catálogo (tarjetas de conteo + tablas por paquete) —
-  // separado del <details> que lo envuelve para poder refrescarlo solo (sin
-  // perder el estado abierto/cerrado) apenas carga el estatus guardado, y
-  // para reutilizarlo tal cual en el resumen HTML/PDF (con chips de solo
-  // lectura y el estatus embebido en vez de leído en vivo).
-  function renderCatalogoTramitesBody(paquetes, opts){
-    opts = opts || {};
-    var estatusMap = opts.estatusMap || _tramitesEstatus;
+  function calcularGruposTramites(paquetes){
     var nombrePorPaquete = {};
     (paquetes||[]).forEach(function(p){ nombrePorPaquete[p.id] = p.nombre; });
-
-    var grupos = ['P1','P2','P3'].map(function(pid){
+    return ['P1','P2','P3'].map(function(pid){
       var items = TRAMITES_CATALOGO.filter(function(t){ return t.paquete === pid; })
         .sort(function(a,b){ return a.no - b.no; });
       return { id: pid, nombre: nombrePorPaquete[pid] || pid, items: items };
     });
+  }
 
+  // Tarjetas de conteo (total + por paquete, con certificados en segundo
+  // nivel) — separadas del detalle línea por línea para poder reutilizarlas
+  // solas en la slide 1 del resumen ("Trámites certificados"), a pedido de
+  // Darío, 2026-09-30.
+  function renderTramitesCountCards(grupos, estatusMap){
     var totalCount = TRAMITES_CATALOGO.length;
     var totalCert = grupos.reduce(function(sum,g){ return sum + contarTramitesCertificados(g.items, estatusMap); }, 0);
 
@@ -803,6 +809,20 @@
         +'<div class="tram-count-cert">'+cert+' certificado'+(cert===1?'':'s')+'</div>'
       +'</div>';
     }).join('');
+
+    return '<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div><div class="tram-count-cert">'+totalCert+' certificados en total</div></div></div>'
+      +'<div class="tram-count-cards">'+pkgCountCards+'</div>';
+  }
+
+  // Cuerpo dinámico del catálogo (tarjetas de conteo + tablas por paquete) —
+  // separado del <details> que lo envuelve para poder refrescarlo solo (sin
+  // perder el estado abierto/cerrado) apenas carga el estatus guardado, y
+  // para reutilizarlo tal cual en el resumen HTML/PDF (con chips de solo
+  // lectura y el estatus embebido en vez de leído en vivo).
+  function renderCatalogoTramitesBody(paquetes, opts){
+    opts = opts || {};
+    var estatusMap = opts.estatusMap || _tramitesEstatus;
+    var grupos = calcularGruposTramites(paquetes);
 
     var pkgListCards = grupos.map(function(g){
       var rows = g.items.map(function(t){
@@ -819,9 +839,40 @@
       +'</div>';
     }).join('');
 
-    return '<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div><div class="tram-count-cert">'+totalCert+' certificados en total</div></div></div>'
-      +'<div class="tram-count-cards">'+pkgCountCards+'</div>'
+    return renderTramitesCountCards(grupos, estatusMap)
       +'<div class="tram-pkg-cards">'+pkgListCards+'</div>';
+  }
+
+  // Resumen compacto de trámites certificados para la slide 1 del
+  // resumen HTML/PDF: una sola fila con la tarjeta de total y una tarjeta
+  // por paquete, solo con el conteo (sin el nombre de cada trámite — el
+  // detalle completo, certificado o no, ya está en la slide 3) — a pedido
+  // de Darío, 2026-09-30.
+  function renderCatalogoResumenCard(paquetes, estatusMap){
+    estatusMap = estatusMap || {};
+    var grupos = calcularGruposTramites(paquetes);
+    var totalCount = TRAMITES_CATALOGO.length;
+    var totalCert = grupos.reduce(function(sum,g){ return sum + contarTramitesCertificados(g.items, estatusMap); }, 0);
+
+    var totalCard = '<div class="tram-cert-card tram-cert-card--total">'
+      +'<div class="tram-count-val">'+totalCount+'</div>'
+      +'<div class="tram-count-lbl">Trámites totales</div>'
+      +'<div class="tram-count-cert">'+totalCert+' certificados en total</div>'
+    +'</div>';
+
+    var pkgCards = grupos.map(function(g){
+      var cert = contarTramitesCertificados(g.items, estatusMap);
+      return '<div class="tram-cert-card">'
+        +'<div class="tram-count-val">'+g.items.length+'</div>'
+        +'<div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div>'
+        +'<div class="tram-count-cert">'+cert+' certificado'+(cert===1?'':'s')+'</div>'
+      +'</div>';
+    }).join('');
+
+    return '<div class="section" style="padding-top:0;">'
+      +'<div class="section-h">Trámites certificados</div>'
+      +'<div class="tram-cert-summary">'+totalCard+pkgCards+'</div>'
+    +'</div>';
   }
 
   function renderCatalogoTramites(paquetes, opts){
@@ -1763,7 +1814,7 @@
   // (carrusel) y el PDF (apiladas con salto de página), reutilizando
   // exactamente los mismos render que usa la web app.
   function buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus){
-    var slide1 = renderMetaBar(meta) + renderResumen(paquetes);
+    var slide1 = renderMetaBar(meta) + renderResumen(paquetes) + renderCatalogoResumenCard(paquetes, tramitesEstatus);
     var slide2 = '<div class="section" style="padding-top:0;">'
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
@@ -1805,8 +1856,15 @@
     var fit = slideEl.querySelector('.rm-slide-fit');
     if(!inner || !fit) return;
     fit.style.transform = 'none';
-    var availH = inner.clientHeight;
-    var availW = inner.clientWidth;
+    // clientHeight/clientWidth miden la caja de padding completa, no el
+    // espacio real disponible para el hijo (que vive adentro, descontando
+    // el padding de .rm-slide-inner) — sin restarlo, el cálculo de escala
+    // quedaba corto y el contenido terminaba pasándose del borde inferior.
+    var innerCS = getComputedStyle(inner);
+    var padY = (parseFloat(innerCS.paddingTop)||0) + (parseFloat(innerCS.paddingBottom)||0);
+    var padX = (parseFloat(innerCS.paddingLeft)||0) + (parseFloat(innerCS.paddingRight)||0);
+    var availH = inner.clientHeight - padY;
+    var availW = inner.clientWidth - padX;
     // Contenedores internos con overflow:hidden (p.ej. .avances-wrap, para
     // redondear la tabla) esconden de scrollWidth el ancho real que la
     // tabla necesita — se destapan un instante para medir el tamaño
@@ -1827,7 +1885,11 @@
     var naturalW = fit.scrollWidth;
     restore.forEach(function(r){ r[0].style.overflow = r[1]; r[0].style.overflowX = r[2]; });
     if(!availH || !naturalH) return;
-    var scale = Math.min(availH/naturalH, availW/naturalW, 1);
+    // Margen de seguridad de unos px: sin esto, una medición justa al
+    // límite (p.ej. por la tipografía Nunito terminando de cargar después
+    // de esta pasada) puede dejar el borde inferior pegado al límite real
+    // y forzar scroll por un puñado de píxeles.
+    var scale = Math.min((availH-6)/naturalH, availW/naturalW, 1);
     if(scale < 0.999){
       fit.style.transform = 'scale('+scale+')';
     }
@@ -1864,6 +1926,13 @@
     });
     window.addEventListener('resize', function(){ fitSlide(slides[idx]); });
     show(0);
+    // Nunito carga async (Google Fonts) — si todavía no había terminado en
+    // el primer fitSlide(), el alto medido con la tipografía de respaldo
+    // no coincide con el alto real una vez que Nunito entra, y el margen
+    // de la escala calculada queda corto. Se vuelve a ajustar apenas carga.
+    if(document.fonts && document.fonts.ready){
+      document.fonts.ready.then(function(){ fitSlide(slides[idx]); });
+    }
   }
 
   // Fuente de este mismo archivo (roadmap.js), pedida una sola vez y
