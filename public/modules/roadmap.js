@@ -281,8 +281,8 @@
 .avances-table td,.tram-pkg-table td{padding:var(--ds-space-100) var(--ds-space-150);border-bottom:1px solid var(--ds-border);color:var(--ds-text);vertical-align:middle;}
 .avances-table tr:last-child td,.tram-pkg-table tr:last-child td{border-bottom:none;}
 .avances-table tbody tr:hover td{background:var(--ds-surface-hovered);}
-.avances-pct{font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;}
 .avances-date{font:var(--ds-font-body);color:var(--ds-text-subtle);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.avances-comentario{color:var(--ds-text-subtle);}
 .avances-empty{padding:var(--ds-space-300);text-align:center;color:var(--ds-text-subtlest);}
 .avances-reorder-col{width:60px;white-space:nowrap;text-align:center !important;}
 .avances-origen-col{width:36px;text-align:center;}
@@ -301,7 +301,6 @@
 .avance-inline-input{width:100%;height:32px;padding:0 var(--ds-space-075);font:var(--ds-font-body);color:var(--ds-text);
   background:var(--ds-background-input);border:1px solid var(--ds-border-input);border-radius:var(--ds-radius-small);outline:none;}
 .avance-inline-input:focus{border-color:var(--ds-border-focused);box-shadow:inset 0 0 0 1px var(--ds-border-focused);}
-.avance-inline-pct{width:72px;}
 .avances-foot{display:flex;gap:var(--ds-space-100);padding:var(--ds-space-150);border-top:1px solid var(--ds-border);background:var(--ds-surface);}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex:none;overflow:hidden;
   border-radius:var(--ds-radius-small);font-size:11px;line-height:1;}
@@ -330,6 +329,7 @@
 .tram-count-val{font:var(--ds-font-metric-medium);color:var(--ds-text);font-variant-numeric:tabular-nums;}
 .tram-count-total .tram-count-val{color:var(--ds-text-selected);}
 .tram-count-lbl{font:var(--ds-font-body-small);color:var(--ds-text-subtle);margin-top:var(--ds-space-025);}
+.tram-count-cert{font:var(--ds-font-body-small);font-weight:700;color:var(--ds-text-success);margin-top:var(--ds-space-050);}
 .pkg-id-chip{display:inline-flex;align-items:center;justify-content:center;height:20px;min-width:24px;padding:0 var(--ds-space-050);
   border-radius:var(--ds-radius-small);font:700 .6875rem/1 var(--ds-font-family-body);color:var(--ds-text-inverse);background:var(--ds-pkg-1);}
 .pkg-id-chip.p2{background:var(--ds-pkg-2);} .pkg-id-chip.p3{background:var(--ds-pkg-3);}
@@ -339,6 +339,25 @@
   border-bottom:1px solid var(--ds-border);font:var(--ds-font-heading-xsmall);color:var(--ds-text);}
 .tram-pkg-table td{vertical-align:top;}
 .tram-pkg-no{width:36px;color:var(--ds-text-subtlest) !important;font-variant-numeric:tabular-nums;}
+.tram-estatus-cell{text-align:right;white-space:nowrap;}
+/* Pastilla de estatus estilo "validación de datos" de Sheets: relleno
+   sólido + flecha pegada al texto, en vez del lozenge chico en mayúsculas
+   de ds.js (a pedido de Darío, 2026-09-29). Mismos colores por variante. */
+.tram-estatus-chip{display:inline-flex;align-items:center;gap:var(--ds-space-050);
+  height:26px;padding:0 var(--ds-space-100) 0 var(--ds-space-150);border-radius:var(--ds-radius-full);
+  border:none;font:600 .8125rem/1 var(--ds-font-family-body);white-space:nowrap;
+  background:var(--ds-lz-default-bg);color:var(--ds-lz-default-text);}
+.tram-estatus-chip.ds-lozenge--inprogress{background:var(--ds-lz-inprogress-bg);color:var(--ds-lz-inprogress-text);}
+.tram-estatus-chip.ds-lozenge--success{background:var(--ds-lz-success-bg);color:var(--ds-lz-success-text);}
+.tram-estatus-chip--interactive{cursor:pointer;transition:filter var(--ds-motion);}
+.tram-estatus-chip--interactive:hover{filter:brightness(.95);}
+.tram-estatus-chip--interactive:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:2px;}
+.tram-estatus-chip-caret{font-size:9px;line-height:1;opacity:.9;}
+.tram-estatus-menu{position:absolute;z-index:500;min-width:150px;padding:var(--ds-space-050);
+  background:var(--ds-surface-overlay);border-radius:var(--ds-radius-medium);box-shadow:var(--ds-shadow-overlay);}
+.tram-estatus-menu-opt{display:block;width:100%;padding:var(--ds-space-075) var(--ds-space-100);border:none;border-radius:var(--ds-radius-small);
+  background:none;text-align:left;font:var(--ds-font-body);color:var(--ds-text);cursor:pointer;}
+.tram-estatus-menu-opt:hover{background:var(--ds-surface-hovered);}
 
 /* ── Modal "Agregar actividad" ── */
 .avance-field{margin-bottom:var(--ds-space-200);}
@@ -720,8 +739,50 @@
     { paquete:'P1', no:26, nombre:'Emisión de constancias de no cotizantes' }
   ];
 
-  function renderCatalogoTramites(paquetes, opts){
+  // Estatus de aprobación/certificación por trámite — vive aparte del
+  // catálogo (que es una lista fija en código, no una hoja): se guarda en la
+  // hoja "tramites_estatus" del mismo Apps Script (lectura vía ?sheet=,
+  // escritura vía la misma acción genérica que ya usa Avances de
+  // actividades) para que quede registrado entre sesiones (a pedido de
+  // Darío, 2026-09-29). Sin valor guardado, se trata como "Pendiente".
+  var TRAMITE_ESTATUS_OPCIONES = ['Pendiente', 'En revisión', 'Certificado'];
+  var TRAMITE_ESTATUS_DEFAULT = 'Pendiente';
+  var _tramitesEstatus = {}; // { [no]: 'Pendiente'|'En revisión'|'Certificado' }
+
+  function tramiteEstatusLozengeClass(estatus){
+    var key = String(estatus||'').toLowerCase();
+    if(key==='certificado') return 'ds-lozenge--success';
+    if(key==='en revisión' || key==='en revision') return 'ds-lozenge--inprogress';
+    return '';
+  }
+
+  // Chip estilo "validación de datos" de Google Sheets (pastilla rellena +
+  // flecha de desplegable pegada al texto) en vez del lozenge chico en
+  // mayúsculas de ds.js — a pedido de Darío, 2026-09-29: el lozenge no se
+  // leía como un control clickeable. Reutiliza los mismos colores por
+  // variante (ds-lozenge--success/--inprogress) que ya estaban bien.
+  function tramiteEstatusChipHtml(no, estatus, readOnly){
+    var val = estatus || TRAMITE_ESTATUS_DEFAULT;
+    var variant = tramiteEstatusLozengeClass(val);
+    if(readOnly) return '<span class="tram-estatus-chip tram-estatus-chip--static '+variant+'">'+escapeHtml(val)+'</span>';
+    return '<button type="button" class="tram-estatus-chip tram-estatus-chip--interactive '+variant+'" data-tramite-no="'+escapeHtml(no)+'">'
+      +'<span class="tram-estatus-chip-label">'+escapeHtml(val)+'</span>'
+      +'<span class="tram-estatus-chip-caret" aria-hidden="true">▼</span>'
+    +'</button>';
+  }
+
+  function contarTramitesCertificados(items, estatusMap){
+    return items.filter(function(t){ return (estatusMap[t.no]||TRAMITE_ESTATUS_DEFAULT)==='Certificado'; }).length;
+  }
+
+  // Cuerpo dinámico del catálogo (tarjetas de conteo + tablas por paquete) —
+  // separado del <details> que lo envuelve para poder refrescarlo solo (sin
+  // perder el estado abierto/cerrado) apenas carga el estatus guardado, y
+  // para reutilizarlo tal cual en el resumen HTML/PDF (con chips de solo
+  // lectura y el estatus embebido en vez de leído en vivo).
+  function renderCatalogoTramitesBody(paquetes, opts){
     opts = opts || {};
+    var estatusMap = opts.estatusMap || _tramitesEstatus;
     var nombrePorPaquete = {};
     (paquetes||[]).forEach(function(p){ nombrePorPaquete[p.id] = p.nombre; });
 
@@ -732,34 +793,118 @@
     });
 
     var totalCount = TRAMITES_CATALOGO.length;
+    var totalCert = grupos.reduce(function(sum,g){ return sum + contarTramitesCertificados(g.items, estatusMap); }, 0);
 
     var pkgCountCards = grupos.map(function(g){
-      return '<div class="tram-count-card"><div class="tram-count-val">'+g.items.length+'</div><div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div></div>';
+      var cert = contarTramitesCertificados(g.items, estatusMap);
+      return '<div class="tram-count-card">'
+        +'<div class="tram-count-val">'+g.items.length+'</div>'
+        +'<div class="tram-count-lbl">'+g.id+' · '+escapeHtml(g.nombre)+'</div>'
+        +'<div class="tram-count-cert">'+cert+' certificado'+(cert===1?'':'s')+'</div>'
+      +'</div>';
     }).join('');
 
     var pkgListCards = grupos.map(function(g){
       var rows = g.items.map(function(t){
-        return '<tr><td class="tram-pkg-no">'+t.no+'</td><td>'+escapeHtml(t.nombre)+'</td></tr>';
+        var estatus = estatusMap[t.no]||TRAMITE_ESTATUS_DEFAULT;
+        return '<tr><td class="tram-pkg-no">'+t.no+'</td><td>'+escapeHtml(t.nombre)+'</td>'
+          +'<td class="tram-estatus-cell">'+tramiteEstatusChipHtml(t.no, estatus, opts.readOnly)+'</td></tr>';
       }).join('');
       return '<div class="tram-pkg-card">'
         +'<div class="tram-pkg-card-head"><span class="pkg-id-chip '+g.id.toLowerCase()+'">'+g.id+'</span>'+escapeHtml(g.nombre)+'</div>'
         +'<table class="tram-pkg-table">'
-          +'<thead><tr><th>N°</th><th>Nombre del trámite</th></tr></thead>'
+          +'<thead><tr><th>N°</th><th>Nombre del trámite</th><th></th></tr></thead>'
           +'<tbody>'+rows+'</tbody>'
         +'</table>'
       +'</div>';
     }).join('');
 
+    return '<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div><div class="tram-count-cert">'+totalCert+' certificados en total</div></div></div>'
+      +'<div class="tram-count-cards">'+pkgCountCards+'</div>'
+      +'<div class="tram-pkg-cards">'+pkgListCards+'</div>';
+  }
+
+  function renderCatalogoTramites(paquetes, opts){
+    opts = opts || {};
+    var totalCount = TRAMITES_CATALOGO.length;
     return '<div class="section" style="padding-top:0;">'
       +'<details class="rm-collapsible"'+(opts.forceOpen?' open':'')+'>'
         +'<summary>Catálogo de trámites por paquete ('+totalCount+')</summary>'
-        +'<div class="rm-collapsible-body">'
-          +'<div class="tram-total-row"><div class="tram-count-card tram-count-total"><div class="tram-count-val">'+totalCount+'</div><div class="tram-count-lbl">Trámites totales</div></div></div>'
-          +'<div class="tram-count-cards">'+pkgCountCards+'</div>'
-          +'<div class="tram-pkg-cards">'+pkgListCards+'</div>'
-        +'</div>'
+        +'<div class="rm-collapsible-body" id="catalogoTramitesBody">'+renderCatalogoTramitesBody(paquetes, opts)+'</div>'
       +'</details>'
     +'</div>';
+  }
+
+  function refreshCatalogoTramites(){
+    var body = document.getElementById('catalogoTramitesBody');
+    if(!body || !_lastRoadmapData) return;
+    closeTramiteEstatusMenu();
+    body.innerHTML = renderCatalogoTramitesBody(_lastRoadmapData.paquetes, {});
+  }
+
+  var _tramiteEstatusMenu = null;
+
+  function closeTramiteEstatusMenu(){
+    if(_tramiteEstatusMenu && _tramiteEstatusMenu.parentNode) _tramiteEstatusMenu.parentNode.removeChild(_tramiteEstatusMenu);
+    _tramiteEstatusMenu = null;
+  }
+
+  function openTramiteEstatusMenu(chipEl){
+    closeTramiteEstatusMenu();
+    var menu = document.createElement('div');
+    menu.className = 'tram-estatus-menu';
+    menu.innerHTML = TRAMITE_ESTATUS_OPCIONES.map(function(op){
+      return '<button type="button" class="tram-estatus-menu-opt" data-opt="'+op+'">'+op+'</button>';
+    }).join('');
+    document.body.appendChild(menu);
+    var rect = chipEl.getBoundingClientRect();
+    var top = window.scrollY + rect.bottom + 4;
+    var left = window.scrollX + rect.right - menu.offsetWidth;
+    menu.style.top = top+'px';
+    menu.style.left = Math.max(8, left)+'px';
+    menu._forChip = chipEl;
+    menu._forNo = chipEl.getAttribute('data-tramite-no');
+    _tramiteEstatusMenu = menu;
+  }
+
+  function setTramiteEstatus(no, val){
+    var prev = _tramitesEstatus[no];
+    if(prev===val) return;
+    _tramitesEstatus[no] = val;
+    refreshCatalogoTramites();
+    postAvances({ action:'set_tramite_estatus', no:no, estatus:val }, function(err){
+      if(err){
+        _tramitesEstatus[no] = prev;
+        refreshCatalogoTramites();
+        DS.flag('No se pudo guardar el estatus del trámite: '+err, 'error');
+      }
+    });
+  }
+
+  var _tramitesEstatusUIWired = false;
+  function wireTramitesEstatusUI(){
+    if(_tramitesEstatusUIWired) return;
+    _tramitesEstatusUIWired = true;
+    document.addEventListener('click', function(e){
+      var opt = e.target.closest('.tram-estatus-menu-opt');
+      if(opt && _tramiteEstatusMenu){
+        var no = _tramiteEstatusMenu._forNo;
+        var val = opt.getAttribute('data-opt');
+        closeTramiteEstatusMenu();
+        setTramiteEstatus(no, val);
+        return;
+      }
+      var chip = e.target.closest('.tram-estatus-chip');
+      if(chip){
+        if(_tramiteEstatusMenu && _tramiteEstatusMenu._forChip===chip){ closeTramiteEstatusMenu(); return; }
+        openTramiteEstatusMenu(chip);
+        return;
+      }
+      if(_tramiteEstatusMenu && !e.target.closest('.tram-estatus-menu')) closeTramiteEstatusMenu();
+    });
+    document.addEventListener('keydown', function(e){
+      if(e.key==='Escape' && _tramiteEstatusMenu) closeTramiteEstatusMenu();
+    });
   }
 
   function renderResumen(paquetes){
@@ -1007,12 +1152,11 @@
   function renderAvancesRows(rows){
     if(!rows.length) return '<tr><td colspan="9" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
     return rows.map(function(r, i){
-      var pct = parseInt(r.pct_avance)||0;
       var upDisabled = i===0 ? 'disabled' : '';
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
       var editing = (_avanceEditingId === r.id);
 
-      var fechaCell, asignadoCell, prioridadCell, estatusCell, pctCell, accionesCell;
+      var fechaCell, asignadoCell, prioridadCell, estatusCell, comentarioCell, accionesCell;
       if(editing){
         fechaCell = '<input type="date" class="avance-inline-input" id="edit-fecha-'+escapeHtml(r.id)+'" value="'+escapeHtml(isoDateOnly(r.fecha_planeada))+'">';
         asignadoCell = '<input type="text" class="avance-inline-input" id="edit-asignado-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.asignado_a||'')+'">';
@@ -1022,7 +1166,7 @@
         estatusCell = '<select class="avance-inline-input" id="edit-estatus-'+escapeHtml(r.id)+'">'
           + ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'"'+(e===(r.estatus||'Pendiente')?' selected':'')+'>'+e+'</option>'; }).join('')
           + '</select>';
-        pctCell = '<input type="number" class="avance-inline-input avance-inline-pct" id="edit-pct-'+escapeHtml(r.id)+'" min="0" max="100" value="'+pct+'">';
+        comentarioCell = '<input type="text" class="avance-inline-input" id="edit-comentario-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.comentario||'')+'" placeholder="Opcional">';
         accionesCell = '<button class="avances-edit-btn avances-save-btn" type="button" data-save-id="'+escapeHtml(r.id)+'" title="Guardar cambios">✓</button>'
           +'<button class="avances-edit-btn" type="button" data-cancel-id="'+escapeHtml(r.id)+'" title="Cancelar">✕</button>';
       } else {
@@ -1030,14 +1174,15 @@
         asignadoCell = escapeHtml(r.asignado_a);
         prioridadCell = '<span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span>';
         estatusCell = '<span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span>';
-        pctCell = pct+'%';
+        comentarioCell = escapeHtml(r.comentario||'');
         accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎</button>'
           +'<button class="avances-edit-btn avances-del-btn" type="button" data-del-id="'+escapeHtml(r.id)+'" title="Eliminar">✕</button>';
       }
 
       // Orden de columnas: Actividades, Responsables, Prioridad, Fecha,
-      // Estatus, % de avance (a pedido de Darío, 2026-09-22) — reorder y
-      // origen quedan al inicio, acciones al final, sin cambios.
+      // Estatus, Comentarios (a pedido de Darío, 2026-09-29 — reemplaza a
+      // % de avance, que no se usaba) — reorder y origen quedan al inicio,
+      // acciones al final, sin cambios.
       return '<tr data-avance-id="'+escapeHtml(r.id)+'">'
         +'<td class="avances-reorder-col">'
           +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir">▲</button>'
@@ -1049,7 +1194,7 @@
         +'<td>'+prioridadCell+'</td>'
         +'<td class="avances-date">'+fechaCell+'</td>'
         +'<td>'+estatusCell+'</td>'
-        +'<td class="avances-pct">'+pctCell+'</td>'
+        +'<td class="avances-comentario">'+comentarioCell+'</td>'
         +'<td class="avances-del-col">'+accionesCell+'</td>'
         +'</tr>';
     }).join('');
@@ -1060,7 +1205,7 @@
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
         +'<table class="avances-table">'
-          +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th><th></th></tr></thead>'
+          +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th><th></th></tr></thead>'
           +'<tbody id="avancesTbody"><tr><td colspan="9" class="avances-empty">Cargando…</td></tr></tbody>'
         +'</table>'
         +'<div class="avances-foot">'
@@ -1068,7 +1213,7 @@
           +'<button class="avances-add-btn avances-preview-btn" id="btnPreviewAvances" type="button">Vista previa (PNG)</button>'
         +'</div>'
       +'</div>'
-      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Fecha/Asignado a/Estatus/% de avance de una fila ya guardada.</div>'
+      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Fecha/Asignado a/Estatus/Comentarios de una fila ya guardada.</div>'
     +'</div>'
     // Modal de vista previa / descarga de imagen
     +'<div class="avance-modal-overlay" id="avanceExportModal" aria-hidden="true">'
@@ -1110,7 +1255,7 @@
           +'<div class="avance-field"><label>Estatus</label><select id="avanceEstatus">'
             +ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'">'+e+'</option>'; }).join('')
           +'</select></div>'
-          +'<div class="avance-field"><label>% de avance <span class="avance-label-hint">— se completa del plan, editable</span></label><input type="number" id="avancePct" min="0" max="100" value="0"></div>'
+          +'<div class="avance-field"><label>Comentarios <span class="avance-label-hint">— opcional</span></label><input type="text" id="avanceComentario" placeholder="Notas, bloqueos, contexto…"></div>'
           +'<div class="avance-err" id="avanceErr" style="display:none;"></div>'
         +'</div>'
         +'<div class="avance-modal-footer">'
@@ -1167,7 +1312,7 @@
     document.getElementById('avanceAsignado').value = '';
     document.getElementById('avancePrioridad').value = PRIORIDAD_DEFAULT;
     document.getElementById('avanceEstatus').value = 'Pendiente';
-    document.getElementById('avancePct').value = 0;
+    document.getElementById('avanceComentario').value = '';
     document.getElementById('avanceErr').style.display = 'none';
     refreshSelectedChip();
     overlay.classList.add('open');
@@ -1181,6 +1326,9 @@
     overlay.setAttribute('aria-hidden','true');
   }
 
+  // Pese al nombre, es un poster genérico contra el mismo Apps Script —
+  // también la usa el chip de estatus del catálogo de trámites (action:
+  // 'set_tramite_estatus') además de las acciones de avances.
   function postAvances(payload, cb){
     // Los Web Apps de Apps Script responden con un 302 a script.googleusercontent.com
     // tanto en GET como en POST. Al seguir esa redirección, un POST puede convertirse
@@ -1257,11 +1405,10 @@
       var it = _avancesCatalogo[idx];
       if(!it) return;
       _avancePickerSel = { idx: idx, actividad: it.actividad, origen: 'plan' };
-      // Autocompleta desde el plan (Fecha fin=col K, Responsable=col M,
-      // % Progreso=col H) — quedan editables por si hace falta ajustarlas.
+      // Autocompleta desde el plan (Fecha fin=col K, Responsable=col M) —
+      // quedan editables por si hace falta ajustarlas.
       document.getElementById('avanceFecha').value = it.fin || '';
       document.getElementById('avanceAsignado').value = it.responsable || '';
-      document.getElementById('avancePct').value = (it.progreso===null || it.progreso===undefined) ? 0 : it.progreso;
       refreshSelectedChip();
       list.innerHTML = renderPickerList(search.value);
     });
@@ -1284,7 +1431,7 @@
         asignado_a: document.getElementById('avanceAsignado').value,
         prioridad: document.getElementById('avancePrioridad').value || PRIORIDAD_DEFAULT,
         estatus: document.getElementById('avanceEstatus').value,
-        pct_avance: parseInt(document.getElementById('avancePct').value)||0
+        comentario: document.getElementById('avanceComentario').value||''
       };
       btnSave.disabled = true; btnSave.textContent = 'Guardando…';
       postAvances(payload, function(err, res){
@@ -1336,7 +1483,7 @@
           asignado_a: document.getElementById('edit-asignado-'+editId).value,
           prioridad: document.getElementById('edit-prioridad-'+editId).value || PRIORIDAD_DEFAULT,
           estatus: document.getElementById('edit-estatus-'+editId).value,
-          pct_avance: parseInt(document.getElementById('edit-pct-'+editId).value)||0
+          comentario: document.getElementById('edit-comentario-'+editId).value||''
         };
         saveBtn.disabled = true;
         postAvances({
@@ -1346,7 +1493,7 @@
           asignado_a: updated.asignado_a,
           prioridad: updated.prioridad,
           estatus: updated.estatus,
-          pct_avance: updated.pct_avance
+          comentario: updated.comentario
         }, function(err){
           saveBtn.disabled = false;
           if(err){ DS.flag('No se pudieron guardar los cambios: '+err, 'error'); return; }
@@ -1354,7 +1501,7 @@
           row.asignado_a = updated.asignado_a;
           row.prioridad = updated.prioridad;
           row.estatus = updated.estatus;
-          row.pct_avance = updated.pct_avance;
+          row.comentario = updated.comentario;
           _avanceEditingId = null;
           refreshAvancesTable();
         });
@@ -1377,6 +1524,7 @@
   function initAvances(){
     wireAvancesUI();
     wireAvancesExport();
+    wireTramitesEstatusUI();
     fetch('/data/plan_actividades.json?v='+Date.now())
       .then(function(r){ return r.json(); })
       .then(function(d){ _avancesCatalogo = d || []; })
@@ -1392,6 +1540,15 @@
         _avancesRows = [];
         refreshAvancesTable();
       });
+    fetch(SH+'?sheet=tramites_estatus')
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        var map = {};
+        (d && d.rows ? d.rows : []).forEach(function(r){ if(r.no!=null) map[r.no] = r.estatus; });
+        _tramitesEstatus = map;
+        refreshCatalogoTramites();
+      })
+      .catch(function(){});
   }
 
   // ── Exportar "Avances de actividades" como PNG 4K (3840×2160, 16:9) ──────────
@@ -1429,7 +1586,6 @@
 
     var rows = getSortedAvances();
     var rowsHtml = rows.length ? rows.map(function(r){
-      var pct = parseInt(r.pct_avance)||0;
       return '<tr>'
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
@@ -1437,7 +1593,7 @@
         +'<td><span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span></td>'
         +'<td class="avances-date">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
-        +'<td class="avances-pct">'+pct+'%</td>'
+        +'<td class="avances-comentario">'+escapeHtml(r.comentario||'')+'</td>'
         +'</tr>';
     }).join('') : '<tr><td colspan="7" class="avances-empty">Sin actividades agregadas todavía.</td></tr>';
 
@@ -1445,7 +1601,7 @@
     tableWrap.className = 'avances-wrap';
     tableWrap.style.width = 'max-content';
     tableWrap.innerHTML = '<table class="avances-table" style="font-size:17px;">'
-      +'<thead><tr><th></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th></tr></thead>'
+      +'<thead><tr><th></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th></tr></thead>'
       +'<tbody>'+rowsHtml+'</tbody></table>';
     wrap.appendChild(tableWrap);
 
@@ -1570,7 +1726,7 @@
   // exactamente el mismo código (tarjetas, tabla, catálogo) que la web app.
   window.RM_RENDER_REPORT_FROM_DATA = function(mountEl, data){
     data = data || {};
-    mountEl.innerHTML = renderReportCarousel(data.meta||{}, data.paquetes||[], data.avances||[]);
+    mountEl.innerHTML = renderReportCarousel(data.meta||{}, data.paquetes||[], data.avances||[], data.tramitesEstatus||{});
     initReportCarousel(mountEl);
   };
 
@@ -1578,7 +1734,7 @@
     return getSortedAvances().map(function(r){
       return {
         actividad: r.actividad, asignado_a: r.asignado_a, prioridad: r.prioridad,
-        fecha_planeada: r.fecha_planeada, estatus: r.estatus, pct_avance: r.pct_avance,
+        fecha_planeada: r.fecha_planeada, estatus: r.estatus, comentario: r.comentario,
         origen: r.origen
       };
     });
@@ -1591,7 +1747,6 @@
   function renderAvancesRowsReadOnly(rows){
     if(!rows || !rows.length) return '<tr><td colspan="7" class="avances-empty">Sin actividades registradas.</td></tr>';
     return rows.map(function(r){
-      var pct = parseInt(r.pct_avance)||0;
       return '<tr>'
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
@@ -1599,7 +1754,7 @@
         +'<td><span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span></td>'
         +'<td class="avances-date">'+fmtLong(r.fecha_planeada)+'</td>'
         +'<td><span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span></td>'
-        +'<td class="avances-pct">'+pct+'%</td>'
+        +'<td class="avances-comentario">'+escapeHtml(r.comentario||'')+'</td>'
       +'</tr>';
     }).join('');
   }
@@ -1607,23 +1762,23 @@
   // Contenido de las 3 slides — compartido entre el HTML interactivo
   // (carrusel) y el PDF (apiladas con salto de página), reutilizando
   // exactamente los mismos render que usa la web app.
-  function buildReportSlides(meta, paquetes, avancesRows){
+  function buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus){
     var slide1 = renderMetaBar(meta) + renderResumen(paquetes);
     var slide2 = '<div class="section" style="padding-top:0;">'
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
         +'<table class="avances-table">'
-          +'<thead><tr><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>% de avance</th></tr></thead>'
+          +'<thead><tr><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th></tr></thead>'
           +'<tbody>'+renderAvancesRowsReadOnly(avancesRows)+'</tbody>'
         +'</table>'
       +'</div>'
     +'</div>';
-    var slide3 = renderCatalogoTramites(paquetes, {forceOpen:true});
+    var slide3 = renderCatalogoTramites(paquetes, {forceOpen:true, readOnly:true, estatusMap:tramitesEstatus||{}});
     return [slide1, slide2, slide3];
   }
 
-  function renderReportCarousel(meta, paquetes, avancesRows){
-    var slides = buildReportSlides(meta, paquetes, avancesRows);
+  function renderReportCarousel(meta, paquetes, avancesRows, tramitesEstatus){
+    var slides = buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus);
     var slidesHtml = slides.map(function(html, i){
       return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="rm-slide-fit">'+html+'</div></div></div>';
     }).join('');
@@ -1736,7 +1891,7 @@
 
   function construirReporteHTMLStandalone(scriptSource){
     if(!_lastRoadmapData) return null;
-    var payload = { meta:_lastRoadmapData.meta, paquetes:_lastRoadmapData.paquetes, avances:avancesSnapshotParaReporte() };
+    var payload = { meta:_lastRoadmapData.meta, paquetes:_lastRoadmapData.paquetes, avances:avancesSnapshotParaReporte(), tramitesEstatus:_tramitesEstatus };
     // Escapar "<" evita que un nombre de trámite/actividad con literalmente
     // "</script>" cierre el bloque de datos antes de tiempo — JSON.parse lo
     // revierte igual.
@@ -1781,8 +1936,8 @@
   // PDF = las 3 slides apiladas con salto de página, impresas por el
   // navegador (Guardar como PDF) — "información plana" a pedido de Darío
   // (2026-09-22), sin el carrusel ni la navegación interactiva.
-  function renderReportPrintStack(meta, paquetes, avancesRows){
-    var slides = buildReportSlides(meta, paquetes, avancesRows);
+  function renderReportPrintStack(meta, paquetes, avancesRows, tramitesEstatus){
+    var slides = buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus);
     return '<div id="rm-report-print-root">'
       + slides.map(function(html, i){
           return '<div class="rm-print-slide">'
@@ -1798,7 +1953,7 @@
     var existente = document.getElementById('rm-report-print-root');
     if(existente) existente.parentNode.removeChild(existente);
     var wrap = document.createElement('div');
-    wrap.innerHTML = renderReportPrintStack(_lastRoadmapData.meta, _lastRoadmapData.paquetes, avancesSnapshotParaReporte());
+    wrap.innerHTML = renderReportPrintStack(_lastRoadmapData.meta, _lastRoadmapData.paquetes, avancesSnapshotParaReporte(), _tramitesEstatus);
     document.body.appendChild(wrap.firstChild);
     document.body.classList.add('rm-printing');
     var tituloOriginal = document.title;
