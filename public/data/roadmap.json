@@ -4,13 +4,13 @@
     "horizonte": "Abr – Dic 2026",
     "metodologia": "Scrum · sprints de 2 semanas",
     "paquetes_count": 3,
-    "spi_global": 0.86,
+    "spi_global": 0.85,
     "progreso_global": 76,
     "liberacion_final": "2026-11-17",
     "gantt_inicio": "2026-04-01",
     "gantt_fin": "2026-12-22",
     "progreso_planif": 89,
-    "actualizado": "2026-09-29"
+    "actualizado": "2026-09-30"
   },
   "paquetes": [
     {
@@ -416,7 +416,7 @@
         }
       ],
       "pie": "Entrega completa del paquete — 17 nov 2026",
-      "progreso_planif": 68
+      "progreso_planif": 75
     }
   ],
   "transversal": [
