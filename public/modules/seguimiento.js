@@ -438,9 +438,12 @@
   // ══════════════════════════════════════════════════════════════
   // RESUMEN EJECUTIVO
   // ══════════════════════════════════════════════════════════════
-  function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle){
+  // Cálculos puros detrás de las 5 tarjetas KPI del Resumen Ejecutivo,
+  // separados de la construcción del HTML para poder reutilizarlos en la
+  // generación desatendida del reporte (ver SEG_GENERATE_REPORT_STANDALONE),
+  // que solo necesita los números para el cuerpo del correo, no el markup.
+  function computeResumenKpis(activo, transiciones, diario, detalle){
     var sa = activo && activo.length ? activo[activo.length-1] : null;
-    var ts = sa ? fmt(sa.timestamp) : '—';
     var avance     = sa ? parseFloat(sa.avance_pct)||0 : 0;
     var cerrado    = sa ? parseInt(sa.closed)||parseInt(sa.closed_items)||0 : 0;
     var total      = sa ? parseInt(sa.total_items)||0 : 0;
@@ -476,6 +479,24 @@
     var velSum=0; var velCnt=0;
     last5Summaries.forEach(function(s){ if(!isNaN(s.avance_pct)){velSum+=s.avance_pct;velCnt++;} });
     var velProm = velCnt ? (velSum/velCnt).toFixed(1) : '—';
+
+    return { sa:sa, avance:avance, cerrado:cerrado, total:total, burnRate:burnRate, sprintNom:sprintNom,
+      diasT:diasT, diasH:diasH, tiempoPct:tiempoPct,
+      deudaEnSprint:deudaEnSprint, deudaBacklog:deudaBacklog, deudaTotal:deudaTotal,
+      deudaAbiertos:deudaAbiertos, deudaCerrados:deudaCerrados, deudaPct:deudaPct,
+      sprintSummaries:sprintSummaries, last5Summaries:last5Summaries,
+      velProm:velProm, velCnt:velCnt };
+  }
+
+  function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle){
+    var k = computeResumenKpis(activo, transiciones, diario, detalle);
+    var sa=k.sa, avance=k.avance, cerrado=k.cerrado, total=k.total, burnRate=k.burnRate, sprintNom=k.sprintNom;
+    var diasT=k.diasT, diasH=k.diasH, tiempoPct=k.tiempoPct;
+    var deudaEnSprint=k.deudaEnSprint, deudaBacklog=k.deudaBacklog, deudaTotal=k.deudaTotal;
+    var deudaAbiertos=k.deudaAbiertos, deudaCerrados=k.deudaCerrados, deudaPct=k.deudaPct;
+    var sprintSummaries=k.sprintSummaries, last5Summaries=k.last5Summaries;
+    var velProm=k.velProm, velCnt=k.velCnt;
+    var ts = sa ? fmt(sa.timestamp) : '—';
 
     // ── KPIs (5 cards, sin "sin actividad") ──
     var kpisHTML =
@@ -1399,14 +1420,11 @@
     if(pd) pd.innerHTML='<div class="page-header"><div class="page-title">Avance de Producto</div><div class="page-desc">Avance real del producto por trámite y paquete, ponderado por Desarrollo y QA.</div></div><div id="seg-producto-mount"></div>';
   }
 
-  // loadResumen() hace el fetch+pintado y se puede llamar más de una vez: la
-  // primera vez al montar la pestaña, y de nuevo — sola, sin aviso — cada vez
-  // que una revalidación en segundo plano trae un dato distinto para alguna
-  // de sus 7 fuentes. mountResumen() es el punto de entrada que solo monta
-  // (y se suscribe a las actualizaciones) una vez por carga de página.
-  function loadResumen(){
-    var m=document.getElementById('seg-resumen-mount');
-    if(!m) return;
+  // Las mismas 7 fuentes que alimentan el Resumen Ejecutivo, factorizadas
+  // aparte para poder llamarlas tanto desde loadResumen() (pintado en la
+  // web app) como desde SEG_GENERATE_REPORT_STANDALONE (generación
+  // desatendida del reporte, sin UI — ver automatización de envío por correo).
+  function fetchResumenSources(cb){
     var results={}; var firstError=null; var pending=7;
     function onDone(key){
       return function(err,data){
@@ -1416,7 +1434,7 @@
       };
     }
     function onDoneLenient(key){
-      // Observaciones y Detalle de work items no deben tumbar el resto de la página si falla su fetch.
+      // Observaciones y Detalle de work items no deben tumbar el resto si falla su fetch.
       return function(err,data){ results[key]=err?[]:data; if(--pending===0) finish(); };
     }
     fetchSheet(SH,'sprint_activo', onDone('activo'));
@@ -1428,16 +1446,29 @@
     fetchSheet(SH,'work_items_detalle', onDoneLenient('detalle'));
 
     function finish(){
-      if(firstError){ if(!m.dataset.rendered) m.innerHTML=errBlock(firstError); return; }
-      m.dataset.rendered='1';
-      var activo=results.activo||[];
-      _lastResumenData = {
-        activo: activo, trans: results.trans||[], diario: results.diario||[],
+      if(firstError){ cb(firstError, null); return; }
+      cb(null, {
+        activo: results.activo||[], trans: results.trans||[], diario: results.diario||[],
         roadmap: results.roadmap||null, obsGen: results.obsGen||[], obsUx: results.obsUx||[],
         detalle: results.detalle||[]
-      };
-      buildEjecutivo(m,activo,results.trans||[],results.diario||[],results.roadmap,results.obsGen||[],results.obsUx||[],results.detalle||[]);
+      });
     }
+  }
+
+  // loadResumen() hace el fetch+pintado y se puede llamar más de una vez: la
+  // primera vez al montar la pestaña, y de nuevo — sola, sin aviso — cada vez
+  // que una revalidación en segundo plano trae un dato distinto para alguna
+  // de sus 7 fuentes. mountResumen() es el punto de entrada que solo monta
+  // (y se suscribe a las actualizaciones) una vez por carga de página.
+  function loadResumen(){
+    var m=document.getElementById('seg-resumen-mount');
+    if(!m) return;
+    fetchResumenSources(function(err, data){
+      if(err){ if(!m.dataset.rendered) m.innerHTML=errBlock(err); return; }
+      m.dataset.rendered='1';
+      _lastResumenData = data;
+      buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle);
+    });
   }
 
   var _resumenSubscribed = false;
@@ -1622,6 +1653,53 @@
       +'<\/script>'
       +'</body></html>';
   }
+
+  // Días del sprint en los que corresponde enviar el correo programado
+  // (esquema definido por Darío, 2026-10-01): día 1 = inicio, 3/5/8 =
+  // actualizaciones de avance, 10 = cierre. Power Automate dispara estos
+  // mismos horarios TODAS las semanas (no sabe en qué día del sprint está
+  // el calendario), así que el "gatekeeping" real de si corresponde enviar
+  // o no vive acá — en el único lugar que sí conoce el día real del sprint
+  // activo — y se expone en kpis.send_today/kpis.motivo para que el flujo
+  // de Power Automate solo tenga que leer ese booleano.
+  var SEND_DAY_MOTIVOS = {
+    1:  'Inicio de sprint',
+    3:  'Actualización de avance — día 3',
+    5:  'Actualización de avance — día 5',
+    8:  'Actualización de avance — día 8',
+    10: 'Cierre de sprint — día 10'
+  };
+
+  // Punto de entrada para generación desatendida (envío automático del
+  // reporte por correo — ver scripts/generar-reporte-sprint.js). A diferencia
+  // del botón "Generar reporte", no depende de que la pestaña esté montada
+  // ni de sesión/login: pide las mismas 7 fuentes directamente y arma el
+  // HTML standalone + un resumen de KPIs en texto plano para el cuerpo del
+  // correo. cb(err, { html, summaryText, kpis }).
+  window.SEG_GENERATE_REPORT_STANDALONE = function(cb){
+    fetchResumenSources(function(err, data){
+      if(err){ cb(err); return; }
+      _lastResumenData = data;
+      var k = computeResumenKpis(data.activo, data.trans, data.diario, data.detalle);
+      var summaryText = k.sprintNom + ' — avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados). '
+        + 'Día ' + k.diasT + ' de ' + k.diasH + ' hábiles. '
+        + 'Burn rate: ' + k.burnRate.toFixed(2) + ' ítems/día hábil. '
+        + 'Deuda técnica: ' + k.deudaPct + '% (' + k.deudaTotal + ' ítems arrastrados). '
+        + 'Cumplimiento histórico (últimos sprints): ' + (k.velProm==='—'?'—':k.velProm+'%') + '. '
+        + 'Reporte completo adjunto.';
+      fetchSegScriptSource(function(src){
+        if(!src){ cb(new Error('No se pudo cargar el código fuente (ds.js/seguimiento.js) para el reporte')); return; }
+        var html = construirReporteHTMLStandalone(src);
+        var motivo = SEND_DAY_MOTIVOS[k.diasT] || null;
+        cb(null, { html: html, summaryText: summaryText, kpis: {
+          sprint: k.sprintNom, avance_pct: k.avance, cerrados: k.cerrado, total: k.total,
+          burn_rate: k.burnRate, dia_actual: k.diasT, dias_habiles_total: k.diasH,
+          deuda_pct: parseFloat(k.deudaPct), deuda_total: k.deudaTotal, cumplimiento_historico_pct: k.velProm,
+          send_today: motivo !== null, motivo: motivo
+        } });
+      });
+    });
+  };
 
   function descargarArchivo(nombre, contenido, mime){
     var blob = new Blob([contenido], {type: mime});

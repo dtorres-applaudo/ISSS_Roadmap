@@ -1,0 +1,12 @@
+{
+  "name": "isss-sydt-automation",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Scripts de automatización del portal ISSS-SYDT (sync de datos, generación del reporte ejecutivo). El sitio en public/ sigue siendo estático, sin build step.",
+  "scripts": {
+    "generar-reporte": "node scripts/generar-reporte-sprint.js"
+  },
+  "dependencies": {
+    "puppeteer": "^24.15.0"
+  }
+}
