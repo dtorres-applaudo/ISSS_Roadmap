@@ -1693,7 +1693,7 @@
         var motivo = SEND_DAY_MOTIVOS[k.diasT] || null;
         cb(null, { html: html, summaryText: summaryText, kpis: {
           sprint: k.sprintNom, avance_pct: k.avance, cerrados: k.cerrado, total: k.total,
-          burn_rate: k.burnRate, dia_actual: k.diasT, dias_habiles_total: k.diasH,
+          burn_rate: k.burnRate, dia_sprint: k.diasT, dias_habiles_total: k.diasH,
           deuda_pct: parseFloat(k.deudaPct), deuda_total: k.deudaTotal, cumplimiento_historico_pct: k.velProm,
           send_today: motivo !== null, motivo: motivo
         } });
