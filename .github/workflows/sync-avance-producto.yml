@@ -59,6 +59,18 @@ jobs:
           git commit -m "Auto-sync avance_producto.json ($(date -u +'%Y-%m-%d %H:%M UTC'))"
           git push origin HEAD:main
 
+      # public/reports/ (reporte ejecutivo para el correo programado) no está
+      # en git: lo genera generar-reporte-ejecutivo.yml y se despliega directo.
+      # Como este job despliega public/ completo desde el checkout, sin este
+      # paso borraría esos archivos del hosting hasta la siguiente generación
+      # y n8n recibiría la pantalla de login en vez del reporte. Se traen del
+      # sitio en vivo para conservarlos; si aún no existen, no pasa nada.
+      - name: Conservar reporte ejecutivo publicado
+        run: |
+          mkdir -p public/reports
+          curl -fsS -o public/reports/latest.html https://product-roadmap-isss.web.app/reports/latest.html || rm -f public/reports/latest.html
+          curl -fsS -o public/reports/latest-summary.json https://product-roadmap-isss.web.app/reports/latest-summary.json || rm -f public/reports/latest-summary.json
+
       # Siempre despliega, sin importar si hubo diff en este run: si una
       # corrida anterior llego a comitear pero el deploy fallo (como paso
       # el 2026-09-16), la proxima corrida ya no ve cambios en el JSON y
