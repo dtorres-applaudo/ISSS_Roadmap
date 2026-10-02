@@ -1681,7 +1681,7 @@
       if(err){ cb(err); return; }
       _lastResumenData = data;
       var k = computeResumenKpis(data.activo, data.trans, data.diario, data.detalle);
-      var summaryText = k.sprintNom + ' — avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados). '
+      var summaryText = 'Avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados). '
         + 'Día ' + k.diasT + ' de ' + k.diasH + ' hábiles. '
         + 'Burn rate: ' + k.burnRate.toFixed(2) + ' ítems/día hábil. '
         + 'Deuda técnica: ' + k.deudaPct + '% (' + k.deudaTotal + ' ítems arrastrados). '
