@@ -4,31 +4,29 @@ name: Generar Reporte Ejecutivo
 # del sprint activo) y los despliega a Firebase Hosting, para que Power
 # Automate los recoja por HTTP y arme el correo programado.
 #
-# Esquema de envío (definido por Darío, 2026-10-01 — todo en hora El Salvador,
-# CST = UTC-6 todo el año, sin horario de verano):
-#   Día 1  del sprint: lunes 6:00 PM  — inicio de sprint
-#   Día 3  del sprint: miércoles 2:00 PM — avance día 3
-#   Día 5  del sprint: viernes 2:00 PM   — avance día 5
-#   Día 8  del sprint: miércoles 2:00 PM — avance día 8 (mismo horario que el día 3:
-#                       cae en el miércoles de la semana 2 del sprint, un sprint de
-#                       2 semanas tiene exactamente 2 miércoles, así que un solo
-#                       disparador semanal de miércoles cubre ambos)
-#   Día 10 del sprint: viernes 7:00 PM   — cierre de sprint
+# Esquema (definido por Darío, 2026-10-02 — todo en hora El Salvador, CST = UTC-6
+# todo el año, sin horario de verano). Este workflow genera el reporte a la hora
+# indicada y el flujo de n8n lo envía 20 minutos después:
+#   Día 1  del sprint: lunes 6:00 PM     -> envío 6:20 PM  (inicio de sprint)
+#   Día 3  del sprint: miércoles 2:00 PM -> envío 2:20 PM  (avance día 3)
+#   Día 5  del sprint: viernes 2:00 PM   -> envío 2:20 PM  (avance día 5)
+#   Día 8  del sprint: miércoles 2:00 PM -> envío 2:20 PM  (avance día 8; mismo
+#                       horario que el día 3: un sprint de 2 semanas tiene
+#                       exactamente 2 miércoles, así que un solo cron cubre ambos)
+#   Día 10 del sprint: viernes 7:00 PM   -> envío 7:20 PM  (cierre de sprint)
 #
-# Este workflow dispara 20 minutos ANTES de cada hora de envío de arriba, para
-# que el archivo ya esté listo cuando Power Automate lo busque. Como cron no
-# sabe en qué día del sprint está el calendario, estos 4 triggers disparan
-# TODAS las semanas (p.ej. el de lunes dispara en ambas semanas del sprint);
-# el propio script calcula el día real del sprint activo y lo deja en
-# latest-summary.json como `kpis.send_today` / `kpis.motivo` — el flujo de
-# Power Automate es el que de verdad decide si corresponde enviar o no,
-# leyendo ese booleano (ver guía de los pasos 4-7).
+# Como cron no sabe en qué día del sprint está el calendario, estos 4 triggers
+# disparan TODAS las semanas; el script calcula el día real del sprint activo y
+# lo deja en latest-summary.json como kpis.dia_sprint / kpis.send_today, y n8n
+# solo envía si coincide con el disparador. Ojo: GitHub puede retrasar los cron
+# programados varios minutos en horas de carga; el margen de 20 min a n8n es el
+# que hay para que el reporte ya esté publicado.
 on:
   schedule:
-    - cron: '40 23 * * 1'  # lunes 5:40 PM CST (antes del envío de día 1, lunes 6:00 PM)
-    - cron: '40 19 * * 3'  # miércoles 1:40 PM CST (antes del envío de días 3/8, miércoles 2:00 PM)
-    - cron: '40 19 * * 5'  # viernes 1:40 PM CST (antes del envío de día 5, viernes 2:00 PM)
-    - cron: '40 0  * * 6'  # viernes 6:40 PM CST = sábado 0:40 AM UTC (antes del envío de día 10, viernes 7:00 PM)
+    - cron: '0 0 * * 2'  # lunes 6:00 PM CST = martes 0:00 UTC (día 1)
+    - cron: '0 20 * * 3'  # miércoles 2:00 PM CST (días 3 y 8)
+    - cron: '0 20 * * 5'  # viernes 2:00 PM CST (día 5)
+    - cron: '0 1 * * 6'  # viernes 7:00 PM CST = sábado 1:00 UTC (día 10)
   workflow_dispatch: {}
 
 concurrency:
