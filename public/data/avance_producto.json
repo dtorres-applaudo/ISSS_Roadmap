@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 29.3,
-    "aporte_desarrollo": 29.3,
+    "avance_total": 29.4,
+    "aporte_desarrollo": 29.4,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -33,7 +33,7 @@
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 0.7,
+      "avance_total": 1.2,
       "peso": 42.3
     }
   ],
@@ -45,7 +45,7 @@
       "grupo": "T01",
       "hu_count": 2,
       "tareas_construccion": 18400,
-      "bugs": 159,
+      "bugs": 160,
       "horas_esperadas": 84600,
       "multiplicador": 1.65,
       "horas_ponderadas": 1396,
@@ -99,7 +99,7 @@
       "grupo": "T04",
       "hu_count": 4,
       "tareas_construccion": 12000,
-      "bugs": 64,
+      "bugs": 65,
       "horas_esperadas": 60300,
       "multiplicador": 1.35,
       "horas_ponderadas": 814,
@@ -278,16 +278,16 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 1100,
+      "tareas_construccion": 1600,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
       "horas_ponderadas": 420,
-      "avance_desarrollo": 11.3,
+      "avance_desarrollo": 15.4,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 7.9,
+      "aporte_desarrollo": 10.8,
       "aporte_qa": 0,
-      "avance_total": 7.9,
+      "avance_total": 10.8,
       "peso": 3.56
     },
     {
@@ -391,11 +391,11 @@
       "horas_esperadas": 16000,
       "multiplicador": 1.9,
       "horas_ponderadas": 304,
-      "avance_desarrollo": 0,
+      "avance_desarrollo": 4.8,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 0,
+      "aporte_desarrollo": 3.3,
       "aporte_qa": 0,
-      "avance_total": 0,
+      "avance_total": 3.3,
       "peso": 2.58
     },
     {
