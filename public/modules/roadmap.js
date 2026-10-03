@@ -460,6 +460,214 @@
   .col{padding:var(--ds-space-200);}
   .pkg-head{padding:var(--ds-space-200);}
 }
+
+/* ── MOBILE (≤767.98px) ──
+   Todo acotado a #roadmap-mount / modales propios: no alcanza los clones de
+   exportación (cuelgan de body) ni el print stack. Desde 768px no aplica. */
+.g-d-pct,.av-origen-txt,.av-btn-txt,.rm-mobile-only,.tram-estatus-menu-head{display:none;}
+@media screen and (max-width: 767.98px){
+  /* KPIs: 2 columnas; Liberación final arriba a todo el ancho */
+  #roadmap-mount .roadmap-meta-bar{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ds-space-100);}
+  #roadmap-mount .rmb-item{padding:var(--ds-space-100) var(--ds-space-150);}
+  #roadmap-mount .rmb-v{overflow-wrap:anywhere;}
+  #roadmap-mount .rmb-item--lib{order:-3;grid-column:1/-1;}
+  #roadmap-mount .rmb-item--avance{order:-2;}
+  #roadmap-mount .rmb-item--spi{order:-1;}
+  #roadmap-mount .rmb-item--metodologia{order:1;grid-column:1/-1;}
+  #roadmap-mount .rmb-item--wide{grid-column:1/-1;}
+
+  #roadmap-mount .rm-sectabs{margin-top:var(--ds-space-300);}
+  #roadmap-mount .section-h{margin-bottom:var(--ds-space-150);}
+  #roadmap-mount .rm-loading{padding:var(--ds-space-300) var(--ds-space-200);}
+  #roadmap-mount .rm-load-error{overflow-wrap:anywhere;}
+
+  /* Resumen de entregas */
+  #roadmap-mount .summary{gap:var(--ds-space-100);}
+  #roadmap-mount .sum-card{padding:var(--ds-space-150) var(--ds-space-200);}
+  #roadmap-mount .sum-pct-wrap{top:var(--ds-space-150);right:var(--ds-space-200);}
+  #roadmap-mount .sum-title{padding-right:88px;min-height:0;}
+
+  /* Gantt principal: columna de 120px, filas de 44px, escala con scroll (layoutGantt) */
+  #roadmap-mount .gantt:not(.gantt-in-modal) :is(.g-head-spacer,.g-task-col){width:120px;}
+  #roadmap-mount .gantt:not(.gantt-in-modal) :is(.g-task-row,.g-lane-row),
+  #roadmap-mount .gantt:not(.gantt-in-modal) :is(.g-task-row,.g-lane-row).mile{height:44px;}
+  #roadmap-mount .gantt:not(.gantt-in-modal) .g-task-row{justify-content:flex-start;text-align:left;padding:0 var(--ds-space-100);
+    font-size:12px;line-height:1.15;overflow-wrap:anywhere;}
+  #roadmap-mount .gantt:not(.gantt-in-modal) :is(.g-lanes-inner,.g-task-col){padding-bottom:22px;}
+  #roadmap-mount .gantt .g-lanes-scroll{overscroll-behavior-x:contain;}
+  #roadmap-mount .gantt .g-month{padding:0 2px;}
+  /* El % de avance pasa a la etiqueta de fecha fin ("5 oct · 92%"): legible a 12px */
+  #roadmap-mount .gantt .g-bar-pct{display:none;}
+  #roadmap-mount .gantt .g-d-pct{display:inline;}
+  #roadmap-mount .gantt .g-d{font-size:12px !important;}
+  #roadmap-mount .gantt .g-bar{min-width:6px;}
+  #roadmap-mount .gantt .g-bar--puntual .g-d-ini{display:none;}
+  /* Rombo centrado en su fecha (no el grupo rombo+fecha) */
+  #roadmap-mount .gantt .g-milestone{transform:translate(-6px,-50%);}
+  #roadmap-mount .gantt .g-milestone.g-mile-final{transform:translate(-7px,-50%);}
+  #roadmap-mount .gantt .g-today-label-date{font-size:12px;padding:2px var(--ds-space-075);}
+  /* Mismo sobrante de scroll en meses y franjas (padding-right desalinearía las barras) */
+  #roadmap-mount .gantt :is(.g-lanes-inner,.g-head-months)::after{content:"";position:absolute;top:0;left:100%;width:88px;height:1px;}
+  #roadmap-mount .gantt-full-btn-wrap{display:block;}
+  #roadmap-mount .gantt-full-btn{width:100%;min-height:44px;height:auto;white-space:normal;}
+  #roadmap-mount .rm-mobile-only{display:inline;}
+
+  /* Modal "Cronograma completo": pantalla completa, meses y paquete fijos arriba */
+  #ganttModal{padding:0;align-items:stretch;}
+  #ganttModal .gantt-modal{width:100%;height:100vh;height:100dvh;max-height:none;border-radius:0;}
+  #ganttModal .gantt-modal-head{padding:var(--ds-space-100) var(--ds-space-100) var(--ds-space-100) var(--ds-space-200);border-bottom:1px solid var(--ds-border);}
+  #ganttModal .gantt-modal-title{font:var(--ds-font-heading-small);}
+  #ganttModal .gantt-modal-close{width:44px;height:44px;font-size:16px;}
+  #ganttModal .gantt-modal-body{padding:0;overscroll-behavior:contain;}
+  #ganttModal .gantt-in-modal{overflow:visible;border:0;border-radius:0;}
+  #ganttModal .gantt-in-modal .g-head{position:sticky;top:0;z-index:30;}
+  #ganttModal .gantt-in-modal .g-head-spacer{width:120px;}
+  #ganttModal .modal-pkg-block{flex-wrap:wrap;}
+  #ganttModal .modal-pkg-tag{flex:0 0 100%;width:auto;writing-mode:horizontal-tb;transform:none;justify-content:flex-start;
+    position:sticky;top:36px;z-index:29;padding:var(--ds-space-100) var(--ds-space-200);border-right:0;border-bottom:1px solid var(--ds-border);
+    border-left:4px solid var(--ds-pkg-1);color:var(--ds-text);}
+  #ganttModal .modal-tag-pp2{border-left-color:var(--ds-pkg-2);}
+  #ganttModal .modal-tag-pp3{border-left-color:var(--ds-pkg-3);}
+  #ganttModal .gantt-in-modal .g-task-col{width:120px;}
+  #ganttModal .gantt-in-modal :is(.g-task-row,.g-lane-row),
+  #ganttModal .gantt-in-modal :is(.g-task-row,.g-lane-row).mile{height:44px !important;}
+  #ganttModal .gantt-in-modal .g-task-row{font-size:12px !important;justify-content:flex-start;text-align:left;padding:0 var(--ds-space-100);overflow-wrap:anywhere;}
+  #ganttModal .gantt-in-modal .g-mile-date{font-size:12px !important;}
+  #ganttModal .modal-pkg-block:last-child :is(.g-lanes-inner,.g-task-col){padding-bottom:22px;}
+  #ganttModal .gantt-modal-footer{flex-wrap:wrap;gap:var(--ds-space-100);padding:var(--ds-space-150) var(--ds-space-200) calc(var(--ds-space-150) + env(safe-area-inset-bottom, 0px));}
+  #ganttModal .gmf-format{width:100%;justify-content:space-around;}
+  #ganttModal .gmf-radio{min-height:44px;}
+  #ganttModal .gmf-save-btn{width:100%;min-height:44px;}
+
+  /* Avances de actividades: cada fila es una tarjeta con etiquetas */
+  #roadmap-mount .avances-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+  #roadmap-mount .avances-table,#roadmap-mount .avances-table tbody{display:block;width:100%;}
+  #roadmap-mount .avances-table tbody tr{display:flex;flex-wrap:wrap;column-gap:var(--ds-space-150);row-gap:var(--ds-space-100);
+    padding:var(--ds-space-150) var(--ds-space-200);border-bottom:1px solid var(--ds-border);}
+  #roadmap-mount .avances-table tbody tr:last-child{border-bottom:0;}
+  #roadmap-mount .avances-table tbody td{display:block;flex:1 1 100%;min-width:0;width:auto;padding:0;border:0;
+    white-space:normal;text-align:left !important;overflow-wrap:anywhere;}
+  #roadmap-mount .avances-table td[data-label]::before{content:attr(data-label);display:block;margin-bottom:2px;font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
+  #roadmap-mount .avances-table .avances-origen-col{order:1;display:flex;align-items:center;gap:var(--ds-space-075);}
+  #roadmap-mount .avances-table .av-c-act{order:2;font:var(--ds-font-heading-xsmall);}
+  #roadmap-mount .avances-table .av-c-resp{order:3;flex-basis:40%;}
+  #roadmap-mount .avances-table .avances-date{order:4;flex-basis:40%;}
+  #roadmap-mount .avances-table .av-c-prio{order:5;flex-basis:40%;}
+  #roadmap-mount .avances-table .av-c-est{order:6;flex-basis:40%;}
+  #roadmap-mount .avances-table .avances-comentario{order:7;}
+  #roadmap-mount .avances-table .avances-comentario:empty{display:none;}
+  #roadmap-mount .avances-table .avances-reorder-col{order:8;flex:0 0 auto;display:flex;gap:var(--ds-space-100);}
+  #roadmap-mount .avances-table .avances-del-col{order:9;flex:1 1 auto;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:var(--ds-space-100);}
+  #roadmap-mount .avances-table td.avances-empty{padding:var(--ds-space-300) var(--ds-space-200);text-align:center !important;}
+  #roadmap-mount :is(.avances-move-btn,.avances-edit-btn){width:auto;min-width:44px;height:44px;margin:0;padding:0 var(--ds-space-150);
+    gap:var(--ds-space-075);font-size:14px;background:var(--ds-background-neutral);}
+  #roadmap-mount .avances-save-btn{background:var(--ds-background-brand-bold);color:var(--ds-text-inverse);}
+  #roadmap-mount .av-btn-txt{display:inline;}
+  #roadmap-mount .origen-badge{width:24px;height:24px;font-size:14px;}
+  #roadmap-mount .av-origen-txt{display:inline;font:var(--ds-font-body-small);color:var(--ds-text-subtle);}
+  #roadmap-mount .avance-inline-input{height:44px;font-size:16px;}
+  #roadmap-mount .avance-inline-input[type=date]{-webkit-appearance:none;appearance:none;text-align:left;}
+  #roadmap-mount .avances-foot{flex-direction:column;}
+  #roadmap-mount .avances-foot .avances-add-btn{width:100%;min-height:44px;}
+
+  /* Modal "Agregar actividad": pantalla completa; Guardar queda sobre el teclado (--rm-vvh) */
+  #avanceModal,#avanceExportModal{padding:0;align-items:stretch;}
+  #avanceModal .avance-modal{width:100%;height:100vh;height:var(--rm-vvh,100dvh);max-height:none;border-radius:0;}
+  :is(#avanceModal,#avanceExportModal) .avance-modal-head{padding:var(--ds-space-100) var(--ds-space-100) var(--ds-space-100) var(--ds-space-200);border-bottom:1px solid var(--ds-border);}
+  :is(#avanceModal,#avanceExportModal) .avance-modal-title{font:var(--ds-font-heading-small);}
+  :is(#avanceModal,#avanceExportModal) .avance-modal-close{width:44px;height:44px;font-size:16px;}
+  #avanceModal .avance-modal-body{padding:var(--ds-space-200);overscroll-behavior:contain;}
+  :is(#avanceModal,#avanceExportModal) .avance-modal-footer{border-top:1px solid var(--ds-border);
+    padding:var(--ds-space-150) var(--ds-space-200) calc(var(--ds-space-150) + env(safe-area-inset-bottom, 0px));}
+  :is(#avanceModal,#avanceExportModal) .avance-modal-footer > button{flex:1;min-height:44px;}
+  #avanceModal :is(.avance-field input,.avance-field select,.avance-picker-search){height:44px;font-size:16px;}
+  #avanceModal .avance-field input[type=date]{-webkit-appearance:none;appearance:none;text-align:left;}
+  #avanceModal .avance-picker-list{max-height:35vh;max-height:35dvh;overscroll-behavior:contain;}
+  #avanceModal .avance-picker-item{min-height:44px;display:flex;align-items:center;}
+  /* Tras elegir una actividad queda el chip con "Cambiar": sin doble scroll */
+  #avanceSelectedChip:not(:empty) ~ :is(#avancePickerSearch,#avancePickerList){display:none;}
+  #avanceModal .avance-selected-chip{align-items:flex-start;}
+  #avanceModal .avance-selected-chip button{min-height:44px;padding:0 var(--ds-space-100);margin:-12px -8px -12px 0;}
+  /* Vista previa PNG: tamaño de lectura (ver wireAvancesExport) y scroll en 2 ejes */
+  #avanceExportModal .avance-modal{width:100% !important;height:100vh;height:100dvh;max-height:none;border-radius:0;}
+  #avanceExportModal .avance-export-body{margin:0;padding:var(--ds-space-100) !important;overflow:auto;text-align:left;border-radius:0;}
+  #avanceExportModal .avance-export-img{max-width:none;}
+
+  /* Catálogo de trámites */
+  #roadmap-mount .rm-collapsible summary{min-height:44px;}
+  #roadmap-mount .rm-collapsible-body{padding:var(--ds-space-100) var(--ds-space-150) var(--ds-space-150);}
+  #roadmap-mount .tram-count-cards{grid-template-columns:minmax(0,1fr);gap:var(--ds-space-100);margin-bottom:var(--ds-space-200);}
+  #roadmap-mount .tram-count-card{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--ds-space-150);align-items:center;
+    padding:var(--ds-space-100) var(--ds-space-150);}
+  #roadmap-mount .tram-count-val{grid-row:span 2;min-width:2ch;}
+  #roadmap-mount :is(.tram-count-lbl,.tram-count-cert){grid-column:2;margin:0;}
+  #roadmap-mount .tram-pkg-cards{grid-template-columns:minmax(0,1fr);}
+  #roadmap-mount .tram-pkg-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+  #roadmap-mount .tram-pkg-table,#roadmap-mount .tram-pkg-table tbody{display:block;}
+  #roadmap-mount .tram-pkg-table tr{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--ds-space-100);row-gap:var(--ds-space-075);
+    padding:var(--ds-space-150) var(--ds-space-200);border-bottom:1px solid var(--ds-border);}
+  #roadmap-mount .tram-pkg-table tr:last-child{border-bottom:0;}
+  #roadmap-mount .tram-pkg-table td{display:block;padding:0;border:0;}
+  #roadmap-mount .tram-pkg-table td.tram-pkg-no{width:auto;}
+  #roadmap-mount .tram-pkg-table td.tram-pkg-no::before{content:"N° ";}
+  #roadmap-mount .tram-estatus-cell{grid-column:2;text-align:left;white-space:normal;}
+  #roadmap-mount .tram-estatus-chip{position:relative;height:auto;min-height:36px;padding:var(--ds-space-075) var(--ds-space-150);}
+  #roadmap-mount .tram-estatus-chip--interactive::after{content:"";position:absolute;inset:-4px 0;}
+  #roadmap-mount .tram-estatus-chip-caret{font-size:12px;}
+  #roadmap-mount .pkg-id-chip{font-size:12px;}
+  /* Menú de estatus como hoja inferior (cuelga de body, clase solo en mobile) */
+  .tram-estatus-backdrop{position:fixed;inset:0;z-index:calc(var(--ds-z-popover) - 1);background:var(--ds-blanket);}
+  .tram-estatus-menu--sheet{position:fixed;left:0 !important;right:0;top:auto !important;bottom:0;min-width:0;
+    padding:var(--ds-space-100) var(--ds-space-200) calc(var(--ds-space-200) + env(safe-area-inset-bottom, 0px));
+    border-radius:var(--ds-radius-xlarge) var(--ds-radius-xlarge) 0 0;}
+  .tram-estatus-menu--sheet .tram-estatus-menu-head{display:block;padding:var(--ds-space-100) 0 var(--ds-space-150);font:var(--ds-font-body);color:var(--ds-text-subtle);}
+  .tram-estatus-menu--sheet .tram-estatus-menu-head strong{display:block;color:var(--ds-text);}
+  .tram-estatus-menu--sheet :is(.tram-estatus-menu-opt,.tram-estatus-menu-cancel){min-height:48px;font-size:16px;}
+  .tram-estatus-menu--sheet .tram-estatus-menu-opt[aria-checked="true"]{background:var(--ds-background-selected);color:var(--ds-text-selected);font-weight:600;}
+  .tram-estatus-menu-cancel{display:block;width:100%;margin-top:var(--ds-space-100);border:none;border-radius:var(--ds-radius-small);
+    background:var(--ds-background-neutral);color:var(--ds-text);font:500 1rem/1 var(--ds-font-family-body);cursor:pointer;}
+
+  /* Detalle por paquete: cabecera en grilla, Ruta a liberación primero */
+  #roadmap-mount .pkg-head{display:grid;grid-template-columns:40px minmax(0,1fr);column-gap:var(--ds-space-150);row-gap:var(--ds-space-100);padding:var(--ds-space-200);}
+  #roadmap-mount .pkg-release{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:var(--ds-space-100);
+    text-align:left;padding-top:var(--ds-space-100);border-top:1px solid var(--ds-border);}
+  #roadmap-mount .col{padding:var(--ds-space-200) var(--ds-space-150);}
+  #roadmap-mount .col-track{order:-1;border-bottom:1px solid var(--ds-border);}
+  #roadmap-mount .col-scope{border-bottom:0;}
+  #roadmap-mount .hito{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--ds-space-100);row-gap:var(--ds-space-050);align-items:center;}
+  #roadmap-mount .hito-f{grid-row:1;grid-column:1;min-width:0;}
+  #roadmap-mount .hito-cat{grid-row:1;grid-column:2;justify-self:start;}
+  #roadmap-mount .hito-t{grid-row:2;grid-column:1/-1;}
+  #roadmap-mount .sp-row{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--ds-space-100);row-gap:var(--ds-space-050);align-items:center;}
+  #roadmap-mount .sp-d{grid-column:1/-1;}
+  #roadmap-mount .pkg-foot{padding:var(--ds-space-150) var(--ds-space-200);align-items:flex-start;}
+  #roadmap-mount .foot-dot{margin-top:6px;}
+  #roadmap-mount .legend{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ds-space-100) var(--ds-space-150);}
+
+  /* Capa transversal: nombre arriba, rango y estado abajo */
+  #roadmap-mount .tr-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--ds-space-150);row-gap:var(--ds-space-050);align-items:center;}
+  #roadmap-mount .tr-name{grid-column:1/-1;}
+  #roadmap-mount .tr-range{min-width:0;}
+
+  /* Lozenges del módulo: 12px, sin cortar */
+  #roadmap-mount :is(.badge,.est-badge,.hito-cat){height:auto;min-height:20px;padding:2px var(--ds-space-075);font-size:12px;line-height:16px;white-space:normal;}
+
+  #roadmap-mount .docfoot{flex-direction:column;gap:var(--ds-space-050);margin-top:var(--ds-space-400);}
+}
+@media screen and (max-width: 479.98px){
+  #roadmap-mount .sum-pct-wrap{position:static;order:2;flex-direction:row;align-items:baseline;gap:var(--ds-space-150);margin-top:var(--ds-space-100);}
+  #roadmap-mount .sum-id{order:0;}
+  #roadmap-mount .sum-title{order:1;padding-right:0;}
+  #roadmap-mount .sum-prog-bar{order:3;}
+  #roadmap-mount .sum-rel{order:4;}
+}
+@media screen and (max-width: 767.98px) and (hover: none){
+  #roadmap-mount .sum-card:hover{box-shadow:none;}
+  #roadmap-mount .tr-row:hover{background:none;}
+  #roadmap-mount .avances-table tbody tr:hover td{background:none;}
+  #roadmap-mount .rm-collapsible summary:hover{background:none;}
+  #roadmap-mount .tram-estatus-chip--interactive:hover{filter:none;}
+}
 `;
   document.head.appendChild(style);
 
@@ -609,14 +817,14 @@
       // franja tenue = duración planificada completa, relleno verde = avance real.
       var rawProgreso = act.progreso;
       var pctProgreso = (rawProgreso===undefined || rawProgreso===null) ? 0 : Math.max(0, Math.min(100, rawProgreso));
-      var barHtml = '<div class="g-bar" style="'+st+'">'
+      var barHtml = '<div class="g-bar'+(isoDateOnly(act.inicio)===isoDateOnly(act.fin)?' g-bar--puntual':'')+'" style="'+st+'">'
         +'<div class="g-bar-inner">'
           +'<div class="g-bar-track '+colorClass+'"></div>'
           +'<div class="g-bar-fill" style="width:'+pctProgreso+'%;"></div>'
           +'<span class="g-bar-pct">'+pctProgreso+'%</span>'
         +'</div>'
         +'<span class="g-d g-d-ini">'+fmtShort(act.inicio)+'</span>'
-        +'<span class="g-d g-d-fin">'+fmtShort(act.fin)+'</span>'
+        +'<span class="g-d g-d-fin">'+fmtShort(act.fin)+'<span class="g-d-pct"> · '+pctProgreso+'%</span></span>'
       +'</div>';
       lanes += '<div class="g-lane-row">'+barHtml+'</div>';
     });
@@ -673,7 +881,7 @@
         +'</div>'
         +'<div class="g-stack">'+panelsHtml+'</div>'
       +'</div>'
-      +'<div class="note">Cronograma según plan de trabajo. La barra de <strong>Desarrollo</strong> muestra el avance real vs. planificado. Seleccioná un paquete arriba para ver su detalle.</div>'
+      +'<div class="note">Cronograma según plan de trabajo. La barra de <strong>Desarrollo</strong> muestra el avance real vs. planificado. Seleccioná un paquete arriba para ver su detalle.<span class="rm-mobile-only"> Deslizá el cronograma hacia los lados para ver otras fechas.</span></div>'
       +'<div class="gantt-full-btn-wrap"><button class="gantt-full-btn" id="btnShowFullGantt" type="button">Ver cronograma completo</button></div>'
     +'</div>'
     // Modal
@@ -887,6 +1095,7 @@
 
   function closeTramiteEstatusMenu(){
     if(_tramiteEstatusMenu && _tramiteEstatusMenu.parentNode) _tramiteEstatusMenu.parentNode.removeChild(_tramiteEstatusMenu);
+    if(_tramiteEstatusMenu && _tramiteEstatusMenu._backdrop && _tramiteEstatusMenu._backdrop.parentNode) _tramiteEstatusMenu._backdrop.parentNode.removeChild(_tramiteEstatusMenu._backdrop);
     _tramiteEstatusMenu = null;
   }
 
@@ -894,15 +1103,31 @@
     closeTramiteEstatusMenu();
     var menu = document.createElement('div');
     menu.className = 'tram-estatus-menu';
-    menu.innerHTML = TRAMITE_ESTATUS_OPCIONES.map(function(op){
-      return '<button type="button" class="tram-estatus-menu-opt" data-opt="'+op+'">'+op+'</button>';
-    }).join('');
-    document.body.appendChild(menu);
-    var rect = chipEl.getBoundingClientRect();
-    var top = window.scrollY + rect.bottom + 4;
-    var left = window.scrollX + rect.right - menu.offsetWidth;
-    menu.style.top = top+'px';
-    menu.style.left = Math.max(8, left)+'px';
+    var sheet = DS.isMobile();
+    var row = chipEl.closest('tr');
+    var nombre = row && row.children[1] ? row.children[1].textContent : '';
+    var actual = chipEl.textContent.replace(/▼/g,'').trim();
+    // En mobile se abre como hoja inferior que dice a qué trámite se le cambia el estatus.
+    menu.innerHTML = '<div class="tram-estatus-menu-head">Cambiar estatus<strong>N° '+escapeHtml(chipEl.getAttribute('data-tramite-no'))+' · '+escapeHtml(nombre)+'</strong></div>'
+      + TRAMITE_ESTATUS_OPCIONES.map(function(op){
+        return '<button type="button" class="tram-estatus-menu-opt" data-opt="'+op+'"'+(sheet ? ' aria-checked="'+(op===actual)+'"' : '')+'>'+op+'</button>';
+      }).join('')
+      + (sheet ? '<button type="button" class="tram-estatus-menu-cancel">Cancelar</button>' : '');
+    if(sheet){
+      menu.className += ' tram-estatus-menu--sheet';
+      var backdrop = document.createElement('div');
+      backdrop.className = 'tram-estatus-backdrop';
+      document.body.appendChild(backdrop);
+      menu._backdrop = backdrop;
+      document.body.appendChild(menu);
+    } else {
+      document.body.appendChild(menu);
+      var rect = chipEl.getBoundingClientRect();
+      var top = window.scrollY + rect.bottom + 4;
+      var left = window.scrollX + rect.right - menu.offsetWidth;
+      menu.style.top = top+'px';
+      menu.style.left = Math.max(8, left)+'px';
+    }
     menu._forChip = chipEl;
     menu._forNo = chipEl.getAttribute('data-tramite-no');
     _tramiteEstatusMenu = menu;
@@ -927,6 +1152,7 @@
     if(_tramitesEstatusUIWired) return;
     _tramitesEstatusUIWired = true;
     document.addEventListener('click', function(e){
+      if(e.target.closest('.tram-estatus-menu-cancel')){ closeTramiteEstatusMenu(); return; }
       var opt = e.target.closest('.tram-estatus-menu-opt');
       if(opt && _tramiteEstatusMenu){
         var no = _tramiteEstatusMenu._forNo;
@@ -1088,19 +1314,19 @@
   // ── Render meta bar ───────────────────────────────────────────────────────────
   function renderMetaBar(meta){
     var spiHtml = meta.spi_global !== undefined && meta.spi_global !== null
-      ? '<div class="rmb-item"><span class="rmb-k">SPI Global</span><span class="rmb-v spi-'+spiLevel(meta.spi_global)+'">'+meta.spi_global.toFixed(2)+'</span></div>'
+      ? '<div class="rmb-item rmb-item--spi'+(meta.progreso_global == null ? ' rmb-item--wide' : '')+'"><span class="rmb-k">SPI Global</span><span class="rmb-v spi-'+spiLevel(meta.spi_global)+'">'+meta.spi_global.toFixed(2)+'</span></div>'
       : '';
     var progHtml = meta.progreso_global !== undefined && meta.progreso_global !== null
-      ? '<div class="rmb-item"><span class="rmb-k">Avance global</span><span class="rmb-v">'+meta.progreso_global+'%'
+      ? '<div class="rmb-item rmb-item--avance'+(meta.spi_global == null ? ' rmb-item--wide' : '')+'"><span class="rmb-k">Avance global</span><span class="rmb-v">'+meta.progreso_global+'%'
           +(meta.progreso_planif != null ? '<small>/ '+meta.progreso_planif+'% plan</small>' : '')
         +'</span></div>'
       : '';
     return '<div class="roadmap-meta-bar">'
-      +'<div class="rmb-item"><span class="rmb-k">Horizonte</span><span class="rmb-v">'+meta.horizonte+'</span></div>'
-      +'<div class="rmb-item"><span class="rmb-k">Paquetes</span><span class="rmb-v">'+meta.paquetes_count+' productivos</span></div>'
-      +'<div class="rmb-item"><span class="rmb-k">Metodología</span><span class="rmb-v">'+meta.metodologia+'</span></div>'
+      +'<div class="rmb-item rmb-item--horizonte"><span class="rmb-k">Horizonte</span><span class="rmb-v">'+meta.horizonte+'</span></div>'
+      +'<div class="rmb-item rmb-item--paquetes"><span class="rmb-k">Paquetes</span><span class="rmb-v">'+meta.paquetes_count+' productivos</span></div>'
+      +'<div class="rmb-item rmb-item--metodologia"><span class="rmb-k">Metodología</span><span class="rmb-v">'+meta.metodologia+'</span></div>'
       +progHtml+spiHtml
-      +'<div class="rmb-item"><span class="rmb-k">Liberación final</span><span class="rmb-v">'+fmtLong(meta.liberacion_final)+'</span></div>'
+      +'<div class="rmb-item rmb-item--lib"><span class="rmb-k">Liberación final</span><span class="rmb-v">'+fmtLong(meta.liberacion_final)+'</span></div>'
     +'</div>';
   }
 
@@ -1188,7 +1414,7 @@
   var _avanceEditingId = null;
 
   function renderAvancesRows(rows){
-    if(!rows.length) return '<tr><td colspan="9" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
+    if(!rows.length) return '<tr class="avances-empty-row"><td colspan="9" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
     return rows.map(function(r, i){
       var upDisabled = i===0 ? 'disabled' : '';
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
@@ -1205,16 +1431,16 @@
           + ESTADOS_AVANCE.map(function(e){ return '<option value="'+e+'"'+(e===(r.estatus||'Pendiente')?' selected':'')+'>'+e+'</option>'; }).join('')
           + '</select>';
         comentarioCell = '<input type="text" class="avance-inline-input" id="edit-comentario-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.comentario||'')+'" placeholder="Opcional">';
-        accionesCell = '<button class="avances-edit-btn avances-save-btn" type="button" data-save-id="'+escapeHtml(r.id)+'" title="Guardar cambios">✓</button>'
-          +'<button class="avances-edit-btn" type="button" data-cancel-id="'+escapeHtml(r.id)+'" title="Cancelar">✕</button>';
+        accionesCell = '<button class="avances-edit-btn avances-save-btn" type="button" data-save-id="'+escapeHtml(r.id)+'" title="Guardar cambios">✓<span class="av-btn-txt">Guardar</span></button>'
+          +'<button class="avances-edit-btn" type="button" data-cancel-id="'+escapeHtml(r.id)+'" title="Cancelar">✕<span class="av-btn-txt">Cancelar</span></button>';
       } else {
         fechaCell = fmtLong(r.fecha_planeada);
         asignadoCell = escapeHtml(r.asignado_a);
         prioridadCell = '<span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span>';
         estatusCell = '<span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span>';
         comentarioCell = escapeHtml(r.comentario||'');
-        accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎</button>'
-          +'<button class="avances-edit-btn avances-del-btn" type="button" data-del-id="'+escapeHtml(r.id)+'" title="Eliminar">✕</button>';
+        accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎<span class="av-btn-txt">Editar</span></button>'
+          +'<button class="avances-edit-btn avances-del-btn" type="button" data-del-id="'+escapeHtml(r.id)+'" title="Eliminar">✕<span class="av-btn-txt">Eliminar</span></button>';
       }
 
       // Orden de columnas: Actividades, Responsables, Prioridad, Fecha,
@@ -1223,16 +1449,17 @@
       // acciones al final, sin cambios.
       return '<tr data-avance-id="'+escapeHtml(r.id)+'">'
         +'<td class="avances-reorder-col">'
-          +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir">▲</button>'
-          +'<button class="avances-move-btn" type="button" data-move="down" data-id="'+escapeHtml(r.id)+'" '+downDisabled+' title="Bajar">▼</button>'
+          +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir" aria-label="Subir">▲</button>'
+          +'<button class="avances-move-btn" type="button" data-move="down" data-id="'+escapeHtml(r.id)+'" '+downDisabled+' title="Bajar" aria-label="Bajar">▼</button>'
         +'</td>'
-        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
-        +'<td>'+escapeHtml(r.actividad)+'</td>'
-        +'<td>'+asignadoCell+'</td>'
-        +'<td>'+prioridadCell+'</td>'
-        +'<td class="avances-date">'+fechaCell+'</td>'
-        +'<td>'+estatusCell+'</td>'
-        +'<td class="avances-comentario">'+comentarioCell+'</td>'
+        // data-label y el texto del origen solo se ven en mobile (tarjetas).
+        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'<span class="av-origen-txt">'+(r.origen!=='adicional'?'Del plan de trabajo':'Actividad adicional')+'</span></td>'
+        +'<td class="av-c-act">'+escapeHtml(r.actividad)+'</td>'
+        +'<td class="av-c-resp" data-label="Responsables">'+asignadoCell+'</td>'
+        +'<td class="av-c-prio" data-label="Prioridad">'+prioridadCell+'</td>'
+        +'<td class="avances-date" data-label="Fecha">'+fechaCell+'</td>'
+        +'<td class="av-c-est" data-label="Estatus">'+estatusCell+'</td>'
+        +'<td class="avances-comentario" data-label="Comentarios">'+comentarioCell+'</td>'
         +'<td class="avances-del-col">'+accionesCell+'</td>'
         +'</tr>';
     }).join('');
@@ -1244,7 +1471,7 @@
       +'<div class="avances-wrap">'
         +'<table class="avances-table">'
           +'<thead><tr><th></th><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th><th></th></tr></thead>'
-          +'<tbody id="avancesTbody"><tr><td colspan="9" class="avances-empty">Cargando…</td></tr></tbody>'
+          +'<tbody id="avancesTbody"><tr class="avances-empty-row"><td colspan="9" class="avances-empty">Cargando…</td></tr></tbody>'
         +'</table>'
         +'<div class="avances-foot">'
           +'<button class="avances-add-btn" id="btnAddAvance" type="button">+ Agregar actividad</button>'
@@ -1355,13 +1582,24 @@
     refreshSelectedChip();
     overlay.classList.add('open');
     overlay.setAttribute('aria-hidden','false');
+    // Mobile: el modal mide el viewport visible (el teclado no lo tapa) y "atrás" lo cierra.
+    if(DS.isMobile() && window.visualViewport){
+      _avanceVV = function(){ overlay.style.setProperty('--rm-vvh', window.visualViewport.height+'px'); };
+      _avanceVV();
+      window.visualViewport.addEventListener('resize', _avanceVV);
+    }
+    _avanceHist = DS.modalHistory.opened(closeAvanceModal);
   }
 
+  var _avanceVV = null, _avanceHist = null;
   function closeAvanceModal(){
     var overlay = document.getElementById('avanceModal');
     if(!overlay) return;
     overlay.classList.remove('open');
     overlay.setAttribute('aria-hidden','true');
+    if(_avanceVV && window.visualViewport){ window.visualViewport.removeEventListener('resize', _avanceVV); overlay.style.removeProperty('--rm-vvh'); }
+    _avanceVV = null;
+    DS.modalHistory.closed(_avanceHist); _avanceHist = null;
   }
 
   // Pese al nombre, es un poster genérico contra el mismo Apps Script —
@@ -1601,6 +1839,10 @@
   var AVANCES_EXPORT_H = 2160;
   var AVANCES_EXPORT_PADDING = 36;
 
+  // Desde el celular, html2canvas evalúa las media queries con el ancho del
+  // teléfono: se le da un viewport de desktop para que el PNG/PDF sea idéntico.
+  function rmH2cViewport(){ return DS.isMobile() ? { windowWidth:1920, windowHeight:1080 } : {}; }
+
   function ensureHtml2Canvas(cb){
     loadScriptOnce('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', function(){ return !!window.html2canvas; }, cb);
   }
@@ -1659,7 +1901,7 @@
     wrap.style.width = finalWidth+'px';
 
     var scale = AVANCES_EXPORT_W / finalWidth;
-    return { wrap: wrap, scale: scale };
+    return { wrap: wrap, scale: scale, cssWidth: finalWidth };
   }
 
   function captureAvancesCanvas(then){
@@ -1671,7 +1913,7 @@
     // nunca en una pestaña en segundo plano o sin foco).
     setTimeout(function(){
       setTimeout(function(){
-        window.html2canvas(wrap, { scale: built.scale, backgroundColor: DS.token('--ds-surface','#FFFFFF') }).then(function(canvas){
+        window.html2canvas(wrap, Object.assign({ scale: built.scale, backgroundColor: DS.token('--ds-surface','#FFFFFF') }, rmH2cViewport())).then(function(canvas){
           document.body.removeChild(wrap);
           // Se redibuja sobre un canvas de tamaño exacto 3840×2160 — cualquier
           // pequeño desvío de medición queda absorbido acá, sin depender de que
@@ -1683,7 +1925,7 @@
           ctx.fillStyle = DS.token('--ds-surface','#FFFFFF');
           ctx.fillRect(0, 0, AVANCES_EXPORT_W, AVANCES_EXPORT_H);
           ctx.drawImage(canvas, 0, 0, AVANCES_EXPORT_W, AVANCES_EXPORT_H);
-          then(null, finalCanvas);
+          then(null, finalCanvas, built.cssWidth);
         }).catch(function(err){
           document.body.removeChild(wrap);
           then(err);
@@ -1725,12 +1967,15 @@
 
       ensureHtml2Canvas(function(err){
         if(err){ statusEl.textContent = 'No se pudo cargar la librería de exportación. Verificá tu conexión e intentá de nuevo.'; return; }
-        captureAvancesCanvas(function(capErr, canvas){
+        captureAvancesCanvas(function(capErr, canvas, cssWidth){
           if(capErr){ statusEl.textContent = 'Ocurrió un error al generar la imagen.'; return; }
           canvas.toBlob(function(blob){
+            if(!blob){ statusEl.textContent = 'No se pudo generar la imagen (memoria insuficiente en este dispositivo).'; return; }
             if(currentBlobUrl) URL.revokeObjectURL(currentBlobUrl);
             currentBlobUrl = URL.createObjectURL(blob);
             img.src = currentBlobUrl;
+            // Mobile: la imagen se muestra a tamaño de lectura (texto ≥12px) y se recorre en 2 ejes.
+            img.style.width = (DS.isMobile() && cssWidth) ? Math.ceil(cssWidth * 12 / 17) + 'px' : '';
             img.style.display = 'inline-block';
             statusEl.style.display = 'none';
             btnDownload.disabled = false;
@@ -2285,6 +2530,21 @@
     document.addEventListener('ds:pkgchange', function(e){
       if(e.detail && e.detail.source !== 'roadmap') rmSelectPkg(e.detail.pkg, false);
     });
+    DS.onMobileChange(function(){
+      closeTramiteEstatusMenu();
+      mount.querySelectorAll('.gantt').forEach(function(g){ g.__autoScrolled = false; }); // re-centra en hoy
+      positionTodayLines();
+      DS.tabs.reveal(mount.querySelector('.rm-sectabs .ds-sectab.is-active'));
+    });
+    // Si el Roadmap se pintó con la página oculta (F5 en Seguimiento), en mobile el
+    // Gantt necesita su ancho en px al mostrarse (sin eso quedaría comprimido).
+    document.addEventListener('portal:navigate', function(e){
+      if(!e.detail || e.detail.page !== 'roadmap' || !DS.isMobile()) return;
+      requestAnimationFrame(function(){
+        positionTodayLines();
+        DS.tabs.reveal(mount.querySelector('.rm-sectabs .ds-sectab.is-active'));
+      });
+    });
   }
 
   // ── Sincronización de scroll (header ⇄ franjas de fecha) ─────────────────────
@@ -2299,9 +2559,11 @@
       scrollers.forEach(function(src){
         src.addEventListener('scroll', function(){
           if(syncing) return;
+          var mob = DS.isMobile();
+          if(mob && src.__rmExpect != null && Math.abs(src.scrollLeft - src.__rmExpect) < 1){ src.__rmExpect = null; return; }
           syncing = true;
           var left = src.scrollLeft;
-          scrollers.forEach(function(dst){ if(dst!==src) dst.scrollLeft = left; });
+          scrollers.forEach(function(dst){ if(dst!==src){ if(mob) dst.__rmExpect = left; dst.scrollLeft = left; } });
           syncing = false;
         });
       });
@@ -2318,8 +2580,8 @@
     var btnClose = document.getElementById('btnCloseGantt');
     var overlay  = document.getElementById('ganttModal');
     if(!btnOpen||!overlay) return;
-    function openModal(){ overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; setTimeout(function(){ positionTodayLines(_axisStart, _totalDays); }, 30); }
-    function closeModal(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+    function openModal(){ overlay.classList.add('open'); overlay.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; setTimeout(function(){ positionTodayLines(_axisStart, _totalDays); }, 30); overlay.__hist = DS.modalHistory.opened(closeModal); }
+    function closeModal(){ overlay.classList.remove('open'); overlay.setAttribute('aria-hidden','true'); document.body.style.overflow=''; DS.modalHistory.closed(overlay.__hist); overlay.__hist = null; }
     btnOpen.addEventListener('click', openModal);
     if(btnClose) btnClose.addEventListener('click', closeModal);
     overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
@@ -2404,6 +2666,8 @@
     var title = document.createElement('div');
     title.textContent = 'Cronograma completo de actividades — Digitalización de Trámites ISSS';
     title.style.cssText = 'font-size:16px;font-weight:600;color:'+DS.token('--ds-text','#292A2E')+';margin-bottom:14px;';
+    // En el celular el wrap toma el ancho del viewport y el título envolvería (cambia el alto medido).
+    if(DS.isMobile()) title.style.whiteSpace = 'nowrap';
     wrap.appendChild(title);
 
     var clone = original.cloneNode(true);
@@ -2438,7 +2702,7 @@
     var wrap = built.wrap;
     requestAnimationFrame(function(){
       requestAnimationFrame(function(){
-        window.html2canvas(wrap, { scale: built.scale, backgroundColor: DS.token('--ds-surface','#FFFFFF') }).then(function(canvas){
+        window.html2canvas(wrap, Object.assign({ scale: built.scale, backgroundColor: DS.token('--ds-surface','#FFFFFF') }, rmH2cViewport())).then(function(canvas){
           document.body.removeChild(wrap);
           document.body.style.overflow = prevBodyOverflow;
           then(null, canvas);
@@ -2496,9 +2760,12 @@
           done();
         } else {
           canvas.toBlob(function(blob){
+            if(!blob){ done(); DS.flag('No se pudo generar la imagen (memoria insuficiente en este dispositivo).', 'error'); return; }
             var url = URL.createObjectURL(blob);
             downloadFile(url, ganttExportFilename('png'));
-            URL.revokeObjectURL(url);
+            // iOS cancela la descarga si el blob se revoca antes de que empiece.
+            if(DS.isMobile()) setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
+            else URL.revokeObjectURL(url);
             done();
           }, 'image/png');
         }
@@ -2530,7 +2797,10 @@
       }
       if(!visibleLaneW) return; // aún no visible (p.ej. modal cerrado); se recalcula al abrir/resize
       var isModal     = g.classList.contains('gantt-in-modal');
-      var visibleDays = isModal ? VISIBLE_DAYS : _totalDays;
+      // Mobile: el Gantt principal no comprime todo el rango; se ven 45-60 días
+      // (≥3.6px/día: los meses miden ≥108px y sus nombres no se enciman) y se desliza.
+      var visibleDays = isModal ? VISIBLE_DAYS
+        : (DS.isMobile() ? Math.max(45, Math.min(60, Math.floor(visibleLaneW / 3.6))) : _totalDays);
       var pxPerDay    = visibleLaneW / visibleDays;
       var laneW       = pxPerDay * _totalDays;
 
