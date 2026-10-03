@@ -418,7 +418,7 @@
 
 @media print{
   @page{ size:landscape; margin:12mm; }
-  #sidebar, .main-topbar, .page-breadcrumb, .seg-btn-report, .seg-modal-overlay, .ds-flags{display:none !important;}
+  #sidebar, .main-topbar, .page-breadcrumb, .seg-btn-report, .seg-modal-overlay, .ds-flags, #mobile-nav, .shell-mfoot{display:none !important;}
   /* El shell de la SPA fija html/body/#app-shell a 100vh con overflow:hidden
      para poder scrollear solo #page-content — eso recorta la impresión a una
      sola pantalla. Hay que liberar TODA la cadena de altura/overflow para

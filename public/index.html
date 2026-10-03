@@ -211,6 +211,100 @@ html[data-auth="app"] #app-shell{display:flex !important;}
 .page-header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--ds-space-200);flex-wrap:wrap;}
 .page-title{font:var(--ds-font-heading-large);color:var(--ds-text);}
 .page-desc{font:var(--ds-font-body);color:var(--ds-text-subtle);margin-top:var(--ds-space-050);max-width:720px;}
+
+/* ── MOBILE (≤767.98px) ─────────────────────────────── */
+/* Al final del <style> para ganarle a .page-* y al bloque de 880px por orden.
+   Desde 768px nada de esto aplica: tablet y laptop quedan como siempre. */
+.mnav,.shell-mfoot{display:none;}
+@media screen and (max-width: 767.98px){
+  html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
+  html[data-auth="app"]{--mobile-nav-h:56px;--mobile-bottom-inset:var(--mobile-nav-h);}
+
+  /* Alto = viewport visible; el scroller sigue siendo #page-content */
+  #app-shell{height:100%;height:100dvh;}
+  /* Sin riel ni overlay lateral: la navegación pasa a la barra inferior */
+  #sidebar,#sidebar.collapsed,#sb-toggle{display:none;}
+
+  /* Top bar: la marca en 2 líneas recupera el subtítulo (oculto en ≤880) */
+  .main-topbar{height:auto;min-height:var(--tn-height);padding:0 var(--ds-space-100) 0 var(--ds-space-200);}
+  .tn-brand{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:var(--ds-space-100);align-items:center;align-content:center;row-gap:0;
+    min-height:var(--ds-touch-target);padding:var(--ds-space-050) 0;}
+  .tn-brand .tn-logo{grid-row:1 / span 2;}
+  .tn-product{line-height:1rem;}
+  .tn-sub{display:block;padding-left:0;border-left:0;white-space:normal;line-height:1rem;}
+  .tn-avatar-btn{width:var(--ds-touch-target);height:var(--ds-touch-target);}
+  .sb-avatar{width:28px;height:28px;font-size:.8125rem;}
+  .tn-menu{min-width:min(260px, calc(100vw - 24px));max-width:calc(100vw - 24px);}
+  .sb-user-email{white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;}
+  .tn-menu-item{min-height:var(--ds-touch-target);}
+
+  /* Contenido a ancho completo: 375 − 2×16 = 343px */
+  #page-content{--page-gutter:var(--ds-space-200);padding:var(--ds-space-150) var(--page-gutter) var(--ds-space-400);
+    overscroll-behavior-y:contain;scroll-padding-top:calc(2 * var(--ds-tabbar-h));}
+  .page-breadcrumb{margin-bottom:0;}
+  .page-breadcrumb a{display:inline-flex;align-items:center;min-height:var(--ds-touch-target);}
+  .page-header{margin-bottom:var(--ds-space-200);}
+  .page-header-row{gap:var(--ds-space-150);}
+  .page-title{font:var(--ds-font-heading-medium);}
+  /* Generar reportes es tarea de laptop: en el celular no se ofrece */
+  #rm-btn-generar-resumen,#seg-btn-generar-reporte{display:none;}
+  /* iOS hace zoom al enfocar campos de menos de 16px */
+  #app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  #app-shell select,#app-shell textarea{font-size:16px;}
+  /* Mientras carga seguimiento.js no se muestra "Módulo en construcción" */
+  #page-seg-resumen > .ds-empty-state > *,#page-seg-producto > .ds-empty-state > *{display:none;}
+  #page-seg-resumen > .ds-empty-state::before,#page-seg-producto > .ds-empty-state::before{content:"Cargando…";font:var(--ds-font-body);color:var(--ds-text-subtle);}
+
+  /* Barra inferior: en el flujo (último hijo de #app-shell), nada queda tapado */
+  .mnav{display:block;flex:none;position:relative;z-index:var(--ds-z-bottom-nav);
+    background:var(--ds-surface);border-top:1px solid var(--ds-border);padding-bottom:env(safe-area-inset-bottom, 0px);}
+  .mnav-list{display:flex;list-style:none;margin:0;padding:0;}
+  .mnav-list > li{flex:1 1 0;min-width:0;display:flex;}
+  .mnav-item{flex:1;min-width:0;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:var(--ds-space-025);padding:var(--ds-space-075) var(--ds-space-050) var(--ds-space-050);
+    font:500 .75rem/1rem var(--ds-font-family-body);color:var(--ds-text-subtle);text-align:center;-webkit-tap-highlight-color:transparent;}
+  .mnav-icon{width:56px;height:28px;flex:none;display:flex;align-items:center;justify-content:center;
+    border-radius:var(--ds-radius-full);transition:background var(--ds-motion);}
+  .mnav-icon svg{width:22px;height:22px;display:block;}
+  .mnav-label{display:block;max-width:100%;white-space:normal;}
+  .mnav-item.active{color:var(--ds-text-selected);font-weight:600;}
+  .mnav-item.active .mnav-icon{background:var(--ds-background-selected);}
+  .mnav-item:active .mnav-icon{background:var(--ds-background-neutral-subtle-pressed);}
+  .mnav-item:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:-4px;}
+
+  /* Pie del menú lateral, reubicado al final del contenido */
+  .shell-mfoot{display:block;margin-top:var(--ds-space-400);padding-top:var(--ds-space-200);border-top:1px solid var(--ds-border);
+    font:var(--ds-font-body-small);color:var(--ds-text-subtlest);text-align:center;}
+
+  /* Login: centrado "seguro" (arranca arriba si no entra) y error junto al botón */
+  #login-screen{justify-content:flex-start;padding:var(--ds-space-300) var(--ds-space-200);}
+  .login-card{margin-top:auto;padding:var(--ds-space-300) var(--ds-space-250);display:flex;flex-direction:column;}
+  .login-card > *{order:2;}
+  .login-card > .login-brand,.login-card > .login-card-title,.login-card > .login-card-sub,
+  .login-card > .form-group,.login-card > #btn-email-login{order:0;}
+  .login-card > #login-error{order:1;}
+  .login-footer{margin-bottom:auto;}
+  .toggle-pass{right:0;width:var(--ds-touch-target);height:var(--ds-touch-target);}
+  .input-wrap .ds-textfield{padding-right:48px;}
+  .btn-google{height:var(--ds-touch-target);}
+  .auth-toggle a{display:inline-block;padding:var(--ds-space-150) var(--ds-space-050);margin:calc(-1 * var(--ds-space-150)) 0;}
+}
+/* Teléfono en horizontal (<768): barras compactas */
+@media screen and (max-width: 767.98px) and (max-height: 500px){
+  .main-topbar{min-height:48px;}
+  .mnav-item{min-height:48px;flex-direction:row;gap:var(--ds-space-100);padding:var(--ds-space-050);}
+  .mnav-icon{width:auto;height:auto;padding:var(--ds-space-050);}
+}
+/* Táctil: sin :hover "pegado" después del toque */
+@media screen and (max-width: 767.98px) and (hover: none){
+  .tn-brand:hover{background:transparent;}
+  .tn-avatar-btn:hover .sb-avatar{box-shadow:none;}
+  .tn-menu-item:hover{background:transparent;border-left-color:transparent;}
+  .toggle-pass:hover{background:transparent;color:var(--ds-text-subtle);}
+  .btn-google:hover{background:var(--ds-surface);}
+  .page-breadcrumb a:hover{color:var(--ds-text-subtle);text-decoration:none;}
+  .tn-brand:active,.tn-menu-item:active,.toggle-pass:active{background:var(--ds-background-neutral-subtle-pressed);}
+}
 </style>
 <script src="datos.js"></script>
 </head>
@@ -243,13 +337,13 @@ html[data-auth="app"] #app-shell{display:flex !important;}
     <div class="form-group">
       <label class="ds-label" for="inp-email">Correo electrónico</label>
       <input class="ds-textfield" id="inp-email" type="email"
-        placeholder="correo@ejemplo.com" autocomplete="username">
+        placeholder="correo@ejemplo.com" autocomplete="username" enterkeyhint="next">
     </div>
     <div class="form-group">
       <label class="ds-label" for="inp-pass">Contraseña</label>
       <div class="input-wrap">
         <input class="ds-textfield" id="inp-pass" type="password"
-          placeholder="Introducí tu contraseña" autocomplete="current-password">
+          placeholder="Introducí tu contraseña" autocomplete="current-password" enterkeyhint="go">
         <button class="toggle-pass" id="toggle-pass" type="button" tabindex="-1"
           aria-label="Mostrar contraseña">
           <svg viewBox="0 0 24 24" fill="none"><path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z" stroke="currentColor" stroke-width="1.7"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.7"/></svg>
@@ -413,9 +507,27 @@ html[data-auth="app"] #app-shell{display:flex !important;}
         </div>
       </div>
 
+      <!-- Pie del menú lateral, visible solo en mobile (donde el menú lateral no se muestra) -->
+      <footer class="shell-mfoot">ISSS · GOES · Applaudo Studios</footer>
+
     </div><!-- /page-content -->
   </div><!-- /main -->
   </div><!-- /app-body -->
+
+  <!-- NAV MÓVIL (≤767px): oculta en tablet/desktop. Mismos data-page que el menú lateral. -->
+  <nav class="mnav" id="mobile-nav" aria-label="Navegación principal">
+    <ul class="mnav-list">
+      <li><a class="mnav-item active" href="#" data-page="roadmap" aria-current="page">
+        <span class="mnav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M2 2L5.5 5.5M5.5 2L2 5.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M8 3.5H15C18 3.5 20 6 20 8.5C20 11 18 12.5 15.5 12.5H8.5C6 12.5 4 14 4 16.5C4 19 6 20.5 8.5 20.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="19" cy="20.5" r="2" fill="currentColor"/></svg></span>
+        <span class="mnav-label">Roadmap</span></a></li>
+      <li><a class="mnav-item" href="#" data-page="seg-resumen">
+        <span class="mnav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5h16M7 16V11m5 5V7m5 9v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+        <span class="mnav-label">Resumen ejecutivo</span></a></li>
+      <li><a class="mnav-item" href="#" data-page="seg-producto">
+        <span class="mnav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12V3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
+        <span class="mnav-label">Avance de Producto</span></a></li>
+    </ul>
+  </nav>
 </div><!-- /app-shell -->
 
 <!-- Firebase SDK -->
@@ -441,7 +553,11 @@ const loginError  = document.getElementById('login-error');
 const sbUserEmail = document.getElementById('sb-user-email');
 const sbAvatar    = document.getElementById('sb-avatar');
 
-function showError(msg){ loginError.textContent=msg; loginError.classList.add('show'); }
+function showError(msg){
+  loginError.textContent=msg; loginError.classList.add('show');
+  // En el celular el teclado puede tapar el mensaje: se lleva a la vista.
+  if(DS.isMobile()) requestAnimationFrame(() => loginError.scrollIntoView({ block:'nearest' }));
+}
 function clearError(){ loginError.classList.remove('show'); }
 
 // ── Login / Registro (mismos campos, dos modos) ──
@@ -520,6 +636,10 @@ btnEmail.addEventListener('click', async () => {
 document.getElementById('inp-pass').addEventListener('keydown', e => {
   if(e.key==='Enter') document.getElementById('btn-email-login').click();
 });
+// En el celular, "Siguiente" del teclado en el correo pasa a la contraseña.
+document.getElementById('inp-email').addEventListener('keydown', e => {
+  if(e.key==='Enter' && DS.isMobile()){ e.preventDefault(); passInput.focus(); }
+});
 
 // toggle password visibility
 document.getElementById('toggle-pass').addEventListener('click', () => {
@@ -549,6 +669,12 @@ avatarBtn.addEventListener('click', e => {
 });
 document.addEventListener('click', e => { if(!userMenu.hidden && !userMenu.contains(e.target)) closeUserMenu(); });
 document.addEventListener('keydown', e => { if(e.key==='Escape' && !userMenu.hidden) closeUserMenu(); });
+// En táctil, tocar una zona no interactiva no siempre genera "click": se cierra con pointerdown.
+document.addEventListener('pointerdown', e => {
+  if(!DS.isMobile() || userMenu.hidden) return;
+  if(!userMenu.contains(e.target) && !avatarBtn.contains(e.target)) closeUserMenu();
+});
+DS.onMobileChange(() => closeUserMenu());
 
 // ── Vista activa (boot / login / app) ──
 // Se controla con html[data-auth] (ver el <script> del <head>). La marca
@@ -656,7 +782,32 @@ function navigate(pageId){
   if(sub) sub.classList.add('active');
   // Recordar la última pestaña visitada para restaurarla si se recarga (F5).
   try { localStorage.setItem('issssydt_last_page', pageId); } catch(e){}
+  // Barra inferior (mobile): mismo estado activo. Idempotente (navigate corre 2 veces por clic).
+  document.querySelectorAll('#mobile-nav .mnav-item').forEach(a => {
+    const on = a.dataset.page === pageId;
+    a.classList.toggle('active', on);
+    if(on) a.setAttribute('aria-current','page'); else a.removeAttribute('aria-current');
+  });
+  try { document.dispatchEvent(new CustomEvent('portal:navigate', { detail:{ page: pageId } })); } catch(e){}
 }
+
+// Barra inferior (mobile): navega con goTo(), que además vuelve el scroll arriba
+// (tocar de nuevo el destino activo = volver al inicio).
+document.querySelectorAll('#mobile-nav .mnav-item').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); goTo(a.dataset.page); });
+});
+// --mobile-nav-h = alto real de la barra (puede crecer a 2 líneas con texto grande); lo usan los toasts.
+{
+  const mnavList = document.querySelector('#mobile-nav .mnav-list');
+  if(mnavList && window.ResizeObserver){
+    new ResizeObserver(() => {
+      const h = mnavList.offsetHeight, rs = document.documentElement.style;
+      if(h > 0) rs.setProperty('--mobile-nav-h', h + 'px'); else rs.removeProperty('--mobile-nav-h');
+    }).observe(mnavList);
+  }
+}
+// Para que los módulos puedan navegar (goTo tiene ámbito de módulo).
+window.PortalNav = Object.freeze({ goTo: (id) => goTo(id) });
 
 // Restaura la pestaña donde estaba el usuario antes de recargar (F5). Si la
 // pestaña guardada es un sub-ítem (Seguimiento), también abre su grupo para
