@@ -377,6 +377,15 @@
 /* PROG MINI (tablas) */
 .prog-mini-wrap{display:inline-block;width:80px;height:6px;border-radius:var(--ds-radius-full);background:var(--ds-background-neutral);overflow:hidden;}
 .prog-mini-fill{height:100%;border-radius:var(--ds-radius-full);}
+/* Anchos que antes iban en línea (mismos valores: desktop no cambia); doble clase para ganarle a las reglas base */
+.prog-mini-wrap.prog-mini-wrap--wide{width:160px;}
+.prog-mini-wrap.prog-mini-wrap--act{width:90px;}
+.seg-table td.seg-tr-avance{width:220px;}
+.seg-table td.seg-act-avance{width:170px;}
+.seg-prog-track.seg-tr-track{width:130px;display:flex;}
+/* Solo existen en mobile (ver el bloque ≤767.98px al final) */
+.seg-bd-readout{display:none;}
+.seg-chart-legend .seg-legend-title{display:none;}
 
 /* REPORTE — botón, modal y opciones */
 .seg-page-header-row{display:flex;justify-content:space-between;align-items:flex-start;gap:var(--ds-space-200);flex-wrap:wrap;}
@@ -432,6 +441,174 @@
   .seg-section, .seg-chart-wrap, .seg-table-wrap, .seg-kpis, .seg-pkg-cards{break-inside:avoid;}
   /* Pestañas vacías (5c): en el PDF no se imprime su aviso, igual que antes de las pestañas */
   #seg-resumen-mount .seg-secpanel-empty{display:none !important;}
+}
+
+/* ══ MOBILE (≤767.98px) — F5. Todo acotado a los mounts de Seguimiento: nada cambia en ≥768px ══ */
+@media screen and (max-width: 767.98px){
+  #seg-resumen-mount .seg-section, #seg-producto-mount .seg-section{margin-bottom:var(--ds-space-400);}
+
+  /* KPIs del sprint: hero a lo ancho + 2 columnas */
+  #seg-resumen-mount .seg-kpis--sprint, #seg-producto-mount .seg-kpis--prod{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ds-space-100);}
+  #seg-resumen-mount .seg-kpis--sprint > .seg-kpi, #seg-producto-mount .seg-kpis--prod > .seg-kpi{padding:var(--ds-space-150);min-width:0;}
+  #seg-resumen-mount .seg-kpis--sprint > .seg-kpi:first-child, #seg-producto-mount .seg-kpis--prod > .seg-kpi:first-child{grid-column:1/-1;}
+  #seg-resumen-mount .seg-kpis--sprint > .seg-kpi:first-child .seg-kpi-val, #seg-producto-mount .seg-kpis--prod > .seg-kpi:first-child .seg-kpi-val{font:var(--ds-font-metric-large);}
+
+  /* Progreso: el texto envuelve y el % queda fijo a la derecha */
+  #seg-resumen-mount .seg-prog-section, #seg-paquetes-mount .seg-prog-section{padding:var(--ds-space-150);}
+  #seg-resumen-mount .seg-prog-label, #seg-paquetes-mount .seg-prog-label{align-items:flex-start;}
+  #seg-resumen-mount .seg-prog-lbl-pct, #seg-paquetes-mount .seg-prog-lbl-pct{flex:none;}
+  #seg-resumen-mount .seg-prog-track, #seg-paquetes-mount .seg-prog-track{height:8px;}
+
+  /* Tira de sprints: sticky de nivel 2 (debajo de las pestañas de sección), full-bleed */
+  #seg-resumen-mount #actividad-sprint-tabs{position:sticky;top:var(--ds-tabbar-h);z-index:var(--ds-z-sticky-2);background:var(--ds-surface);
+    margin-left:calc(-1 * var(--page-gutter, 16px));margin-right:calc(-1 * var(--page-gutter, 16px));
+    padding:0 var(--page-gutter, 16px);scroll-padding-inline:var(--page-gutter, 16px);
+    scrollbar-width:none;overscroll-behavior-x:contain;scroll-snap-type:x proximity;}
+  /* Modo pila (standalone): no hay tira de secciones encima */
+  #seg-resumen-mount.seg-layout-stack #actividad-sprint-tabs{top:0;}
+  #seg-resumen-mount #actividad-sprint-tabs::-webkit-scrollbar{display:none;}
+  #seg-resumen-mount #actividad-sprint-tabs::after{content:"";position:sticky;right:0;flex:none;width:24px;margin-left:-24px;pointer-events:none;
+    background:linear-gradient(90deg, rgba(255,255,255,0), var(--ds-surface));}
+  #seg-resumen-mount #actividad-sprint-tabs .seg-tab{min-height:var(--ds-touch-target);padding:0 var(--ds-space-150);scroll-snap-align:start;}
+
+  /* Burndown: alto reservado (sin salto antes del primer dibujo) y readout fijo bajo el gráfico */
+  #seg-resumen-mount .seg-side-by-side{gap:0;}
+  #seg-resumen-mount .seg-col-dist .seg-chart-wrap{justify-content:flex-start;}
+  #seg-resumen-mount .seg-chart-wrap{padding:var(--ds-space-150);margin-bottom:var(--ds-space-200);}
+  #seg-resumen-mount #seg-burndown{height:220px;touch-action:pan-y;}
+  #seg-resumen-mount .seg-chart-legend{gap:var(--ds-space-100) var(--ds-space-200);}
+  #seg-resumen-mount .seg-bd-readout{display:block;min-height:40px;margin-top:var(--ds-space-100);padding:var(--ds-space-100) var(--ds-space-150);
+    border-radius:var(--ds-radius-small);background:var(--ds-background-neutral);font:var(--ds-font-body-small);font-size:.8125rem;line-height:1.25rem;color:var(--ds-text);}
+
+  /* Distribución por tipo: etiqueta + números arriba, barra a todo el ancho */
+  #seg-resumen-mount .seg-op-dist-panel .seg-cump-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"lbl nums" "bar bar";
+    row-gap:var(--ds-space-075);column-gap:var(--ds-space-100);}
+  #seg-resumen-mount .seg-op-dist-panel .seg-cump-label{grid-area:lbl;width:auto;}
+  #seg-resumen-mount .seg-op-dist-panel .seg-cump-nums{grid-area:nums;width:auto;}
+  #seg-resumen-mount .seg-op-dist-panel .seg-dist-track{grid-area:bar;}
+
+  /* Evolución diaria: scroll horizontal con la columna "Día" fija */
+  #seg-resumen-mount .seg-table-wrap--scroll{overscroll-behavior-x:contain;}
+  #seg-resumen-mount .seg-table--diario th, #seg-resumen-mount .seg-table--diario td{white-space:nowrap;}
+  #seg-resumen-mount .seg-table--diario th:first-child, #seg-resumen-mount .seg-table--diario td:first-child{position:sticky;left:0;z-index:1;
+    background:var(--ds-surface);box-shadow:inset -1px 0 0 var(--ds-border);}
+  #seg-resumen-mount .seg-table--diario .prog-mini-wrap{width:64px;}
+
+  /* Tablas → lista de tarjetas (genérico). El thead queda para lectores de pantalla. */
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards thead{position:absolute;width:1px;height:1px;overflow:hidden;
+    clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards,
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards tbody{display:block;width:100%;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards tr{display:grid;column-gap:var(--ds-space-100);row-gap:var(--ds-space-050);
+    align-items:baseline;padding:var(--ds-space-150);border-bottom:1px solid var(--ds-border);}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards tr:last-child{border-bottom:0;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards td{display:block;padding:0;border:0;min-width:0;overflow-wrap:anywhere;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards td[data-label]::before{content:attr(data-label) ": ";
+    font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards .seg-cell-title{max-width:none;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards tbody tr:hover td{background:transparent;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards td.seg-empty-row{grid-column:1/-1;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards td.seg-tr-avance,
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards td.seg-act-avance{width:auto;}
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards .prog-mini-wrap,
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) .seg-table--cards .seg-tr-track{width:auto;flex:1 1 auto;min-width:0;height:8px;}
+  /* Detalle de work items */
+  #seg-resumen-mount .seg-table--wi tr{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"id est" "tit tit" "asg asg";}
+  #seg-resumen-mount .seg-table--wi .seg-id{grid-area:id;}
+  #seg-resumen-mount .seg-table--wi .seg-wi-est{grid-area:est;justify-self:end;text-align:right;}
+  #seg-resumen-mount .seg-table--wi .seg-cell-title{grid-area:tit;}
+  #seg-resumen-mount .seg-table--wi .seg-wi-asg{grid-area:asg;font:var(--ds-font-body-small);color:var(--ds-text-subtle);}
+  /* Deuda (x2) */
+  #seg-resumen-mount .seg-table--deuda tr{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"id tipo" "tit tit" "est est" "ori ori";}
+  #seg-resumen-mount .seg-table--deuda .seg-id{grid-area:id;}
+  #seg-resumen-mount .seg-table--deuda .seg-dd-tipo{grid-area:tipo;justify-self:start;}
+  #seg-resumen-mount .seg-table--deuda .seg-cell-title{grid-area:tit;}
+  #seg-resumen-mount .seg-table--deuda .seg-dd-est{grid-area:est;}
+  #seg-resumen-mount .seg-table--deuda .seg-dd-ori{grid-area:ori;}
+  /* Cumplimiento: % primero, metadatos con la etiqueta arriba, fila actual resaltada */
+  #seg-resumen-mount .seg-table--hist tr{grid-template-columns:repeat(6,minmax(0,1fr));
+    grid-template-areas:"spr spr spr spr spr spr" "cum cum cum cum cum cum" "ini ini ini fin fin fin" "cer cer pen pen tot tot";}
+  #seg-resumen-mount .seg-table--hist .seg-h-spr{grid-area:spr;}
+  #seg-resumen-mount .seg-table--hist .seg-h-cum{grid-area:cum;}
+  #seg-resumen-mount .seg-table--hist .seg-h-ini{grid-area:ini;}
+  #seg-resumen-mount .seg-table--hist .seg-h-fin{grid-area:fin;}
+  #seg-resumen-mount .seg-table--hist .seg-h-cer{grid-area:cer;}
+  #seg-resumen-mount .seg-table--hist .seg-h-pen{grid-area:pen;}
+  #seg-resumen-mount .seg-table--hist .seg-h-tot{grid-area:tot;}
+  #seg-resumen-mount .seg-table--hist td[data-label]::before{content:attr(data-label);display:block;}
+  #seg-resumen-mount .seg-table--hist tr.is-current{background:var(--ds-background-selected);box-shadow:inset 4px 0 0 var(--ds-border-selected);}
+  #seg-resumen-mount .seg-table--hist tr.is-current td{background:transparent;}
+  /* Observaciones */
+  #seg-resumen-mount .seg-table--obs tr{grid-template-columns:auto minmax(0,1fr);grid-template-areas:"num fec" "tra tra" "tip sev" "est est";}
+  #seg-resumen-mount .seg-table--obs .seg-key{grid-area:num;}
+  #seg-resumen-mount .seg-table--obs .seg-o-fec{grid-area:fec;justify-self:end;text-align:right;}
+  #seg-resumen-mount .seg-table--obs .seg-cell-title{grid-area:tra;}
+  #seg-resumen-mount .seg-table--obs .seg-o-tip{grid-area:tip;}
+  #seg-resumen-mount .seg-table--obs .seg-o-sev{grid-area:sev;}
+  #seg-resumen-mount .seg-table--obs .seg-o-est{grid-area:est;}
+
+  /* Deuda: 3 cards en fila (el backlog, solo, ocupa todo el ancho por auto-fit) */
+  #seg-resumen-mount .seg-debt-cards{grid-template-columns:repeat(auto-fit,minmax(88px,1fr));gap:var(--ds-space-100);}
+  #seg-resumen-mount .seg-debt-card{padding:var(--ds-space-100) var(--ds-space-150);min-width:0;}
+  #seg-resumen-mount .seg-debt-lbl{overflow-wrap:anywhere;hyphens:auto;}
+
+  /* Colapsables: summary de 44px */
+  #seg-resumen-mount .seg-collapsible summary{min-height:var(--ds-touch-target);padding:var(--ds-space-100) var(--ds-space-150);}
+  #seg-resumen-mount .seg-collapsible-body{padding:var(--ds-space-100) var(--ds-space-150) var(--ds-space-150);}
+
+  /* Observaciones: pestañas 50/50, filtros con la etiqueta en su línea y chips de 40px, KPIs 2×2 */
+  #seg-resumen-mount #obs-main-tabs .seg-tab{flex:1 1 0;min-width:0;min-height:var(--ds-touch-target);white-space:normal;text-align:center;padding:0 var(--ds-space-100);}
+  #seg-resumen-mount .seg-obs-filters{gap:var(--ds-space-100);}
+  #seg-resumen-mount .seg-obs-filter-lbl{flex-basis:100%;margin:0;}
+  #seg-resumen-mount .seg-obs-filter{height:auto;min-height:40px;padding:0 var(--ds-space-150);}
+  #seg-resumen-mount #obs-collapsible .seg-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ds-space-100);}
+  #seg-resumen-mount #obs-collapsible .seg-kpi{padding:var(--ds-space-100) var(--ds-space-150);min-width:0;}
+
+  /* Lozenges y badges: ≥12px, envuelven en vez de truncar */
+  :is(#seg-resumen-mount,#seg-producto-mount,#seg-paquetes-mount) :is(.seg-badge,.seg-rag,.ds-lozenge){font-size:.75rem;line-height:16px;height:auto;min-height:20px;
+    padding:2px var(--ds-space-075);white-space:normal;max-width:100%;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;}
+
+  /* Avance de Producto */
+  #seg-producto-mount .seg-pkg-cards{gap:var(--ds-space-100);}
+  #seg-producto-mount .seg-pkg-card{padding:var(--ds-space-150) var(--ds-space-200);}
+  #seg-producto-mount .seg-pkg-card .seg-prog-track{height:8px;}
+  #seg-producto-mount .seg-section--tramites{display:flex;flex-direction:column;}
+  #seg-producto-mount .seg-section--tramites > .ds-pkgtabs{order:1;position:sticky;top:0;z-index:var(--ds-z-sticky);box-shadow:0 0 0 var(--ds-space-050) var(--ds-surface);}
+  #seg-producto-mount .seg-section--tramites > .ds-pkgtabs-caption{order:2;}
+  #seg-producto-mount .seg-section--tramites > .seg-chart-legend{order:3;margin:0 0 var(--ds-space-150);}
+  #seg-producto-mount .seg-section--tramites > .seg-table-wrap{order:4;}
+  #seg-producto-mount .seg-chart-legend .seg-legend-title{display:flex;font-weight:600;color:var(--ds-text);}
+  #seg-producto-mount .seg-table--tramites tr{grid-template-columns:auto auto minmax(0,1fr);grid-template-areas:"pkg no name" "av av av";align-items:baseline;}
+  #seg-producto-mount .seg-table--tramites .seg-tr-pkg{grid-area:pkg;}
+  #seg-producto-mount .seg-table--tramites .seg-tr-no{grid-area:no;}
+  #seg-producto-mount .seg-table--tramites .seg-tr-no::before{content:"#";}
+  #seg-producto-mount .seg-table--tramites .seg-cell-title{grid-area:name;font:var(--ds-font-heading-xsmall);}
+  #seg-producto-mount .seg-table--tramites .seg-tr-avance{grid-area:av;}
+  #seg-producto-mount .seg-table--tramites .seg-tr-pct{flex:none;font:var(--ds-font-heading-xsmall);}
+
+  /* Resumen por paquete (página oculta) */
+  #seg-paquetes-mount .seg-pkgfull-card{padding:var(--ds-space-200);}
+  #seg-paquetes-mount .seg-pkgfull-badges{width:100%;}
+  #seg-paquetes-mount .seg-table--act tr{grid-template-columns:minmax(0,1fr);grid-template-areas:"act" "fec" "av";}
+  #seg-paquetes-mount .seg-table--act .seg-act-nom{grid-area:act;font-weight:600;}
+  #seg-paquetes-mount .seg-table--act .seg-act-fechas{grid-area:fec;white-space:normal !important;}
+  #seg-paquetes-mount .seg-table--act .seg-act-avance{grid-area:av;}
+}
+/* Horizontal (poco alto): la tira de sprints deja de ser sticky */
+@media screen and (max-width: 767.98px) and (max-height: 500px){
+  #seg-resumen-mount #actividad-sprint-tabs, #seg-resumen-mount.seg-layout-stack #actividad-sprint-tabs{position:static;}
+}
+@media screen and (max-width: 479.98px){
+  #seg-resumen-mount .seg-kpis--sprint > .seg-kpi:not(:first-child) .seg-kpi-val,
+  #seg-producto-mount .seg-kpis--prod > .seg-kpi:not(:first-child) .seg-kpi-val{font-size:clamp(1.25rem,6.4vw,1.5rem);}
+  #seg-resumen-mount .seg-debt-cards{grid-template-columns:repeat(auto-fit,minmax(80px,1fr));}
+}
+/* Sin hover real (táctil): el :hover queda "pegado" tras el tap → valores de reposo */
+@media screen and (max-width: 767.98px) and (hover: none){
+  #seg-resumen-mount .seg-tab:hover:not(.active){color:var(--ds-text-subtle);border-bottom-color:transparent;}
+  #seg-resumen-mount .seg-obs-filter:hover:not(.active){background:var(--ds-background-neutral);color:var(--ds-text-subtle);}
+  #seg-resumen-mount .seg-collapsible summary:hover{background:transparent;}
+  #seg-resumen-mount .seg-table--diario tbody tr:hover td{background:var(--ds-surface);}
 }
 `;
 
@@ -522,7 +699,10 @@
     });
     DS.store.set(SEG_SEC_KEY, key);
     // El canvas no se puede dibujar mientras su panel está oculto (mide 0px).
-    if(key==='actividad') requestAnimationFrame(redrawBurndown);
+    if(key==='actividad') requestAnimationFrame(function(){
+      redrawBurndown();
+      if(segIsMobile()) segRevealSprintTab(mount);
+    });
     if(strip) DS.tabs.reveal(strip.querySelector('.is-active'));
     if(fromUser) DS.tabs.revealPanel(strip, panel);
   }
@@ -556,7 +736,7 @@
 
     // ── KPIs (5 cards, sin "sin actividad") ──
     var kpisHTML =
-      '<div class="seg-kpis">'
+      '<div class="seg-kpis seg-kpis--sprint">'
       // 1. Avance sprint
       +'<div class="seg-kpi kpi-dark">'
         +'<div class="seg-kpi-lbl">Avance del sprint</div>'
@@ -634,6 +814,10 @@
     // ── OBSERVACIONES (colapsable) ──
     var obsHTML = buildObservacionesCollapsible(obsGen||[], obsUx||[], tabs);
 
+    // Hook del modo pila (standalone): la tira de sprints mobile pega en top:0
+    // porque no hay pestañas de sección encima. Sin regla base: desktop no cambia.
+    mount.classList.toggle('seg-layout-stack', !tabs);
+
     var sprintHTML = '<div class="seg-section"><div class="seg-sh">Sprint activo — '+sprintNom+'</div>'
       +kpisHTML+'</div>'
       +dualesHTML;
@@ -672,12 +856,57 @@
 
     // Dibujar canvas del sprint seleccionado por defecto (el más reciente)
     _burndownData = { diario: diario||[], sa: sa, sprint: actividad.lastSp };
-    if(actividad.lastSp){
-      var dayRows0 = diarioDayRows(diario||[], actividad.lastSp);
-      setTimeout(function(){ drawBurndown(dayRows0, nDiasHabilesSprint(actividad.lastSp, sa, dayRows0)); }, 80);
-    }
+    // redrawBurndown dibuja el sprint de _burndownData (= lastSp, igual que antes),
+    // pero respeta un sprint restaurado tras una revalidación (ver segRestoreState).
+    if(actividad.lastSp) setTimeout(redrawBurndown, 80);
     wireActividadSprintTabs(mount, sa, diario||[]);
     wireObservaciones(mount, obsGen, obsUx);
+    if(segIsMobile()) segRevealSprintTab(mount);
+  }
+
+  // ── Mobile (F5): helpers. Solo DS.isMobile()/DS.onMobileChange, sin matchMedia propio ──
+  function segIsMobile(){ return !!(window.DS && DS.isMobile && DS.isMobile()); }
+  // Centra el sprint activo en su tira (no-op si la tira no desborda o está oculta).
+  function segRevealSprintTab(mount){
+    var act = mount && mount.querySelector('#actividad-sprint-tabs .seg-tab.active');
+    if(act && window.DS && DS.tabs) DS.tabs.reveal(act);
+  }
+  // Estado de la UI que se pierde con el innerHTML de una revalidación silenciosa.
+  function segCaptureState(mount){
+    var st = { details:{}, obsTab:null, obsFilters:{} };
+    var sp = mount.querySelector('#actividad-sprint-tabs .seg-tab.active');
+    st.sprint = sp ? sp.getAttribute('data-sp') : null;
+    var ot = mount.querySelector('#obs-main-tabs .seg-tab.active');
+    st.obsTab = ot ? ot.getAttribute('data-obs-tab') : null;
+    ['gen','ux'].forEach(function(p){
+      var t = mount.querySelector('#filter-tipo-'+p+' .seg-obs-filter.active');
+      var e = mount.querySelector('#filter-estado-'+p+' .seg-obs-filter.active');
+      st.obsFilters[p] = { tipo: t ? t.getAttribute('data-tipo') : 'all', estado: e ? e.getAttribute('data-estado') : 'all' };
+    });
+    // <details> por id si lo tienen; si no, por el texto del summary sin el "(n)" final.
+    mount.querySelectorAll('details').forEach(function(d){ st.details[segDetailsKey(d)] = d.open; });
+    return st;
+  }
+  function segDetailsKey(d){
+    if(d.id) return '#'+d.id;
+    var s = d.querySelector('summary');
+    return (s ? s.textContent : '').replace(/\s*\(\d+\)\s*$/, '').trim();
+  }
+  function segRestoreState(mount, st){
+    if(!st) return;
+    function click(sel){ var b = mount.querySelector(sel); if(b && !b.classList.contains('active')) b.click(); }
+    if(st.sprint) click('#actividad-sprint-tabs .seg-tab[data-sp="'+st.sprint.replace(/"/g,'')+'"]');
+    if(st.obsTab) click('#obs-main-tabs .seg-tab[data-obs-tab="'+st.obsTab+'"]');
+    Object.keys(st.obsFilters).forEach(function(p){
+      var f = st.obsFilters[p];
+      if(f.tipo && f.tipo!=='all') click('#filter-tipo-'+p+' [data-tipo="'+f.tipo+'"]');
+      if(f.estado && f.estado!=='all') click('#filter-estado-'+p+' [data-estado="'+f.estado.replace(/"/g,'')+'"]');
+    });
+    mount.querySelectorAll('details').forEach(function(d){
+      var k = segDetailsKey(d);
+      if(Object.prototype.hasOwnProperty.call(st.details, k)) d.open = st.details[k];
+    });
+    segRevealSprintTab(mount);
   }
 
   function computeSprintSummaries(diario, sa, sprintActivo){
@@ -729,6 +958,8 @@
         +'<span><i class="i-real"></i>Ítems restantes</span>'
         +'<span><i class="i-bar" style="display:inline-block;"></i>Cerrados por día</span>'
       +'</div>'
+      // Readout fijo (solo visible en mobile): reemplaza al tooltip de hover; lo pinta drawBurndown.
+      +'<div class="seg-bd-readout" id="seg-bd-readout" aria-live="polite"></div>'
       +'</div>';
   }
 
@@ -781,13 +1012,33 @@
     // Restaurar ancho porcentual antes de medir: una vez fijado en px (más abajo),
     // canvas.offsetWidth queda "congelado" en ese valor y ya no refleja el ancho
     // real disponible en redibujos posteriores (resize, colapso de sidebar, etc.)
+    // Mobile (F5): más alto, ticks de 12-13px, padding medido y backing store
+    // redondeado. En desktop (m=false) las constantes son exactamente las de siempre.
+    var m = segIsMobile();
     canvas.style.width='100%';
-    var W=canvas.offsetWidth||600; var H=200;
-    canvas.width=W*window.devicePixelRatio; canvas.height=H*window.devicePixelRatio;
-    canvas.style.width=W+'px'; canvas.style.height=H+'px';
+    var W=canvas.offsetWidth||600; var H= m ? 220 : 200;
     var ctx=canvas.getContext('2d');
-    ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
-    var pad={top:16,right:24,bottom:36,left:48};
+    if(m){
+      var dpr = window.devicePixelRatio||1;
+      canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr);
+      canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx=canvas.getContext('2d');
+      ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
+    } else {
+      canvas.width=W*window.devicePixelRatio; canvas.height=H*window.devicePixelRatio;
+      canvas.style.width=W+'px'; canvas.style.height=H+'px';
+      ctx=canvas.getContext('2d');
+      ctx.scale(window.devicePixelRatio,window.devicePixelRatio);
+    }
+    var fontFamily = DS.token('--ds-font-family-body','sans-serif');
+    var fontPx = m ? (W>=260 ? 13 : 12) : 11;
+    var pad;
+    if(m){
+      ctx.font = fontPx+'px '+fontFamily;
+      pad={top:12,right:12,bottom:30,left:Math.ceil(ctx.measureText(String(scaleMax)).width)+10};
+    } else {
+      pad={top:16,right:24,bottom:36,left:48};
+    }
     var cW=W-pad.left-pad.right; var cH=H-pad.top-pad.bottom;
 
     // Data: ítems RESTANTES por día real de sprint (total propio del día - cerrados del día)
@@ -806,7 +1057,7 @@
       bar:   DS.token('--ds-chart-warning','#F68909'),
       ideal: DS.token('--ds-chart-neutral','#8C8F97'),
       real:  DS.token('--ds-chart-brand','#1E4B7A'),
-      font:  '11px ' + DS.token('--ds-font-family-body','sans-serif')
+      font:  fontPx + 'px ' + fontFamily
     };
 
     // Y ticks
@@ -820,7 +1071,9 @@
 
     // X ticks
     ctx.fillStyle=C.tick; ctx.font=C.font; ctx.textAlign='center';
-    for(var d=0;d<=nDias;d+=2){
+    // Paso del eje X: 2 en desktop; en mobile, el que deje ≥32px entre etiquetas.
+    var xStep = m ? Math.max(1, Math.ceil(nDias / Math.max(1, Math.floor(cW/32)))) : 2;
+    for(var d=0;d<=nDias;d+=xStep){
       ctx.fillText('D'+d, xp(d), H-pad.bottom+16);
     }
 
@@ -863,18 +1116,49 @@
       tt.className = 'seg-tooltip';
       wrap.appendChild(tt);
     }
-    canvas.onmousemove = function(e){
+    // Día más cercano a una coordenada X de pantalla, y los datos de ese día
+    // (compartidos por el tooltip de desktop y el readout de mobile).
+    function nearestDay(clientX){
       var rect = canvas.getBoundingClientRect();
-      var mx = e.clientX - rect.left;
+      var mx = clientX - rect.left;
       var nearDay = 0; var nearDist = Infinity;
       for(var d=0; d<=nDias; d++){
         var dist = Math.abs(xp(d) - mx);
         if(dist < nearDist){ nearDist = dist; nearDay = d; }
       }
-      if(nearDist > 28){ tt.style.display='none'; return; }
-      var idealRem = Math.round(idealStart * (1 - nearDay / nDias));
+      return { day: nearDay, dist: nearDist };
+    }
+    function infoFor(day){
       var actualPt = null;
-      for(var i=0; i<realPts.length; i++){ if(realPts[i].x===nearDay){ actualPt=realPts[i]; break; } }
+      for(var i=0; i<realPts.length; i++){ if(realPts[i].x===day){ actualPt=realPts[i]; break; } }
+      return { idealRem: Math.round(idealStart * (1 - day / nDias)), actualPt: actualPt };
+    }
+
+    // Readout fijo (solo visible en mobile por CSS): Día · Plan · Real · +cerrados.
+    // Handlers como propiedad para no acumular listeners en cada redibujo.
+    var ro = document.getElementById('seg-bd-readout');
+    if(ro){
+      var paintRo = function(day){
+        var inf = infoFor(day);
+        ro.innerHTML = '<b>Día '+day+'</b> · Plan: <b>'+inf.idealRem+'</b> restantes'
+          + (inf.actualPt
+              ? ' · Real: <b>'+inf.actualPt.y+'</b> restantes'+(inf.actualPt.dayClose>0 ? ' · +'+inf.actualPt.dayClose+' cerrados ese día' : '')
+              : ' · sin dato real');
+      };
+      paintRo(realPts.length ? realPts[realPts.length-1].x : 0);
+      canvas.onpointerdown = canvas.onpointermove = function(e){
+        if(!segIsMobile()) return;
+        paintRo(nearestDay(e.clientX).day);
+      };
+    }
+
+    canvas.onmousemove = function(e){
+      if(segIsMobile()){ tt.style.display='none'; return; }
+      var nd = nearestDay(e.clientX);
+      var nearDay = nd.day, nearDist = nd.dist;
+      if(nearDist > 28){ tt.style.display='none'; return; }
+      var inf = infoFor(nearDay);
+      var idealRem = inf.idealRem, actualPt = inf.actualPt;
       var lines = ['<b>Día ' + nearDay + '</b>'];
       lines.push('Plan: <b>' + idealRem + '</b> restantes');
       if(actualPt){
@@ -914,7 +1198,7 @@
       var wAbierto = grand>0 ? ((t-c)/grand*100) : 0;
       return '<div class="seg-cump-row">'
         +'<div class="seg-cump-label">'+label+'</div>'
-        +'<div class="seg-avance-track" style="flex:1;display:flex;">'
+        +'<div class="seg-avance-track seg-dist-track" style="flex:1;display:flex;">'
           +'<div class="seg-seg" style="background:'+col.cerrado+';width:'+wCerrado.toFixed(1)+'%;"></div>'
           +'<div class="seg-seg" style="background:'+col.abierto+';width:'+wAbierto.toFixed(1)+'%;"></div>'
         +'</div>'
@@ -938,7 +1222,7 @@
     }
 
     function deudaTable(items){
-      var t = '<div class="seg-table-wrap"><table class="seg-table">'
+      var t = '<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--deuda">'
         +'<thead><tr><th>ID</th><th>Tipo</th><th>Título</th><th>Estado</th><th>Sprint origen</th></tr></thead><tbody>';
       items.forEach(function(r){
         var estStr = fmt(r.estado);
@@ -950,10 +1234,10 @@
             : 'tipo-task';
         t+='<tr>'
           +'<td class="seg-id">#'+(r.work_item_id||r.id||'—')+'</td>'
-          +'<td><span class="seg-badge '+tipoCls+'">'+fmt(r.tipo||r.type)+'</span></td>'
+          +'<td class="seg-dd-tipo"><span class="seg-badge '+tipoCls+'">'+fmt(r.tipo||r.type)+'</span></td>'
           +'<td class="seg-cell-title">'+fmt(r.titulo||r.title)+'</td>'
-          +'<td class="'+estCls+'">'+estStr+'</td>'
-          +'<td class="mono seg-muted">'+fmt(r.sprint_origen||r.sprint_previo)+'</td>'
+          +'<td class="'+estCls+' seg-dd-est" data-label="Estado">'+estStr+'</td>'
+          +'<td class="mono seg-muted seg-dd-ori" data-label="Sprint origen">'+fmt(r.sprint_origen||r.sprint_previo)+'</td>'
           +'</tr>';
       });
       return t+'</tbody></table></div>';
@@ -994,7 +1278,7 @@
     var last5Set = {};
     last5.forEach(function(r){ last5Set[r.sprint]=true; });
     var html='<div class="seg-section"><div class="seg-sh">Cumplimiento al cierre — todos los sprints</div>'
-      +'<div class="seg-table-wrap"><table class="seg-table">'
+      +'<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--hist">'
       +'<thead><tr><th>Sprint</th><th>Inicio</th><th>Fin</th><th>Cerrados</th><th>Pendientes</th><th>Total</th><th>Cumplimiento</th></tr></thead><tbody>';
     allSnaps.forEach(function(r){
       var cp=parseFloat(r.cumplimiento_pct||r.avance_pct);
@@ -1005,18 +1289,18 @@
       var closedN = parseInt(r.closed_asof||r.closed)||0;
       var pendN = Math.max(totalN-closedN,0);
       html+='<tr'+(esActual?' class="is-current"':'')+'>'
-        +'<td class="mono" style="font-weight:'+(esActual?'600':'400')+';white-space:nowrap;">'
+        +'<td class="mono seg-h-spr" style="font-weight:'+(esActual?'600':'400')+';white-space:nowrap;">'
         +fmt(r.sprint)
         +(esActual?' <span class="ds-lozenge ds-lozenge--inprogress">Actual</span>':'')
-        +(esLast5?' <span class="seg-muted" title="Incluido en promedio histórico">★</span>':'')
+        +(esLast5?' <span class="seg-muted" title="Incluido en promedio histórico" aria-label="Incluido en promedio histórico">★</span>':'')
         +'</td>'
-        +'<td class="mono">'+(r.fecha_inicio?fechaDDMMYYYY(r.fecha_inicio):'—')+'</td>'
-        +'<td class="mono">'+(r.fecha_fin?fechaDDMMYYYY(r.fecha_fin):'—')+'</td>'
-        +'<td class="mono">'+fmt(r.closed_asof||r.closed||'—')+'</td>'
-        +'<td class="mono">'+pendN+'</td>'
-        +'<td class="mono">'+fmt(r.total_asof||r.total_items||'—')+'</td>'
-        +'<td><div style="display:flex;align-items:center;gap:8px;">'
-          +'<div class="prog-mini-wrap" style="width:160px;"><div class="prog-mini-fill" style="width:'+bw+'%;background:'+pbGrad(rc)+';"></div></div>'
+        +'<td class="mono seg-h-ini" data-label="Inicio">'+(r.fecha_inicio?fechaDDMMYYYY(r.fecha_inicio):'—')+'</td>'
+        +'<td class="mono seg-h-fin" data-label="Fin">'+(r.fecha_fin?fechaDDMMYYYY(r.fecha_fin):'—')+'</td>'
+        +'<td class="mono seg-h-cer" data-label="Cerrados">'+fmt(r.closed_asof||r.closed||'—')+'</td>'
+        +'<td class="mono seg-h-pen" data-label="Pendientes">'+pendN+'</td>'
+        +'<td class="mono seg-h-tot" data-label="Total">'+fmt(r.total_asof||r.total_items||'—')+'</td>'
+        +'<td class="seg-h-cum" data-label="Cumplimiento"><div style="display:flex;align-items:center;gap:8px;">'
+          +'<div class="prog-mini-wrap prog-mini-wrap--wide"><div class="prog-mini-fill" style="width:'+bw+'%;background:'+pbGrad(rc)+';"></div></div>'
           +'<span class="mono">'+pct(cp)+'</span>'
         +'</div></td>'
         +'</tr>';
@@ -1061,7 +1345,7 @@
     function buildDiarioTable(sprint){
       var dayRows = diarioDayRows(diario, sprint);
       if(!dayRows.length) return '<div class="seg-empty">Sin datos para este sprint.</div>';
-      var h='<div class="seg-table-wrap"><table class="seg-table">'
+      var h='<div class="seg-table-wrap seg-table-wrap--scroll" role="region" aria-label="Evolución diaria — '+sprint+'"><table class="seg-table seg-table--diario">'
         +'<thead><tr><th>Día</th><th>Fecha</th><th>Cerrados</th><th>Pendientes</th><th>Total</th><th>Avance</th><th>Burn rate</th></tr></thead><tbody>';
       dayRows.forEach(function(r){
         var cp=parseFloat(r.avance_pct); var rc=ragC(cp); var bw=Math.min(isNaN(cp)?0:cp,100);
@@ -1087,15 +1371,15 @@
       var rows=(detalle||[]).filter(function(r){ return r.sprint===sprint; });
       if(!rows.length) return '<div class="seg-empty">Sin ítems para este sprint.</div>';
       rows.sort(function(a,b){ return (parseInt(a.id)||0)-(parseInt(b.id)||0); });
-      var h='<div class="seg-table-wrap"><table class="seg-table">'
+      var h='<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--wi">'
         +'<thead><tr><th>ID</th><th>Título</th><th>Estado</th><th>Asignado</th></tr></thead><tbody>';
       rows.forEach(function(r){
         var closed=String(r.estado||'').toLowerCase()==='closed';
         h+='<tr>'
           +'<td class="seg-id">#'+fmt(r.id)+'</td>'
           +'<td class="seg-cell-title">'+fmt(r.titulo)+'</td>'
-          +'<td class="'+(closed?'seg-state-ok':'seg-state-open')+'">'+fmt(r.estado)+'</td>'
-          +'<td>'+fmt(r.asignado)+'</td>'
+          +'<td class="'+(closed?'seg-state-ok':'seg-state-open')+' seg-wi-est">'+fmt(r.estado)+'</td>'
+          +'<td class="seg-wi-asg" data-label="Asignado">'+fmt(r.asignado)+'</td>'
           +'</tr>';
       });
       return h+'</tbody></table></div>';
@@ -1150,9 +1434,10 @@
         var lbl = mount.querySelector('#seg-diario-sp-label');
         if(lbl) lbl.textContent = sp;
 
+        if(_burndownData) _burndownData.sprint = sp;
         var dayRows = diarioDayRows(diario, sp);
         drawBurndown(dayRows, nDiasHabilesSprint(sp, sa, dayRows));
-        if(_burndownData) _burndownData.sprint = sp;
+        if(segIsMobile()) DS.tabs.reveal(t);
       });
     });
   }
@@ -1220,10 +1505,10 @@
       var actRows = actividades.map(function(a){
         var rc = ragC(a.progreso);
         return '<tr>'
-          +'<td>'+fmt(a.actividad)+'</td>'
-          +'<td class="mono seg-muted" style="white-space:nowrap;">'+fmt(a.inicio)+' → '+fmt(a.fin)+'</td>'
-          +'<td style="width:170px;"><div style="display:flex;align-items:center;gap:8px;">'
-            +'<div class="prog-mini-wrap" style="width:90px;"><div class="prog-mini-fill" style="width:'+a.progreso+'%;background:'+pbGrad(rc)+';"></div></div>'
+          +'<td class="seg-act-nom">'+fmt(a.actividad)+'</td>'
+          +'<td class="mono seg-muted seg-act-fechas" data-label="Fechas" style="white-space:nowrap;">'+fmt(a.inicio)+' → '+fmt(a.fin)+'</td>'
+          +'<td class="seg-act-avance" data-label="Avance"><div style="display:flex;align-items:center;gap:8px;">'
+            +'<div class="prog-mini-wrap prog-mini-wrap--act"><div class="prog-mini-fill" style="width:'+a.progreso+'%;background:'+pbGrad(rc)+';"></div></div>'
             +'<span class="mono">'+a.progreso+'%</span>'
           +'</div></td>'
           +'</tr>';
@@ -1255,7 +1540,7 @@
               +'<div class="seg-prog-track"><div class="seg-prog-fill" style="width:'+progPlan+'%;background:var(--ds-background-selected-hovered);"></div></div>'
             +'</div>'
           +'</div>'
-          +(actRows?'<div class="seg-table-wrap" style="margin-top:14px;"><table class="seg-table"><thead><tr><th>Actividad</th><th>Fechas</th><th>Avance</th></tr></thead><tbody>'+actRows+'</tbody></table></div>':'')
+          +(actRows?'<div class="seg-table-wrap" style="margin-top:14px;"><table class="seg-table seg-table--cards seg-table--act"><thead><tr><th>Actividad</th><th>Fechas</th><th>Avance</th></tr></thead><tbody>'+actRows+'</tbody></table></div>':'')
           +(alcanceHTML?'<div style="margin-top:var(--ds-space-200);"><div class="seg-subh">Alcance</div><ul class="seg-list">'+alcanceHTML+'</ul></div>':'')
         +'</div>'
       +'</div>';
@@ -1297,7 +1582,7 @@
     var producto = (data && data.producto) || {};
     var param = (data && data.meta && data.meta.parametros) || {};
 
-    var html = '<div class="seg-kpis">'
+    var html = '<div class="seg-kpis seg-kpis--prod">'
       +'<div class="seg-kpi kpi-dark"><div class="seg-kpi-lbl">Avance total del producto</div><div class="seg-kpi-val">'+pct(producto.avance_total)+'</div><div class="seg-kpi-sub">Desarrollo + QA, ponderado</div></div>'
       +'<div class="seg-kpi"><div class="seg-kpi-lbl">Aporte Desarrollo</div><div class="seg-kpi-val">'+pct(producto.aporte_desarrollo)+'</div><div class="seg-kpi-sub">de '+pct(param.peso_desarrollo,0)+' del total</div></div>'
       +'<div class="seg-kpi'+((parseFloat(producto.aporte_qa)||0)===0?' kpi-warn':'')+'"><div class="seg-kpi-lbl">Aporte QA</div><div class="seg-kpi-val">'+pct(producto.aporte_qa)+'</div><div class="seg-kpi-sub">de '+pct(param.peso_qa,0)+' del total</div></div>'
@@ -1322,10 +1607,10 @@
 
     var tramitesOrdenados = tramites.slice().sort(function(a,b){ return (parseInt(a.orden,10)||0)-(parseInt(b.orden,10)||0); });
 
-    html += '<div class="seg-section"><div class="seg-sh">Avance por trámite</div>'
+    html += '<div class="seg-section seg-section--tramites"><div class="seg-sh">Avance por trámite</div>'
       +DS.pkgTabs.html({ group:'producto', mode:'filter', includeAll:true, active:'all',
           items: paquetes.map(function(p){ return { id:fmt(p.paquete), name:fmt(p.nombre) }; }) })
-      +'<div class="seg-table-wrap"><table class="seg-table">'
+      +'<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--tramites">'
       +'<thead><tr><th>Paquete</th><th>No</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th></tr></thead><tbody>';
     tramitesOrdenados.forEach(function(t){
       // Si el Sheet no trae el desglose Desarrollo/QA por trámite, se pinta
@@ -1337,17 +1622,18 @@
           +'<div class="seg-seg fill-qa" style="width:'+(parseFloat(t.aporte_qa)||0)+'%;"></div>'
         : '<div class="seg-seg" style="width:'+(parseFloat(t.avance_total)||0)+'%;background:'+pbGrad(ragC(t.avance_total))+';"></div>';
       html += '<tr data-paquete-row="'+fmt(t.paquete)+'">'
-        +'<td><span class="ds-lozenge">'+fmt(t.paquete)+'</span></td>'
-        +'<td class="mono seg-muted">'+fmt(t.orden)+'</td>'
+        +'<td class="seg-tr-pkg"><span class="ds-lozenge">'+fmt(t.paquete)+'</span></td>'
+        +'<td class="mono seg-muted seg-tr-no">'+fmt(t.orden)+'</td>'
         +'<td class="seg-cell-title">'+fmt(t.nombre)+'</td>'
-        +'<td style="width:220px;"><div style="display:flex;align-items:center;gap:8px;">'
-          +'<div class="seg-prog-track" style="width:130px;display:flex;">'+barraHTML+'</div>'
-          +'<span class="mono" style="white-space:nowrap;">'+pct(t.avance_total)+'</span>'
+        +'<td class="seg-tr-avance"><div style="display:flex;align-items:center;gap:8px;">'
+          +'<div class="seg-prog-track seg-tr-track">'+barraHTML+'</div>'
+          +'<span class="mono seg-tr-pct" style="white-space:nowrap;">'+pct(t.avance_total)+'</span>'
         +'</div></td>'
         +'</tr>';
     });
     html += '</tbody></table></div>'
       +'<div class="seg-chart-legend">'
+        +'<span class="seg-legend-title">Avance (Desarrollo + QA):</span>'
         +'<span><span class="seg-legend-swatch fill-dev"></span>Desarrollo</span>'
         +'<span><span class="seg-legend-swatch fill-qa"></span>QA</span>'
       +'</div>'
@@ -1405,7 +1691,7 @@
       return (activeTipo==='all'||tipo.includes(activeTipo))
           && (activeEstado==='all'||est===activeEstado);
     });
-    var html='<div class="seg-table-wrap"><table class="seg-table">'
+    var html='<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--obs">'
       +'<thead><tr><th>#</th><th>Fecha</th><th>Trámite</th><th>Tipo</th><th>Severidad</th><th>Estado TCA</th></tr></thead><tbody>';
     if(!filtered.length){
       html+='<tr><td colspan="6" class="seg-empty-row">Sin resultados para los filtros seleccionados.</td></tr>';
@@ -1416,11 +1702,11 @@
         var estCls=est==='Completado'?'seg-state-ok':est.includes('progreso')?'seg-state-progress':'';
         html+='<tr>'
           +'<td class="seg-key">'+fmt(r['#'])+'</td>'
-          +'<td class="mono" style="white-space:nowrap;">'+fmt(r.Fecha)+'</td>'
+          +'<td class="mono seg-o-fec" data-label="Fecha" style="white-space:nowrap;">'+fmt(r.Fecha)+'</td>'
           +'<td class="seg-cell-title">'+fmt(r['Trámite']||r.Tramite)+'</td>'
-          +'<td><span class="seg-badge tipo-neutral">'+getTipo(r)+'</span></td>'
-          +'<td><span class="seg-badge '+sev.c+'">'+sev.l+'</span></td>'
-          +'<td class="'+estCls+'">'+est+'</td>'
+          +'<td class="seg-o-tip" data-label="Tipo"><span class="seg-badge tipo-neutral">'+getTipo(r)+'</span></td>'
+          +'<td class="seg-o-sev" data-label="Severidad"><span class="seg-badge '+sev.c+'">'+sev.l+'</span></td>'
+          +'<td class="'+estCls+' seg-o-est" data-label="Estado TCA">'+est+'</td>'
           +'</tr>';
       });
     }
@@ -1450,12 +1736,12 @@
       +'<details class="seg-collapsible" id="obs-collapsible"'+(abierto?' open':'')+'>'
         +'<summary>Listado de tareas — Observaciones UAT (Generales + Diseño UX)</summary>'
         +'<div class="seg-collapsible-body">'
-          +'<div class="seg-tabs" style="margin-bottom:20px;" id="obs-main-tabs">'
-          +'<button class="seg-tab active" data-obs-tab="gen">Generales ('+gen.length+')</button>'
-          +'<button class="seg-tab" data-obs-tab="ux">Diseño UX ('+ux.length+')</button>'
+          +'<div class="seg-tabs" style="margin-bottom:20px;" id="obs-main-tabs" role="tablist" aria-label="Tipo de observaciones">'
+          +'<button class="seg-tab active" data-obs-tab="gen" role="tab" aria-selected="true" aria-controls="obs-panel-gen">Generales ('+gen.length+')</button>'
+          +'<button class="seg-tab" data-obs-tab="ux" role="tab" aria-selected="false" aria-controls="obs-panel-ux">Diseño UX ('+ux.length+')</button>'
           +'</div>'
-          +'<div id="obs-panel-gen">'+buildObsPanel(gen,'gen')+'</div>'
-          +'<div id="obs-panel-ux" style="display:none;">'+buildObsPanel(ux,'ux')+'</div>'
+          +'<div id="obs-panel-gen" role="tabpanel">'+buildObsPanel(gen,'gen')+'</div>'
+          +'<div id="obs-panel-ux" role="tabpanel" style="display:none;">'+buildObsPanel(ux,'ux')+'</div>'
         +'</div>'
       +'</details>'
       +'</div>';
@@ -1468,8 +1754,8 @@
 
     container.querySelectorAll('[data-obs-tab]').forEach(function(t){
       t.addEventListener('click',function(){
-        container.querySelectorAll('[data-obs-tab]').forEach(function(x){ x.classList.remove('active'); });
-        t.classList.add('active');
+        container.querySelectorAll('[data-obs-tab]').forEach(function(x){ x.classList.remove('active'); x.setAttribute('aria-selected','false'); });
+        t.classList.add('active'); t.setAttribute('aria-selected','true');
         ['gen','ux'].forEach(function(p){
           var el=container.querySelector('#obs-panel-'+p);
           if(el) el.style.display=(p===t.dataset.obsTab?'':'none');
@@ -1567,10 +1853,20 @@
     if(!m) return;
     fetchResumenSources(function(err, data){
       if(err){ if(!m.dataset.rendered) m.innerHTML=errBlock(err); return; }
+      // Re-render por revalidación (solo mobile): conserva sprint elegido,
+      // pestaña/filtros de Observaciones y <details> abiertos.
+      var st = (m.dataset.rendered && segIsMobile()) ? segCaptureState(m) : null;
       m.dataset.rendered='1';
       _lastResumenData = data;
       buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle,{layout:'tabs'});
+      if(st) segRestoreState(m, st);
     });
+  }
+  // Las 7 fuentes pueden revalidar casi a la vez: un solo re-render.
+  var _loadResumenT = null;
+  function loadResumenDebounced(){
+    clearTimeout(_loadResumenT);
+    _loadResumenT = setTimeout(loadResumen, 250);
   }
 
   var _resumenSubscribed = false;
@@ -1583,7 +1879,7 @@
       _resumenSubscribed = true;
       [SH+'::sprint_activo', SH+'::transiciones', SH+'::sprint_diario_acumulado', ROADMAP_KEY,
        OB+'::Observaciones Generales', OB+'::Observaciones UX', SH+'::work_items_detalle']
-        .forEach(function(key){ onSheetUpdate(key, loadResumen); });
+        .forEach(function(key){ onSheetUpdate(key, loadResumenDebounced); });
     }
     loadResumen();
   }
@@ -1936,10 +2232,24 @@
     overlay.addEventListener('click', function(e){ if(e.target===overlay) cerrar(); });
   }
 
+  // Cruce de 768px (rotación, ventana): redibuja el burndown con las constantes del
+  // nuevo modo, oculta el tooltip y recentra la tira de sprints. Se registra una vez.
+  var _segMqWired = false;
+  function wireMobileChange(){
+    if(_segMqWired || !window.DS || !DS.onMobileChange) return;
+    _segMqWired = true;
+    DS.onMobileChange(function(mobile){
+      var tt = document.getElementById('seg-bd-tt'); if(tt) tt.style.display = 'none';
+      redrawBurndown();
+      if(mobile) requestAnimationFrame(function(){ segRevealSprintTab(document.getElementById('seg-resumen-mount')); });
+    });
+  }
+
   function init(){
     mountStyles();
     injectPages();
     hookNav();
+    wireMobileChange();
     mountReportModal();
     if(document.getElementById('page-seg-resumen')  &&document.getElementById('page-seg-resumen').classList.contains('active'))  mountResumen();
     if(document.getElementById('page-seg-paquetes') &&document.getElementById('page-seg-paquetes').classList.contains('active')) mountPaquetes();

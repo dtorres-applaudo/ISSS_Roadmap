@@ -239,9 +239,10 @@ html[data-auth="app"] #app-shell{display:flex !important;}
   .tn-menu-item{min-height:var(--ds-touch-target);}
 
   /* Contenido a ancho completo: 375 − 2×16 = 343px */
-  #page-content{--page-gutter:var(--ds-space-200);padding:var(--ds-space-150) var(--page-gutter) var(--ds-space-400);
+  /* Sin padding superior: los sticky (top:0) pegan al borde sin dejar ver contenido por encima */
+  #page-content{--page-gutter:var(--ds-space-200);padding:0 var(--page-gutter) var(--ds-space-400);
     overscroll-behavior-y:contain;scroll-padding-top:calc(2 * var(--ds-tabbar-h));}
-  .page-breadcrumb{margin-bottom:0;}
+  .page-breadcrumb{margin-bottom:0;padding-top:var(--ds-space-150);}
   .page-breadcrumb a{display:inline-flex;align-items:center;min-height:var(--ds-touch-target);}
   .page-header{margin-bottom:var(--ds-space-200);}
   .page-header-row{gap:var(--ds-space-150);}
