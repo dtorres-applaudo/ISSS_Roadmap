@@ -52,6 +52,16 @@ REM corrida anterior alcanzo a comitear pero el deploy fallo, un chequeo
 REM de "hubo diff" aqui se saltaria el deploy para siempre y la web
 REM quedaria desactualizada sin que nadie se entere. Redeployar contenido
 REM identico es barato e inofensivo.
+REM Conserva el reporte ejecutivo (public\reports) que genera GitHub Actions:
+REM firebase deploy sube public\ completo desde esta carpeta, donde esos archivos
+REM no existen, y sin este paso los borraria del hosting (n8n recibiria la
+REM pantalla de login en vez del reporte). Se traen del sitio en vivo; si aun no
+REM existen alla, el hosting responde con la pagina de login y se descartan.
+if not exist "public\reports" mkdir "public\reports"
+curl.exe -fsS -o "public\reports\latest.html" https://product-roadmap-isss.web.app/reports/latest.html >> "%LOG%" 2>&1
+curl.exe -fsS -o "public\reports\latest-summary.json" https://product-roadmap-isss.web.app/reports/latest-summary.json >> "%LOG%" 2>&1
+findstr /c:"<title>Portal ISSS-SYDT</title>" "public\reports\latest.html" >nul 2>&1 && del "public\reports\latest.html"
+findstr /c:"<title>Portal ISSS-SYDT</title>" "public\reports\latest-summary.json" >nul 2>&1 && del "public\reports\latest-summary.json"
 call "%FIREBASE%" deploy --only hosting --config "%PORTAL_DIR%\firebase.json" >> "%LOG%" 2>&1
 if errorlevel 1 (
   echo [auto-publish] ERROR: firebase deploy fallo - revisar sesion de 'firebase login'. >> "%LOG%"
