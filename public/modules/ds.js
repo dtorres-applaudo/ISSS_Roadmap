@@ -134,6 +134,11 @@
   --ds-lz-removed-bold-bg:#C9372C;
 
   --ds-motion:.15s ease;
+
+  /* ── Capas y medidas táctiles (mobile ≤767px) ── */
+  --ds-z-sticky-2:58; --ds-z-sticky:60; --ds-z-bottom-nav:150; --ds-z-topbar:200;
+  --ds-z-popover:500; --ds-z-modal:9998; --ds-z-flag:10000;
+  --ds-touch-target:44px; --ds-tabbar-h:48px;
 }
 
 /* ── Base ── */
@@ -234,12 +239,259 @@
   color:var(--ds-text-subtle);cursor:pointer;font-size:14px;line-height:1;}
 .ds-flag-close:hover{background:var(--ds-background-neutral-subtle-hovered);}
 @keyframes ds-flag-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+/* ── Pestañas de sección (Roadmap / Resumen ejecutivo) ── */
+.ds-sectabs{display:flex;gap:var(--ds-space-050);margin-bottom:var(--ds-space-300);
+  box-shadow:inset 0 -2px 0 var(--ds-border);overflow-x:auto;}
+.ds-sectab{flex:none;display:flex;align-items:center;padding:var(--ds-space-150);margin:0;
+  border:none;border-bottom:2px solid transparent;border-radius:0;background:none;cursor:pointer;
+  font:var(--ds-font-heading-xsmall);color:var(--ds-text-subtle);white-space:nowrap;
+  transition:color var(--ds-motion),border-color var(--ds-motion);}
+.ds-sectab:hover{color:var(--ds-text);border-bottom-color:var(--ds-border-bold);}
+.ds-sectab.is-active{color:var(--ds-text-selected);border-bottom-color:var(--ds-border-selected);}
+.ds-sectab:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:-2px;}
+.ds-secpanel{display:none;}
+.ds-secpanel.is-active{display:block;}
+
+/* ── Pestañas de paquete (Cronograma, Detalle, Avance de Producto) ── */
+.ds-pkgtabs{display:flex;gap:var(--ds-space-050);margin-bottom:var(--ds-space-200);box-shadow:inset 0 -2px 0 var(--ds-border);}
+.ds-pkgtab{position:relative;flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:var(--ds-space-100);
+  padding:var(--ds-space-100);margin:0;border:none;border-bottom:2px solid transparent;border-radius:0;background:none;cursor:pointer;
+  font:500 .875rem/1.25rem var(--ds-font-family-body);color:var(--ds-text-subtle);text-align:left;
+  transition:color var(--ds-motion),border-color var(--ds-motion);}
+.ds-pkgtab:hover{color:var(--ds-text);border-bottom-color:var(--ds-border-bold);}
+.ds-pkgtab.is-active{color:var(--ds-text-selected);border-bottom-color:var(--ds-border-selected);}
+.ds-pkgtab:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:-2px;}
+.ds-pkgtab--all{flex:none;}
+.ds-pkgtab-id{flex:none;min-width:24px;height:24px;padding:0 var(--ds-space-050);border-radius:var(--ds-radius-small);
+  display:inline-flex;align-items:center;justify-content:center;
+  font:700 .75rem/1 var(--ds-font-family-body);color:var(--ds-text-inverse);background:var(--ds-pkg-1);}
+.ds-pkgtab[data-pkg="P2"] .ds-pkgtab-id{background:var(--ds-pkg-2);}
+.ds-pkgtab[data-pkg="P3"] .ds-pkgtab-id{background:var(--ds-pkg-3);}
+.ds-pkgtab-name{min-width:0;white-space:normal;overflow-wrap:anywhere;}
+.ds-pkgtab-short,.ds-pkgtabs-caption{display:none;}
+
+@media print{
+  .ds-sectabs,.ds-pkgtabs,.ds-pkgtabs-caption{display:none !important;}
+  .ds-secpanel{display:block !important;}
+}
+
+/* ── MOBILE (≤767.98px) ── */
+@media screen and (max-width: 767.98px){
+  .ds-btn{min-height:var(--ds-touch-target);}
+  .ds-btn--icon{min-width:var(--ds-touch-target);}
+  .ds-btn--full{height:var(--ds-touch-target);}
+  .ds-lozenge{height:auto;min-height:20px;padding:2px var(--ds-space-075);font-size:.75rem;line-height:1rem;
+    white-space:normal;overflow:visible;text-overflow:clip;overflow-wrap:anywhere;}
+  .ds-textfield{height:var(--ds-touch-target);font-size:16px;}
+  .ds-section-message{overflow-wrap:anywhere;}
+  .ds-section-message::before{font-size:12px;}
+  .ds-empty-state{margin:var(--ds-space-400) auto;}
+  .ds-flags{left:var(--ds-space-200);right:var(--ds-space-200);bottom:calc(var(--ds-space-200) + var(--mobile-bottom-inset, 0px));}
+  .ds-flag{width:auto;}
+  .ds-flag-msg{overflow-wrap:anywhere;}
+  .ds-flag-close{width:var(--ds-touch-target);height:var(--ds-touch-target);margin:-10px -10px -10px 0;font-size:16px;}
+
+  .ds-sectabs{position:sticky;top:0;z-index:var(--ds-z-sticky);min-height:var(--ds-tabbar-h);align-items:stretch;
+    margin-left:calc(-1 * var(--page-gutter, 16px));margin-right:calc(-1 * var(--page-gutter, 16px));
+    padding:0 var(--page-gutter, 16px);scroll-padding-inline:var(--page-gutter, 16px);background:var(--ds-surface);
+    scrollbar-width:none;overscroll-behavior-x:contain;scroll-snap-type:x proximity;}
+  .ds-sectabs::-webkit-scrollbar{display:none;}
+  .ds-sectabs::after{content:"";position:sticky;right:0;flex:none;width:24px;margin-left:-24px;pointer-events:none;
+    background:linear-gradient(90deg, rgba(255,255,255,0), var(--ds-surface));}
+  .ds-sectab{min-height:var(--ds-touch-target);padding:0 var(--ds-space-150);scroll-snap-align:start;}
+
+  .ds-pkgtabs{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:var(--ds-space-050);padding:var(--ds-space-050);
+    box-shadow:none;border-radius:var(--ds-radius-large);margin-bottom:var(--ds-space-100);
+    background:linear-gradient(var(--ds-background-neutral),var(--ds-background-neutral)),var(--ds-surface);}
+  .ds-pkgtabs--all{grid-template-columns:auto;}
+  .ds-pkgtab{min-height:var(--ds-touch-target);justify-content:center;gap:6px;padding:var(--ds-space-050) 6px;
+    border-bottom:0;border-radius:var(--ds-radius-medium);font:600 .8125rem/1.15 var(--ds-font-family-body);text-align:center;}
+  .ds-pkgtab:hover{border-bottom-color:transparent;}
+  .ds-pkgtab.is-active{background:var(--ds-surface);color:var(--ds-text-selected);box-shadow:var(--ds-shadow-raised);}
+  .ds-pkgtab-name{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap;}
+  .ds-pkgtab-short{display:inline;}
+  .ds-pkgtabs-caption{display:block;margin:0 0 var(--ds-space-150);font:var(--ds-font-body);color:var(--ds-text);}
+}
+@media screen and (max-width: 479.98px){
+  .ds-pkgtabs--all .ds-pkgtab-short{display:none;}
+}
+@media screen and (max-width: 767.98px) and (hover: none){
+  .ds-btn:hover{background:var(--ds-background-neutral);color:var(--ds-text-subtle);}
+  .ds-btn--primary:hover{background:var(--ds-background-brand-bold);color:var(--ds-text-inverse);}
+  .ds-btn--subtle:hover{background:transparent;}
+  .ds-textfield:hover{background:var(--ds-background-input);}
+  .ds-flag-close:hover{background:none;}
+  .ds-sectab:not(.is-active):hover,.ds-pkgtab:not(.is-active):hover{color:var(--ds-text-subtle);border-bottom-color:transparent;}
+}
 `;
 
-  var style = document.createElement('style');
-  style.id = 'ds-core';
-  style.textContent = CSS;
-  (document.head || document.documentElement).appendChild(style);
+  if(!document.getElementById('ds-core')){
+    var style = document.createElement('style');
+    style.id = 'ds-core';
+    style.textContent = CSS;
+    (document.head || document.documentElement).appendChild(style);
+  }
+
+  // ── Viewport mobile: ÚNICA fuente para JS (mismo literal que el CSS) ──
+  var MQ_MOBILE = 'screen and (max-width: 767.98px)';
+  var MQ_SMALL  = 'screen and (max-width: 479.98px)';
+  function mql(q){ try { return window.matchMedia ? window.matchMedia(q) : null; } catch(e){ return null; } }
+  function listenMq(m, fn){ if(!m) return; if(m.addEventListener) m.addEventListener('change', fn); else if(m.addListener) m.addListener(fn); }
+  var mqMobile = mql(MQ_MOBILE), mqSmall = mql(MQ_SMALL), mqPrint = mql('print');
+  function readMq(){ return { mobile: !!(mqMobile && mqMobile.matches), small: !!(mqSmall && mqSmall.matches) }; }
+  var mqState = readMq();          // estado de PANTALLA: se congela mientras se imprime
+  var mqSubs = [], printing = false;
+  function isPrinting(){ return printing || !!(mqPrint && mqPrint.matches); }
+  function syncMq(){
+    if(isPrinting()) return;       // al imprimir 'screen and …' pasa a false: no notificar
+    var n = readMq();
+    if(n.mobile === mqState.mobile && n.small === mqState.small) return;
+    mqState = n;
+    mqSubs.slice().forEach(function(fn){ try { fn(mqState.mobile, mqState.small); } catch(e){ if(window.console) console.error(e); } });
+    try { document.dispatchEvent(new CustomEvent('ds:mobilechange', { detail: { mobile: mqState.mobile, small: mqState.small } })); } catch(e){}
+  }
+  listenMq(mqMobile, syncMq); listenMq(mqSmall, syncMq);
+  listenMq(mqPrint, function(){ if(mqPrint && !mqPrint.matches){ printing = false; syncMq(); } });
+  window.addEventListener('beforeprint', function(){ printing = true; });
+  window.addEventListener('afterprint',  function(){ printing = false; syncMq(); });
+  function onMobileChange(fn){
+    if(typeof fn !== 'function' || mqSubs.indexOf(fn) !== -1) return function(){};
+    mqSubs.push(fn);
+    return function(){ var i = mqSubs.indexOf(fn); if(i !== -1) mqSubs.splice(i, 1); };
+  }
+
+  // Scroller real de un elemento (#page-content en el portal, documento en los standalone).
+  function scrollParent(el){
+    for(var n = el && el.parentElement; n && n !== document.body && n !== document.documentElement; n = n.parentElement){
+      var oy = getComputedStyle(n).overflowY;
+      if((oy === 'auto' || oy === 'scroll') && n.scrollHeight > n.clientHeight) return n;
+    }
+    return document.scrollingElement || document.documentElement;
+  }
+
+  // Centra una pestaña dentro de su tira con scroll horizontal (no mueve el scroll vertical).
+  function revealTab(tab){
+    var strip = tab && tab.parentElement;
+    if(!strip || !strip.clientWidth || strip.scrollWidth <= strip.clientWidth) return;
+    var s = strip.getBoundingClientRect(), t = tab.getBoundingClientRect();
+    var x = strip.scrollLeft + (t.left - s.left) - (s.width - t.width) / 2;
+    strip.scrollLeft = Math.max(0, Math.min(x, strip.scrollWidth - strip.clientWidth));
+  }
+  // Si la tira está pegada (sticky) y el panel nuevo empieza por encima de ella, lleva el scroll al inicio del panel.
+  function revealPanel(strip, panel){
+    if(!strip || !panel) return;
+    var sc = scrollParent(strip);
+    var top0 = sc === (document.scrollingElement || document.documentElement) ? 0 : sc.getBoundingClientRect().top;
+    var sr = strip.getBoundingClientRect(), pr = panel.getBoundingClientRect();
+    if(getComputedStyle(strip).position === 'sticky'){
+      if(pr.top < sr.bottom) sc.scrollTop += pr.top - sr.bottom;
+    } else if(sr.top < top0){
+      sc.scrollTop += sr.top - top0;
+    }
+  }
+
+  var store = {
+    get: function(k, d){ try { var v = localStorage.getItem(k); return v == null ? (d === undefined ? null : d) : v; } catch(e){ return d === undefined ? null : d; } },
+    set: function(k, v){ try { if(v == null) localStorage.removeItem(k); else localStorage.setItem(k, String(v)); } catch(e){} }
+  };
+
+  // Paquete seleccionado compartido (5b): 'P1'|'P2'|'P3'|null. Normaliza 'PP1', 'P1', '1', 'Paquete 1'.
+  var PKG_KEY = 'issssydt_pkg_sel', pkgSubs = [];
+  function normPkg(id){ if(id == null || id === 'all') return null; var n = String(id).replace(/\D/g, ''); return n ? 'P' + n : null; }
+  var _pkg = normPkg(store.get(PKG_KEY));
+  var pkg = {
+    get: function(){ return _pkg; },
+    set: function(id, source){
+      var v = normPkg(id); if(!v || v === _pkg) return;
+      _pkg = v; store.set(PKG_KEY, v);
+      pkgSubs.slice().forEach(function(fn){ try { fn(v, source); } catch(e){} });
+      try { document.dispatchEvent(new CustomEvent('ds:pkgchange', { detail: { pkg: v, source: source || '' } })); } catch(e){}
+    },
+    on: function(fn){
+      if(typeof fn !== 'function' || pkgSubs.indexOf(fn) !== -1) return function(){};
+      pkgSubs.push(fn);
+      return function(){ var i = pkgSubs.indexOf(fn); if(i !== -1) pkgSubs.splice(i, 1); };
+    }
+  };
+
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  // Markup único de las pestañas de paquete.
+  // o: { group, items:[{id:'P1', name:'…'}], active:'P1'|'all', includeAll, mode:'tabs'|'filter', controlsPrefix }
+  var pkgTabs = {
+    html: function(o){
+      var filter = o.mode === 'filter';
+      var tabs = (o.includeAll ? [{ id:'all' }] : []).concat(o.items || []);
+      var activeName = '';
+      var btns = tabs.map(function(t){
+        var on = t.id === o.active, n = String(t.id).replace(/\D/g, '');
+        var full = t.id === 'all' ? 'Todos los paquetes' : 'Paquete ' + n + ' · ' + t.name;
+        if(on) activeName = full;
+        var inner = t.id === 'all'
+          ? '<span class="ds-pkgtab-label">Todos</span>'
+          : '<span class="ds-pkgtab-id">' + esc(t.id) + '</span><span class="ds-pkgtab-name">' + esc(t.name) + '</span>'
+            + '<span class="ds-pkgtab-short" aria-hidden="true">Paquete ' + n + '</span>';
+        var a11y = filter
+          ? ' aria-pressed="' + on + '"'
+          : ' role="tab" aria-selected="' + on + '" tabindex="' + (on ? 0 : -1) + '"'
+            + (o.controlsPrefix && t.id !== 'all' ? ' aria-controls="' + esc(o.controlsPrefix + t.id) + '"' : '');
+        return '<button type="button" class="ds-pkgtab' + (t.id === 'all' ? ' ds-pkgtab--all' : '') + (on ? ' is-active' : '') + '"'
+          + ' data-pkg="' + esc(t.id) + '" data-name="' + esc(full) + '"' + a11y + '>' + inner + '</button>';
+      }).join('');
+      return '<div class="ds-pkgtabs' + (o.includeAll ? ' ds-pkgtabs--all' : '') + '"'
+          + (filter ? ' role="group" aria-label="Filtrar por paquete"' : ' role="tablist" aria-label="Paquete"')
+          + ' data-pkg-group="' + esc(o.group) + '">' + btns + '</div>'
+        + '<div class="ds-pkgtabs-caption"' + (filter ? ' aria-live="polite"' : ' aria-hidden="true"') + '>' + esc(activeName) + '</div>';
+    },
+    setActive: function(container, id, caption){
+      if(!container) return;
+      var filter = container.getAttribute('role') !== 'tablist';
+      var cap = container.nextElementSibling;
+      container.querySelectorAll('.ds-pkgtab').forEach(function(b){
+        var on = b.getAttribute('data-pkg') === id;
+        b.classList.toggle('is-active', on);
+        if(filter) b.setAttribute('aria-pressed', on);
+        else { b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1; }
+        if(on && cap && cap.classList.contains('ds-pkgtabs-caption')) cap.textContent = caption || b.getAttribute('data-name');
+      });
+    }
+  };
+
+  // Teclado (patrón APG) para cualquier tira de pestañas del DS: flechas, Home y End.
+  document.addEventListener('keydown', function(e){
+    var t = e.target && e.target.closest && e.target.closest('.ds-sectabs [role="tab"], .ds-pkgtabs[role="tablist"] [role="tab"]');
+    if(!t) return;
+    var all = [].slice.call(t.parentNode.querySelectorAll('[role="tab"]')), i = all.indexOf(t), n = null;
+    if(e.key === 'ArrowRight') n = all[(i + 1) % all.length];
+    else if(e.key === 'ArrowLeft') n = all[(i - 1 + all.length) % all.length];
+    else if(e.key === 'Home') n = all[0];
+    else if(e.key === 'End') n = all[all.length - 1];
+    if(n){ e.preventDefault(); n.focus(); n.click(); }
+  });
+
+  // "Atrás" del teléfono cierra el modal abierto (solo si se abrió en mobile).
+  var histStack = [];
+  window.addEventListener('popstate', function(){
+    var top = histStack.pop();
+    if(top){ top.fromPop = true; try { top.close(); } catch(e){} top.fromPop = false; }
+  });
+  var modalHistory = {
+    // Devuelve un token; llamar modalHistory.closed(token) cuando el modal se cierra por otra vía.
+    opened: function(close){
+      if(!mqState.mobile || !window.history || !history.pushState) return null;
+      var tok = { close: close, fromPop: false };
+      histStack.push(tok);
+      try { history.pushState({ dsModal: histStack.length }, ''); } catch(e){}
+      return tok;
+    },
+    closed: function(tok){
+      if(!tok || tok.fromPop) return;
+      var i = histStack.indexOf(tok);
+      if(i === -1) return;
+      histStack.splice(i, 1);
+      try { history.back(); } catch(e){}
+    }
+  };
 
   // DS.flag(msg, tipo) — reemplazo no bloqueante de alert(). tipo:
   // 'info' (default) | 'success' | 'warning' | 'error'. Se cierra solo a los 6s.
@@ -264,7 +516,9 @@
     function cerrar(){ if(el.parentNode) el.parentNode.removeChild(el); }
     el.querySelector('.ds-flag-close').addEventListener('click', cerrar);
     host.appendChild(el);
-    setTimeout(cerrar, 6000);
+    // En mobile los errores quedan hasta que se cierran y el resto dura 10s (textos largos en 300px).
+    var ms = mqState.mobile ? (tipo === 'error' ? 0 : 10000) : 6000;
+    if(ms) setTimeout(cerrar, ms);
   }
 
   // Lee un token como string (para canvas, que no entiende var()).
@@ -275,5 +529,14 @@
     } catch(e){ return fallback; }
   }
 
-  window.DS = { flag: flag, token: token };
+  window.DS = {
+    flag: flag, token: token, css: CSS,
+    mq: { MOBILE: MQ_MOBILE, SMALL: MQ_SMALL, mobile: mqMobile, small: mqSmall },
+    isMobile: function(){ return mqState.mobile; },
+    isSmall:  function(){ return mqState.small; },
+    onMobileChange: onMobileChange,
+    scrollParent: scrollParent,
+    tabs: { reveal: revealTab, revealPanel: revealPanel },
+    store: store, pkg: pkg, pkgTabs: pkgTabs, modalHistory: modalHistory
+  };
 })();
