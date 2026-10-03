@@ -211,6 +211,10 @@
 .seg-subh:first-of-type{margin-top:0;}
 .seg-section{margin-bottom:var(--ds-space-500);}
 .seg-ts{margin-top:var(--ds-space-200);font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
+/* Pestañas de sección del Resumen ejecutivo (5c): "Último sync" arriba, siempre visible */
+.seg-ts.seg-ts--head{margin:0 0 var(--ds-space-150);}
+/* Al generar el PDF se muestran todos los paneles (también en pantalla, mientras dura la impresión) */
+.seg-printing .ds-secpanel{display:block;}
 .seg-caption{margin-top:var(--ds-space-100);font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
 .mono{font-variant-numeric:tabular-nums;}
 .seg-id{font-weight:600;color:var(--ds-text-subtle);font-variant-numeric:tabular-nums;white-space:nowrap;}
@@ -426,6 +430,8 @@
   .page{display:none !important;}
   .page.active{display:block !important;}
   .seg-section, .seg-chart-wrap, .seg-table-wrap, .seg-kpis, .seg-pkg-cards{break-inside:avoid;}
+  /* Pestañas vacías (5c): en el PDF no se imprime su aviso, igual que antes de las pestañas */
+  #seg-resumen-mount .seg-secpanel-empty{display:none !important;}
 }
 `;
 
@@ -488,7 +494,57 @@
       velProm:velProm, velCnt:velCnt };
   }
 
-  function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle){
+  // ── Pestañas de sección del Resumen ejecutivo (5c) ──
+  var SEG_SECTIONS = [
+    { id:'sprint',       label:'Sprint actual' },
+    { id:'actividad',    label:'Actividad por sprint' },
+    { id:'cumplimiento', label:'Cumplimiento' },
+    { id:'deuda',        label:'Deuda técnica' },
+    { id:'obs',          label:'Observaciones' }
+  ];
+  var SEG_SEC_KEY = 'issssydt_seg_section';
+  function segSecActive(){
+    var v = window.DS ? DS.store.get(SEG_SEC_KEY) : null;
+    return SEG_SECTIONS.some(function(sx){ return sx.id===v; }) ? v : 'sprint';
+  }
+  function segActivateSec(mount, key, fromUser){
+    if(!mount.querySelector('.ds-secpanel[data-seg-sec="'+key+'"]')) key = 'sprint';
+    var strip = mount.querySelector('.seg-sectabs');
+    if(strip) strip.querySelectorAll('.ds-sectab').forEach(function(t){
+      var on = t.getAttribute('data-seg-sec')===key;
+      t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1;
+    });
+    var panel = null;
+    mount.querySelectorAll(':scope > .ds-secpanel').forEach(function(p){
+      var on = p.getAttribute('data-seg-sec')===key;
+      p.classList.toggle('is-active', on);
+      if(on) panel = p;
+    });
+    DS.store.set(SEG_SEC_KEY, key);
+    // El canvas no se puede dibujar mientras su panel está oculto (mide 0px).
+    if(key==='actividad') requestAnimationFrame(redrawBurndown);
+    if(strip) DS.tabs.reveal(strip.querySelector('.is-active'));
+    if(fromUser) DS.tabs.revealPanel(strip, panel);
+  }
+  // Delegado sobre el mount (persiste entre re-renders): se registra una sola vez.
+  function segWireSecTabs(mount){
+    if(mount.__segSecWired) return;
+    mount.__segSecWired = true;
+    mount.addEventListener('click', function(e){
+      var t = e.target.closest('.seg-sectabs .ds-sectab');
+      if(t && mount.contains(t)) segActivateSec(mount, t.getAttribute('data-seg-sec'), true);
+    });
+  }
+  function redrawBurndown(){
+    if(!_burndownData || !_burndownData.sprint) return;
+    var dayRows = diarioDayRows(_burndownData.diario, _burndownData.sprint);
+    drawBurndown(dayRows, nDiasHabilesSprint(_burndownData.sprint, _burndownData.sa, dayRows));
+  }
+
+  // opts.layout: 'tabs' en el portal (5c: una sección a la vez); por defecto
+  // 'stack' (reporte standalone y generación desatendida: todo apilado, como siempre).
+  function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle, opts){
+    var tabs = !!(opts && opts.layout === 'tabs');
     var k = computeResumenKpis(activo, transiciones, diario, detalle);
     var sa=k.sa, avance=k.avance, cerrado=k.cerrado, total=k.total, burnRate=k.burnRate, sprintNom=k.sprintNom;
     var diasT=k.diasT, diasH=k.diasH, tiempoPct=k.tiempoPct;
@@ -576,17 +632,43 @@
     var histHTML = buildHistoricoTable(sprintSummaries, last5Summaries, sprintNom);
 
     // ── OBSERVACIONES (colapsable) ──
-    var obsHTML = buildObservacionesCollapsible(obsGen||[], obsUx||[]);
+    var obsHTML = buildObservacionesCollapsible(obsGen||[], obsUx||[], tabs);
 
-    mount.innerHTML =
-      '<div class="seg-section"><div class="seg-sh">Sprint activo — '+sprintNom+'</div>'
+    var sprintHTML = '<div class="seg-section"><div class="seg-sh">Sprint activo — '+sprintNom+'</div>'
       +kpisHTML+'</div>'
-      +dualesHTML
-      +actividad.html
-      +histHTML
-      +deudaHTML
-      +obsHTML
-      +'<div class="seg-ts">Último sync: '+ts+'</div>';
+      +dualesHTML;
+
+    if(tabs){
+      var act = segSecActive();
+      var panel = function(key, html, emptyMsg){
+        var body = html || '<div class="seg-empty">'+emptyMsg+'</div>';
+        return '<div class="ds-secpanel'+(key===act?' is-active':'')+(html?'':' seg-secpanel-empty')+'" id="seg-sec-panel-'+key+'" data-seg-sec="'+key+'"'
+          +' role="tabpanel" aria-labelledby="seg-sec-tab-'+key+'">'+body+'</div>';
+      };
+      mount.innerHTML =
+        '<div class="seg-ts seg-ts--head">Último sync: '+ts+'</div>'
+        +'<div class="ds-sectabs seg-sectabs" role="tablist" aria-label="Secciones del Resumen ejecutivo">'
+          +SEG_SECTIONS.map(function(sx){
+            var on = sx.id===act;
+            return '<button type="button" role="tab" class="ds-sectab'+(on?' is-active':'')+'" id="seg-sec-tab-'+sx.id+'" data-seg-sec="'+sx.id+'"'
+              +' aria-controls="seg-sec-panel-'+sx.id+'" aria-selected="'+on+'" tabindex="'+(on?0:-1)+'">'+sx.label+'</button>';
+          }).join('')
+        +'</div>'
+        +panel('sprint', sprintHTML)
+        +panel('actividad', actividad.html, 'Todavía no hay registros diarios de actividad para mostrar.')
+        +panel('cumplimiento', histHTML, 'Todavía no hay sprints con datos de cierre.')
+        +panel('deuda', deudaHTML, 'Sin deuda técnica registrada.')
+        +panel('obs', obsHTML, 'No hay observaciones UAT registradas.');
+      segWireSecTabs(mount);
+    } else {
+      mount.innerHTML =
+        sprintHTML
+        +actividad.html
+        +histHTML
+        +deudaHTML
+        +obsHTML
+        +'<div class="seg-ts">Último sync: '+ts+'</div>';
+    }
 
     // Dibujar canvas del sprint seleccionado por defecto (el más reciente)
     _burndownData = { diario: diario||[], sa: sa, sprint: actividad.lastSp };
@@ -684,6 +766,7 @@
   function drawBurndown(dayRows, nDias){
     var canvas = document.getElementById('seg-burndown');
     if(!canvas) return;
+    if(!canvas.getClientRects().length) return; // panel oculto: se dibuja al mostrarse
     var ctx0 = canvas.getContext('2d');
     var dayPoints = (dayRows||[]).map(function(r){
       return { d: parseInt(r.dia_sprint)||0, total: parseInt(r.total_items)||0, closed: parseInt(r.closed_items)||0 };
@@ -960,7 +1043,8 @@
     var lastSp=sprints[sprints.length-1]||sprintActivo;
 
     var tabsHTML='<div class="seg-tabs" id="actividad-sprint-tabs">';
-    sprints.forEach(function(sp){ tabsHTML+='<button class="seg-tab'+(sp===lastSp?' active':'')+'" data-sp="'+sp+'">'+sp+'</button>'; });
+    // 5d: el sprint más reciente (activo por defecto) va primero.
+    sprints.slice().reverse().forEach(function(sp){ tabsHTML+='<button class="seg-tab'+(sp===lastSp?' active':'')+'" data-sp="'+sp+'">'+sp+'</button>'; });
     tabsHTML+='</div>';
 
     // Distribución por tipo: un panel pre-renderizado por sprint (mismo
@@ -1188,6 +1272,24 @@
   // (ragC/ragL), porque es distinto del "rag" de Resumen_Paquetes (ese es
   // sobre avance de desarrollo puro, no sobre este modelo ponderado).
   // ══════════════════════════════════════════════════════════════
+  var _prodFiltro = 'all';
+  function aplicarFiltroProducto(mount, sel, paquetes){
+    var bar = mount.querySelector('.ds-pkgtabs[data-pkg-group="producto"]');
+    if(!bar) return;
+    if(!bar.querySelector('.ds-pkgtab[data-pkg="'+sel+'"]')) sel = 'all';
+    var n = 0;
+    mount.querySelectorAll('[data-paquete-row]').forEach(function(tr){
+      var ver = sel==='all' || tr.dataset.paqueteRow===sel;
+      tr.style.display = ver ? '' : 'none';
+      if(ver) n++;
+    });
+    var p = paquetes.filter(function(x){ return fmt(x.paquete)===sel; })[0];
+    var caption = sel==='all'
+      ? 'Todos los paquetes · '+n+' trámites'
+      : 'Paquete '+sel.replace(/\D/g,'')+' · '+fmt(p && p.nombre)+' · '+n+' trámites';
+    DS.pkgTabs.setActive(bar, sel, caption);
+  }
+
   function buildAvanceProducto(mount, data){
     var paquetes = (data && data.paquetes) || [];
     var tramites = (data && data.tramites) || [];
@@ -1221,10 +1323,8 @@
     var tramitesOrdenados = tramites.slice().sort(function(a,b){ return (parseInt(a.orden,10)||0)-(parseInt(b.orden,10)||0); });
 
     html += '<div class="seg-section"><div class="seg-sh">Avance por trámite</div>'
-      +'<div class="seg-tabs" id="prod-tramite-filtro">'
-        +'<button class="seg-tab active" data-paquete-filtro="all">Todos</button>'
-        +paquetes.map(function(p){ return '<button class="seg-tab" data-paquete-filtro="'+fmt(p.paquete)+'">Paquete '+String(p.paquete||'').replace(/\D/g,'')+'</button>'; }).join('')
-      +'</div>'
+      +DS.pkgTabs.html({ group:'producto', mode:'filter', includeAll:true, active:'all',
+          items: paquetes.map(function(p){ return { id:fmt(p.paquete), name:fmt(p.nombre) }; }) })
       +'<div class="seg-table-wrap"><table class="seg-table">'
       +'<thead><tr><th>Paquete</th><th>No</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th></tr></thead><tbody>';
     tramitesOrdenados.forEach(function(t){
@@ -1255,18 +1355,20 @@
 
     mount.innerHTML = html;
 
-    var filtroBar = mount.querySelector('#prod-tramite-filtro');
+    // 5b: siempre arranca en "Todos"; la elección se conserva en memoria (sobrevive
+    // a la revalidación silenciosa) y, si es un paquete, el Roadmap la sigue.
+    var filtroBar = mount.querySelector('.ds-pkgtabs[data-pkg-group="producto"]');
     if(filtroBar){
-      filtroBar.querySelectorAll('[data-paquete-filtro]').forEach(function(btn){
+      filtroBar.id = 'prod-tramite-filtro';
+      filtroBar.querySelectorAll('.ds-pkgtab').forEach(function(btn){
         btn.addEventListener('click', function(){
-          filtroBar.querySelectorAll('[data-paquete-filtro]').forEach(function(x){ x.classList.remove('active'); });
-          btn.classList.add('active');
-          var sel = btn.dataset.paqueteFiltro;
-          mount.querySelectorAll('[data-paquete-row]').forEach(function(tr){
-            tr.style.display = (sel==='all' || tr.dataset.paqueteRow===sel) ? '' : 'none';
-          });
+          var sel = btn.getAttribute('data-pkg');
+          _prodFiltro = sel;
+          aplicarFiltroProducto(mount, sel, paquetes);
+          if(sel !== 'all') DS.pkg.set(sel, 'producto');
         });
       });
+      aplicarFiltroProducto(mount, _prodFiltro, paquetes);
     }
   }
 
@@ -1342,10 +1444,10 @@
       +'<div id="obs-table-'+panelId+'">'+buildObsTableHTML(rows,'all','all')+'</div>';
   }
 
-  function buildObservacionesCollapsible(gen, ux){
+  function buildObservacionesCollapsible(gen, ux, abierto){
     if(!gen.length && !ux.length) return '';
     return '<div class="seg-section">'
-      +'<details class="seg-collapsible" id="obs-collapsible">'
+      +'<details class="seg-collapsible" id="obs-collapsible"'+(abierto?' open':'')+'>'
         +'<summary>Listado de tareas — Observaciones UAT (Generales + Diseño UX)</summary>'
         +'<div class="seg-collapsible-body">'
           +'<div class="seg-tabs" style="margin-bottom:20px;" id="obs-main-tabs">'
@@ -1467,7 +1569,7 @@
       if(err){ if(!m.dataset.rendered) m.innerHTML=errBlock(err); return; }
       m.dataset.rendered='1';
       _lastResumenData = data;
-      buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle);
+      buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle,{layout:'tabs'});
     });
   }
 
@@ -1569,11 +1671,7 @@
         if(pg==='seg-producto') setTimeout(mountProducto,60);
       });
     });
-    var redraw = function(){
-      if(!_burndownData || !_burndownData.sprint) return;
-      var dayRows = diarioDayRows(_burndownData.diario, _burndownData.sprint);
-      drawBurndown(dayRows, nDiasHabilesSprint(_burndownData.sprint, _burndownData.sa, dayRows));
-    };
+    var redraw = function(){ redrawBurndown(); };
     window.addEventListener('resize', redraw);
     // El resize de ventana no cubre cambios de ancho por colapso del sidebar u
     // otros reflows del contenedor; ResizeObserver sí los detecta.
@@ -1718,11 +1816,18 @@
     if(!mount) return false;
     var reabrir = [];
     mount.querySelectorAll('details:not([open])').forEach(function(d){ d.open=true; reabrir.push(d); });
+    // Con pestañas (5c) solo hay un panel visible: el PDF debe traer todas las
+    // secciones, y el burndown se dibuja ya visible (si nunca se abrió Actividad
+    // el canvas estaría vacío).
+    mount.classList.add('seg-printing');
+    redrawBurndown();
     var tituloOriginal = document.title;
     document.title = 'Reporte ejecutivo ISSS-SYDT ' + new Date().toISOString().slice(0,10);
     function restaurar(){
       reabrir.forEach(function(d){ d.open=false; });
       document.title = tituloOriginal;
+      mount.classList.remove('seg-printing');
+      redrawBurndown();
       window.removeEventListener('afterprint', restaurar);
     }
     window.addEventListener('afterprint', restaurar);

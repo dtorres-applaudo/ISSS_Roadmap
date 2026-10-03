@@ -81,19 +81,9 @@
 .sum-rel span{font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
 .sum-rel strong{font:var(--ds-font-heading-xsmall);color:var(--ds-text);font-variant-numeric:tabular-nums;}
 
-/* ── Tabs (Gantt, detalle, estilo ADS) ── */
-.g-tabs,.pkg-tabs{display:flex;gap:var(--ds-space-050);margin-bottom:var(--ds-space-200);box-shadow:inset 0 -2px 0 var(--ds-border);overflow-x:auto;}
-.g-tab,.pkg-tab{flex:none;display:flex;align-items:center;gap:var(--ds-space-100);cursor:pointer;
-  padding:var(--ds-space-100) var(--ds-space-100);margin:0;border:none;border-bottom:2px solid transparent;border-radius:0;background:none;
-  font:500 .875rem/1.25rem var(--ds-font-family-body);color:var(--ds-text-subtle);text-align:left;white-space:nowrap;
-  transition:color var(--ds-motion),border-color var(--ds-motion);}
-.g-tab:hover,.pkg-tab:hover{color:var(--ds-text);border-bottom-color:var(--ds-border-bold);}
-.g-tab.is-active,.pkg-tab.is-active{color:var(--ds-text-selected);border-bottom-color:var(--ds-border-selected);}
-.pkg-tab .tab-id{width:24px;height:24px;flex:none;border-radius:var(--ds-radius-small);display:flex;align-items:center;justify-content:center;
-  font:700 .6875rem/1 var(--ds-font-family-body);color:var(--ds-text-inverse);background:var(--ds-pkg-1);}
-.pkg-tab[data-target="P2"] .tab-id{background:var(--ds-pkg-2);}
-.pkg-tab[data-target="P3"] .tab-id{background:var(--ds-pkg-3);}
-.pkg-tab .tab-title{max-width:280px;overflow:hidden;text-overflow:ellipsis;}
+/* ── Pestañas de sección y de paquete (componentes .ds-sectabs / .ds-pkgtabs de ds.js) ── */
+#roadmap-mount .rm-sectabs{margin-top:var(--ds-space-400);}
+#roadmap-mount .ds-secpanel > .section{padding-top:0 !important;}
 .pkg-panel,.g-panel{display:none;}
 .pkg-panel.is-active,.g-panel.is-active{display:block;}
 
@@ -207,7 +197,7 @@
    en el último carril (paquete inferior); los demás quedan sincronizados igual. */
 .gantt-in-modal .modal-pkg-block:not(:last-child) .g-lanes-scroll{scrollbar-width:none;-ms-overflow-style:none;}
 .gantt-in-modal .modal-pkg-block:not(:last-child) .g-lanes-scroll::-webkit-scrollbar{display:none;}
-@media print{.g-tabs{display:none !important;}.g-panel{display:block !important;}.pkg-tabs{display:none !important;}.pkg-panel{display:block !important;margin-bottom:24px !important;}}
+@media print{.g-panel{display:block !important;}.pkg-panel{display:block !important;margin-bottom:24px !important;}}
 
 /* ── Detalle por paquete ── */
 .pkg{border:1px solid var(--ds-border);border-radius:var(--ds-radius-large);overflow:hidden;background:var(--ds-surface);}
@@ -637,7 +627,7 @@
   function renderGanttPanel(pkg, axisStart, totalDays, isActive, inModal){
     var pid = 'PP'+pkg.id.replace('P','');
     var rows = renderGanttRows(pkg.gantt, pkg.color_class, axisStart, totalDays, pkg.progreso);
-    return '<div class="g-panel'+(isActive?' is-active':'')+'" data-gpkg="'+pid+'">'
+    return '<div class="g-panel'+(isActive?' is-active':'')+'" data-gpkg="'+pid+'"'+(inModal?'':' id="rm-gpanel-'+pkg.id+'"')+'>'
       +'<div class="g-body">'
         +'<div class="g-task-col">'+rows.labels+'</div>'
         +'<div class="g-lanes-scroll"><div class="g-lanes-inner">'
@@ -649,14 +639,14 @@
   }
 
   // ── Render sección gantt completo ─────────────────────────────────────────────
-  function renderGanttSection(meta, paquetes, axisStart, totalDays){
+  function renderGanttSection(meta, paquetes, axisStart, totalDays, activePkg){
     var monthHead = renderMonthHead(axisStart, totalDays);
+    activePkg = activePkg || (paquetes[0] && paquetes[0].id);
 
-    var tabsHtml = paquetes.map(function(p,i){
-      return '<button class="g-tab'+(i===0?' is-active':'')+'" data-gtarget="PP'+p.id.replace('P','')+'" type="button">Paquete '+p.id.replace('P','')+'</button>';
-    }).join('');
+    var tabsHtml = DS.pkgTabs.html({ group:'gantt', active:activePkg, controlsPrefix:'rm-gpanel-',
+      items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
 
-    var panelsHtml = paquetes.map(function(p,i){ return renderGanttPanel(p, axisStart, totalDays, i===0, false); }).join('');
+    var panelsHtml = paquetes.map(function(p){ return renderGanttPanel(p, axisStart, totalDays, p.id===activePkg, false); }).join('');
 
     // Modal: todos los paquetes juntos
     var modalPkgsHtml = paquetes.map(function(p,i){
@@ -675,7 +665,7 @@
 
     return '<div class="section" style="padding-top:0;">'
       +'<div class="section-h">Cronograma de actividades por paquete</div>'
-      +'<div class="g-tabs">'+tabsHtml+'</div>'
+      +tabsHtml
       +'<div class="gantt">'
         +'<div class="g-head">'
           +'<div class="g-head-spacer"></div>'
@@ -1004,13 +994,10 @@
   }
 
   // ── Render detalle por paquete ────────────────────────────────────────────────
-  function renderDetalle(paquetes){
-    var tabs = paquetes.map(function(p,i){
-      return '<button class="pkg-tab'+(i===0?' is-active':'')+'" data-target="'+p.id+'" type="button">'
-        +'<span class="tab-id">'+p.id+'</span>'
-        +'<span class="tab-title">'+p.nombre+'</span>'
-      +'</button>';
-    }).join('');
+  function renderDetalle(paquetes, activePkg){
+    activePkg = activePkg || (paquetes[0] && paquetes[0].id);
+    var tabs = DS.pkgTabs.html({ group:'detalle', active:activePkg, controlsPrefix:'rm-pkgpanel-',
+      items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
 
     var panels = paquetes.map(function(p,i){
       // Sprints range label
@@ -1036,7 +1023,7 @@
         ? '<span class="pkg-prog">'+p.progreso+'% avance</span>'
         : '';
 
-      return '<section class="pkg pkg-panel'+(i===0?' is-active':'')+'" data-pkg="'+p.id+'">'
+      return '<section class="pkg pkg-panel'+(p.id===activePkg?' is-active':'')+'" data-pkg="'+p.id+'" id="rm-pkgpanel-'+p.id+'">'
         +'<div class="pkg-head">'
           +'<div class="pkg-id">'+p.id+'</div>'
           +'<div class="pkg-titles">'
@@ -1070,7 +1057,7 @@
 
     return '<div class="section" style="padding-top:0;">'
       +'<div class="section-h">Detalle por paquete</div>'
-      +'<div class="pkg-tabs">'+tabs+'</div>'
+      +tabs
       +'<div class="pkg-stack">'+panels+'</div>'
       +'<div class="legend">'
         +'<div class="lg lg-dev"><span class="d"></span>Desarrollo</div>'
@@ -2153,6 +2140,8 @@
     var axisStart = parseDate(data.meta.gantt_inicio);
     var axisEnd   = parseDate(data.meta.gantt_fin);
     var totalDays = (axisEnd - axisStart) / 86400000;
+    var sec = rmGetSection();
+    var pkg = rmInitialPkg(data.paquetes);
 
     mount.innerHTML =
       '<div class="page-header page-header-row">'
@@ -2161,19 +2150,22 @@
         +'<button class="rm-btn-report" id="rm-btn-generar-resumen" type="button">Generar resumen</button>'
       +'</div>'
       + renderMetaBar(data.meta)
-      + renderResumen(data.paquetes)
-      + renderGanttSection(data.meta, data.paquetes, axisStart, totalDays)
-      + renderAvancesSection()
-      + renderCatalogoTramites(data.paquetes)
-      + renderDetalle(data.paquetes)
-      + renderTransversal(data.transversal)
+      + rmSecTabsHtml(sec)
+      + '<div class="rm-sec-stack">'
+        + rmSecPanel('resumen',     renderResumen(data.paquetes), sec)
+        + rmSecPanel('cronograma',  renderGanttSection(data.meta, data.paquetes, axisStart, totalDays, pkg), sec)
+        + rmSecPanel('avances',     renderAvancesSection(), sec)
+        + rmSecPanel('tramites',    renderCatalogoTramites(data.paquetes, {forceOpen:true}), sec)
+        + rmSecPanel('detalle',     renderDetalle(data.paquetes, pkg), sec)
+        + rmSecPanel('transversal', renderTransversal(data.transversal), sec)
+      + '</div>'
       + '<div class="docfoot">'
           +'<div>Roadmap de Producto · Digitalización de Trámites ISSS</div>'
           +'<div class="mono">Plan actualizado: '+data.meta.actualizado+'</div>'
         +'</div>';
 
     _lastRoadmapData = data;
-    bindTabs();
+    rmWireOnce();
     bindModal();
     bindGanttScrollSync();
     initAvances();
@@ -2182,44 +2174,116 @@
     // calcular los px de la franja de fechas y la línea de hoy. rAF cubre el caso
     // normal; el setTimeout es respaldo si el tab no está pintando activamente.
     requestAnimationFrame(function(){
-      requestAnimationFrame(function(){ positionTodayLines(axisStart, totalDays); });
+      requestAnimationFrame(function(){
+        positionTodayLines(axisStart, totalDays);
+        DS.tabs.reveal(mount.querySelector('.rm-sectabs .ds-sectab.is-active'));
+      });
     });
     setTimeout(function(){ positionTodayLines(axisStart, totalDays); }, 300);
-    window.addEventListener('resize', function(){ positionTodayLines(axisStart, totalDays); });
   }
 
-  // ── Tabs ──────────────────────────────────────────────────────────────────────
-  function bindGroup(tabSel, panelSel, attrTab, attrPanel){
-    var tabs   = document.querySelectorAll(tabSel);
-    var panels = document.querySelectorAll(panelSel);
-    tabs.forEach(function(t){
-      t.addEventListener('click', function(){
-        var target = t.getAttribute(attrTab);
-        tabs.forEach(function(x){ x.classList.toggle('is-active', x===t); });
-        panels.forEach(function(p){ p.classList.toggle('is-active', p.getAttribute(attrPanel)===target); });
-      });
+  // ── Pestañas de sección (5a) ──────────────────────────────────────────────────
+  // Los ids y atributos de pestañas/paneles solo los emite render(): las funciones
+  // de render que reusan el resumen standalone y el print stack no cambian.
+  var RM_SECTIONS = [
+    { id:'resumen',     label:'Resumen' },
+    { id:'cronograma',  label:'Cronograma' },
+    { id:'avances',     label:'Avances' },
+    { id:'tramites',    label:'Trámites' },
+    { id:'detalle',     label:'Detalle por paquete' },
+    { id:'transversal', label:'Capa transversal' }
+  ];
+  var RM_SEC_KEY = 'issssydt_rm_section';
+  function rmGetSection(){
+    var v = DS.store.get(RM_SEC_KEY);
+    return RM_SECTIONS.some(function(s){ return s.id === v; }) ? v : 'resumen';
+  }
+  function rmSecTabsHtml(active){
+    return '<div class="ds-sectabs rm-sectabs" role="tablist" aria-label="Secciones del roadmap">'
+      + RM_SECTIONS.map(function(s){
+          var on = s.id === active;
+          return '<button type="button" role="tab" class="ds-sectab'+(on?' is-active':'')+'" id="rm-sec-tab-'+s.id+'"'
+            +' data-rm-sec="'+s.id+'" aria-controls="rm-sec-panel-'+s.id+'" aria-selected="'+on+'" tabindex="'+(on?0:-1)+'">'+s.label+'</button>';
+        }).join('')
+      + '</div>';
+  }
+  function rmSecPanel(id, html, active){
+    return '<div class="ds-secpanel'+(id===active?' is-active':'')+'" role="tabpanel" id="rm-sec-panel-'+id+'"'
+      +' aria-labelledby="rm-sec-tab-'+id+'" data-rm-sec="'+id+'">'+html+'</div>';
+  }
+  function rmInitialPkg(paquetes){
+    var p = DS.pkg.get();
+    return (p && paquetes.some(function(x){ return x.id === p; })) ? p : (paquetes[0] && paquetes[0].id);
+  }
+
+  // Cierra modales y menús que viven dentro de un panel antes de ocultarlo.
+  function rmCloseOverlays(){
+    var g = document.getElementById('ganttModal');
+    if(g && g.classList.contains('open')){ g.classList.remove('open'); g.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+    var a = document.getElementById('avanceModal');
+    if(a && a.classList.contains('open')) closeAvanceModal();
+    var x = document.getElementById('avanceExportModal');
+    if(x && x.classList.contains('open')){ x.classList.remove('open'); x.setAttribute('aria-hidden','true'); }
+    closeTramiteEstatusMenu();
+  }
+
+  function rmActivateSection(id, fromUser){
+    if(!mount.querySelector('.ds-secpanel[data-rm-sec="'+id+'"]')) id = 'resumen';
+    rmCloseOverlays();
+    var strip = mount.querySelector('.rm-sectabs');
+    mount.querySelectorAll('.rm-sectabs .ds-sectab').forEach(function(t){
+      var on = t.getAttribute('data-rm-sec') === id;
+      t.classList.toggle('is-active', on); t.setAttribute('aria-selected', on); t.tabIndex = on ? 0 : -1;
     });
+    var panel = null;
+    mount.querySelectorAll('.rm-sec-stack > .ds-secpanel').forEach(function(p){
+      var on = p.getAttribute('data-rm-sec') === id;
+      p.classList.toggle('is-active', on);
+      if(on) panel = p;
+    });
+    DS.store.set(RM_SEC_KEY, id);
+    if(id === 'cronograma') requestAnimationFrame(function(){ positionTodayLines(); });
+    DS.tabs.reveal(strip && strip.querySelector('.is-active'));
+    if(fromUser) DS.tabs.revealPanel(strip, panel);
   }
 
-  function bindTabs(){
-    bindGroup('.pkg-tab',  '.pkg-panel',  'data-target',  'data-pkg');
-    bindGroup('.g-tab',    '.g-panel',    'data-gtarget', 'data-gpkg');
-    document.querySelectorAll('.g-tab').forEach(function(t){
-      t.addEventListener('click', function(){
-        setTimeout(function(){
-          // El panel recién activado hereda el scroll del encabezado (que nunca
-          // está oculto), por si el navegador no conservó el scroll de un panel
-          // que estuvo en display:none.
-          var section = t.closest('.section');
-          var g = section ? section.querySelector('.gantt') : null;
-          if(g){
-            var headScroll = g.querySelector('.g-head-scroll');
-            var activeLanes = g.querySelector('.g-panel.is-active .g-lanes-scroll');
-            if(headScroll && activeLanes) activeLanes.scrollLeft = headScroll.scrollLeft;
-          }
-          positionTodayLines(_axisStart, _totalDays);
-        }, 30);
-      });
+  // ── Pestañas de paquete (5b): Cronograma y Detalle sincronizados ──────────────
+  function rmSelectPkg(id, persist){
+    if(!mount || !mount.querySelector('.pkg-stack > .pkg-panel[data-pkg="'+id+'"]')) return;
+    mount.querySelectorAll('.ds-pkgtabs[data-pkg-group="gantt"], .ds-pkgtabs[data-pkg-group="detalle"]')
+      .forEach(function(c){ DS.pkgTabs.setActive(c, id); });
+    var gid = 'PP' + id.replace('P','');
+    mount.querySelectorAll('.g-stack > .g-panel').forEach(function(p){ p.classList.toggle('is-active', p.getAttribute('data-gpkg') === gid); });
+    mount.querySelectorAll('.pkg-stack > .pkg-panel').forEach(function(p){ p.classList.toggle('is-active', p.getAttribute('data-pkg') === id); });
+    setTimeout(function(){
+      // El panel recién activado hereda el scroll del encabezado (que nunca está
+      // oculto), por si el navegador no conservó el scroll de un panel que estuvo
+      // en display:none.
+      var g = mount.querySelector('.gantt:not(.gantt-in-modal)');
+      if(g){
+        var headScroll = g.querySelector('.g-head-scroll');
+        var activeLanes = g.querySelector('.g-panel.is-active .g-lanes-scroll');
+        if(headScroll && activeLanes) activeLanes.scrollLeft = headScroll.scrollLeft;
+      }
+      positionTodayLines();
+    }, 30);
+    if(persist !== false) DS.pkg.set(id, 'roadmap');
+  }
+
+  // Listeners delegados: se registran una sola vez aunque render() corra varias
+  // veces (caché + revalidación).
+  function rmWireOnce(){
+    if(!mount || mount.__rmWired) return;
+    mount.__rmWired = true;
+    mount.addEventListener('click', function(e){
+      var st = e.target.closest('.rm-sectabs .ds-sectab');
+      if(st && mount.contains(st)){ rmActivateSection(st.getAttribute('data-rm-sec'), true); return; }
+      var pt = e.target.closest('.ds-pkgtabs[data-pkg-group="gantt"] .ds-pkgtab, .ds-pkgtabs[data-pkg-group="detalle"] .ds-pkgtab');
+      if(pt && mount.contains(pt)) rmSelectPkg(pt.getAttribute('data-pkg'));
+    });
+    window.addEventListener('resize', function(){ positionTodayLines(); });
+    document.addEventListener('ds:pkgchange', function(e){
+      if(e.detail && e.detail.source !== 'roadmap') rmSelectPkg(e.detail.pkg, false);
     });
   }
 
