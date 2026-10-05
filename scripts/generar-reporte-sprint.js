@@ -106,6 +106,7 @@ async function main() {
       JSON.stringify({
         generado_ts: new Date().toISOString(),
         summary_text: result.summaryText,
+        summary_html: result.summaryHtml,
         kpis: result.kpis,
       }, null, 2)
     );

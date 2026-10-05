@@ -2064,28 +2064,81 @@
     10: 'Cierre de sprint — día 10'
   };
 
+  // Cuerpo del correo según el día del sprint (texto definido por Darío,
+  // 2026-10-05). Día 10 = cierre: avance final, burn rate, cumplimiento
+  // histórico y cuántos ítems quedaron pendientes (sin deuda técnica). Días
+  // 1/3/5/8 = avance: porcentaje, burn rate y desglose por tipo de ítem
+  // (Task/Issue/Bug) tal como están en sprint_activo al momento de generar.
+  // Devuelve el mismo contenido en texto plano (líneas) y en HTML (<p>/<ul>).
+  function buildCorreoResumen(k){
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function plural(n, uno, varios){ return n===1 ? uno : varios; }
+    var sa = k.sa || {};
+    var burn = k.burnRate.toFixed(2);
+    var cierre = (k.diasT === 10);
+    var lineas, detalle = null;
+
+    if(cierre){
+      var pend = Math.max(k.total - k.cerrado, 0);
+      var cumpl = (k.velProm==='—' ? '—' : k.velProm+'%');
+      var pendTxt = pend === 0
+        ? 'No quedaron ítems pendientes en el ' + k.sprintNom + '.'
+        : 'Para el ' + k.sprintNom + ' ' + plural(pend,'quedó pendiente ','quedaron pendientes ') + pend + ' '
+          + plural(pend,'ítem','ítems') + ', en revisión para definir integración en sprint siguiente.';
+      lineas = [
+        'Día ' + k.diasT + ' y un avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados).',
+        'Burn rate: ' + burn + ' ítems/día hábil.',
+        'Cumplimiento histórico (últimos sprints): ' + cumpl + '.',
+        pendTxt
+      ];
+    } else {
+      function tipo(nombre, cerr, tot){
+        cerr = parseInt(cerr)||0; tot = parseInt(tot)||0;
+        return nombre + ': ' + cerr + ' ' + plural(cerr,'cerrado','cerrados') + ' de ' + tot;
+      }
+      lineas = [
+        'Día ' + k.diasT + ' y un avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados).',
+        'Burn rate: ' + burn + ' ítems/día hábil.',
+        'Detalle de ítems:'
+      ];
+      detalle = [
+        tipo('Task',  sa.tasks_closed,  sa.tasks_total),
+        tipo('Issue', sa.issues_closed, sa.issues_total),
+        tipo('Bug',   sa.bugs_closed,   sa.bugs_total)
+      ];
+    }
+
+    var intro = 'Buen día equipo, comparto estatus del ' + k.sprintNom + ',';
+    var text = intro + '\n\n' + lineas.join('\n') + (detalle ? '\n' + detalle.map(function(l){ return '* ' + l; }).join('\n') : '');
+    var html;
+    if(detalle){
+      html = '<p>' + esc(intro) + '</p>'
+        + '<p>' + lineas.slice(0,2).map(esc).join('<br>') + '<br>' + esc(lineas[2]) + '</p>'
+        + '<ul>' + detalle.map(function(l){ return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>';
+    } else {
+      html = '<p>' + esc(intro) + '</p><p>' + lineas.map(esc).join('<br>') + '</p>';
+    }
+    return { text: text, html: html };
+  }
+  window.SEG_BUILD_CORREO_RESUMEN = buildCorreoResumen;
+
   // Punto de entrada para generación desatendida (envío automático del
   // reporte por correo — ver scripts/generar-reporte-sprint.js). A diferencia
   // del botón "Generar reporte", no depende de que la pestaña esté montada
   // ni de sesión/login: pide las mismas 7 fuentes directamente y arma el
-  // HTML standalone + un resumen de KPIs en texto plano para el cuerpo del
-  // correo. cb(err, { html, summaryText, kpis }).
+  // HTML standalone + el cuerpo del correo (texto y HTML, distinto según el
+  // día del sprint) + los KPIs. cb(err, { html, summaryText, summaryHtml, kpis }).
   window.SEG_GENERATE_REPORT_STANDALONE = function(cb){
     fetchResumenSources(function(err, data){
       if(err){ cb(err); return; }
       _lastResumenData = data;
       var k = computeResumenKpis(data.activo, data.trans, data.diario, data.detalle);
-      var summaryText = 'Avance ' + pct(k.avance) + ' (' + k.cerrado + ' de ' + k.total + ' ítems cerrados). '
-        + 'Día ' + k.diasT + ' de ' + k.diasH + ' hábiles. '
-        + 'Burn rate: ' + k.burnRate.toFixed(2) + ' ítems/día hábil. '
-        + 'Deuda técnica: ' + k.deudaPct + '% (' + k.deudaTotal + ' ítems arrastrados). '
-        + 'Cumplimiento histórico (últimos sprints): ' + (k.velProm==='—'?'—':k.velProm+'%') + '. '
-        + 'Reporte completo adjunto.';
+      var correo = buildCorreoResumen(k);
       fetchSegScriptSource(function(src){
         if(!src){ cb(new Error('No se pudo cargar el código fuente (ds.js/seguimiento.js) para el reporte')); return; }
         var html = construirReporteHTMLStandalone(src);
         var motivo = SEND_DAY_MOTIVOS[k.diasT] || null;
-        cb(null, { html: html, summaryText: summaryText, kpis: {
+        cb(null, { html: html, summaryText: correo.text, summaryHtml: correo.html, kpis: {
           sprint: k.sprintNom, avance_pct: k.avance, cerrados: k.cerrado, total: k.total,
           burn_rate: k.burnRate, dia_sprint: k.diasT, dias_habiles_total: k.diasH,
           deuda_pct: parseFloat(k.deudaPct), deuda_total: k.deudaTotal, cumplimiento_historico_pct: k.velProm,
