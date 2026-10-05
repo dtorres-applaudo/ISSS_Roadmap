@@ -1995,15 +1995,15 @@
   // embebida tal cual en el reporte — igual que el resumen del Roadmap. Antes
   // se referenciaba con <script src="location.origin/...">, que no carga si el
   // HTML descargado se abre como archivo local (file://).
-  var _segScriptSourceCache = null;
+  // Sin caché en memoria: se vuelve a pedir en cada generación, para que una
+  // pestaña abierta antes de un deploy no siga exportando el código anterior.
   function fetchSegScriptSource(cb){
-    if(_segScriptSourceCache){ cb(_segScriptSourceCache); return; }
     function get(path){
-      return fetch(path + '?v=' + Date.now())
+      return fetch(path + '?v=' + Date.now(), { cache:'no-store' })
         .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); });
     }
     Promise.all([get('/modules/ds.js'), get('/modules/seguimiento.js')])
-      .then(function(srcs){ _segScriptSourceCache = srcs.join('\n;\n'); cb(_segScriptSourceCache); })
+      .then(function(srcs){ cb(srcs.join('\n;\n')); })
       .catch(function(){ cb(null); });
   }
 

@@ -416,19 +416,24 @@
 .rm-slide-fit{width:100%;max-width:1180px;transform-origin:top center;padding:var(--ds-space-300);background:var(--ds-surface);
   border-radius:var(--ds-radius-large);box-shadow:var(--ds-shadow-raised);}
 .rm-slide-fit > .section:first-child{padding-top:0;}
-/* Slide 3 (catálogo de trámites): tres tablas lado a lado con nombres largos. A 1180px los nombres
-   envuelven en varias líneas, la slide queda muy alta y fitSlide la achica hasta dejar la letra
-   diminuta; más ancho = menos líneas por trámite = menos alto = menos reducción. */
+/* Slide 3 (catálogo de trámites): tres tablas lado a lado con nombres largos. Achicarla con
+   transform:scale hasta que quepa sin scroll dejaba la letra en ~9px aunque la pantalla fuera
+   de 1920px, así que esta slide NO se reescala (ver fitSlide): ocupa hasta 1760px de ancho,
+   usa letra y componentes grandes y, si no entra en alto, se desplaza en vertical. */
+.rm-slide--wide .rm-slide-inner{padding-left:72px;padding-right:72px;} /* libra las flechas de navegación */
 .rm-slide-fit.rm-slide-fit--wide{max-width:1760px;}
-.rm-slide-fit--wide .tram-pkg-table{font-size:15px;line-height:1.35;}
-.rm-slide-fit--wide .tram-pkg-table th{font-size:12px;}
-.rm-slide-fit--wide .tram-pkg-card-head{font-size:15px;}
-/* Menos aire vertical: cada px de alto ahorrado deja fitSlide reducir menos la letra */
-.rm-slide-fit--wide .tram-pkg-table td{padding-top:5px;padding-bottom:5px;}
-.rm-slide-fit--wide .tram-pkg-card-head{padding-top:var(--ds-space-100);padding-bottom:var(--ds-space-100);}
-.rm-slide-fit--wide .tram-count-card{padding:var(--ds-space-100) var(--ds-space-200);}
-.rm-slide-fit--wide .tram-total-row{margin-bottom:var(--ds-space-100);}
-.rm-slide-fit--wide .tram-count-cards{margin-bottom:var(--ds-space-150);}
+.rm-slide-fit--wide .rm-collapsible summary{font-size:17px;}
+.rm-slide-fit--wide .tram-pkg-table{font-size:17px;line-height:1.35;}
+.rm-slide-fit--wide .tram-pkg-table th{font-size:13px;}
+.rm-slide-fit--wide .tram-pkg-table td{padding-top:6px;padding-bottom:6px;}
+.rm-slide-fit--wide .tram-pkg-no{width:44px;}
+.rm-slide-fit--wide .tram-pkg-card-head{font-size:17px;}
+.rm-slide-fit--wide .tram-estatus-chip{height:30px;font-size:14px;padding:0 var(--ds-space-150);}
+.rm-slide-fit--wide .tram-count-card{padding:var(--ds-space-150) var(--ds-space-250);}
+.rm-slide-fit--wide .tram-count-val{font-size:34px;line-height:1.1;}
+.rm-slide-fit--wide .tram-count-lbl{font-size:15px;}
+.rm-slide-fit--wide .tram-count-cert{font-size:15px;}
+.rm-slide-fit--wide .tram-total-row{margin-bottom:var(--ds-space-150);}
 /* Red de seguridad: en pantallas muy angostas, si aun así la tabla de avances
    no entra ni escalada, que sea desplazable en vez de recortarse. */
 .rm-slide-fit .avances-wrap{overflow-x:auto;}
@@ -443,7 +448,8 @@
 .rm-slide-nav:disabled{opacity:.35;cursor:not-allowed;}
 .rm-slide-prev{left:20px;}
 .rm-slide-next{right:20px;}
-.rm-slide-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:var(--ds-space-100);z-index:20;}
+.rm-slide-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:var(--ds-space-100);z-index:20;
+  padding:var(--ds-space-075) var(--ds-space-150);border-radius:var(--ds-radius-full);background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-raised);}
 .rm-dot{width:8px;height:8px;padding:0;border:none;border-radius:var(--ds-radius-full);cursor:pointer;background:var(--ds-background-neutral-hovered);transition:width .15s,background .15s;}
 .rm-dot.active{width:24px;background:var(--ds-background-brand-bold);}
 
@@ -2080,7 +2086,7 @@
     var slides = buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus);
     var slidesHtml = slides.map(function(html, i){
       var fitCls = (i===2) ? 'rm-slide-fit rm-slide-fit--wide' : 'rm-slide-fit';
-      return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="'+fitCls+'">'+html+'</div></div></div>';
+      return '<div class="rm-slide'+(i===2?' rm-slide--wide':'')+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="'+fitCls+'">'+html+'</div></div></div>';
     }).join('');
     var dots = slides.map(function(_, i){
       return '<button type="button" class="rm-dot'+(i===0?' active':'')+'" data-goto="'+i+'" aria-label="Ir a: '+REPORT_SLIDE_TITULOS[i]+'"></button>';
@@ -2105,6 +2111,10 @@
     var fit = slideEl.querySelector('.rm-slide-fit');
     if(!inner || !fit) return;
     fit.style.transform = 'none';
+    // Slide ancha (catálogo de trámites): no se reescala; si es más alta que
+    // la pantalla, .rm-slide-inner la desplaza en vertical. Reducirla para
+    // evitar el scroll era lo que dejaba la letra ilegible.
+    if(fit.classList.contains('rm-slide-fit--wide')) return;
     // clientHeight/clientWidth miden la caja de padding completa, no el
     // espacio real disponible para el hijo (que vive adentro, descontando
     // el padding de .rm-slide-inner) — sin restarlo, el cálculo de escala
@@ -2195,15 +2205,16 @@
   // autocontenido (a pedido de Darío, 2026-09-22 — bug reportado).
   // Se embebe también modules/ds.js (tokens y componentes del design
   // system), que roadmap.js necesita y que en el portal carga index.html.
-  var _roadmapScriptSourceCache = null;
+  // Sin caché en memoria: se vuelve a pedir en cada generación. Con caché, una
+  // pestaña del portal abierta antes de un deploy seguía exportando resúmenes
+  // con el código anterior embebido (y los cambios de diseño "no se veían").
   function fetchRoadmapScriptSource(cb){
-    if(_roadmapScriptSourceCache){ cb(_roadmapScriptSourceCache); return; }
     function get(path){
-      return fetch(path + '?v=' + Date.now())
+      return fetch(path + '?v=' + Date.now(), { cache:'no-store' })
         .then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.text(); });
     }
     Promise.all([get('/modules/ds.js'), get('/modules/roadmap.js')])
-      .then(function(srcs){ _roadmapScriptSourceCache = srcs.join('\n;\n'); cb(_roadmapScriptSourceCache); })
+      .then(function(srcs){ cb(srcs.join('\n;\n')); })
       .catch(function(){ cb(null); });
   }
 
