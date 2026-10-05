@@ -416,24 +416,31 @@
 .rm-slide-fit{width:100%;max-width:1180px;transform-origin:top center;padding:var(--ds-space-300);background:var(--ds-surface);
   border-radius:var(--ds-radius-large);box-shadow:var(--ds-shadow-raised);}
 .rm-slide-fit > .section:first-child{padding-top:0;}
-/* Slide 3 (catálogo de trámites): tres tablas lado a lado con nombres largos. Achicarla con
-   transform:scale hasta que quepa sin scroll dejaba la letra en ~9px aunque la pantalla fuera
-   de 1920px, así que esta slide NO se reescala (ver fitSlide): ocupa hasta 1760px de ancho,
-   usa letra y componentes grandes y, si no entra en alto, se desplaza en vertical. */
-.rm-slide--wide .rm-slide-inner{padding-left:72px;padding-right:72px;} /* libra las flechas de navegación */
-.rm-slide-fit.rm-slide-fit--wide{max-width:1760px;}
-.rm-slide-fit--wide .rm-collapsible summary{font-size:17px;}
-.rm-slide-fit--wide .tram-pkg-table{font-size:17px;line-height:1.35;}
-.rm-slide-fit--wide .tram-pkg-table th{font-size:13px;}
-.rm-slide-fit--wide .tram-pkg-table td{padding-top:6px;padding-bottom:6px;}
-.rm-slide-fit--wide .tram-pkg-no{width:44px;}
-.rm-slide-fit--wide .tram-pkg-card-head{font-size:17px;}
-.rm-slide-fit--wide .tram-estatus-chip{height:30px;font-size:14px;padding:0 var(--ds-space-150);}
-.rm-slide-fit--wide .tram-count-card{padding:var(--ds-space-150) var(--ds-space-250);}
-.rm-slide-fit--wide .tram-count-val{font-size:34px;line-height:1.1;}
-.rm-slide-fit--wide .tram-count-lbl{font-size:15px;}
-.rm-slide-fit--wide .tram-count-cert{font-size:15px;}
-.rm-slide-fit--wide .tram-total-row{margin-bottom:var(--ds-space-150);}
+/* Slide 3 (catálogo de trámites): 24 trámites con nombres largos en tres tablas lado a lado, que
+   deben verse completos en UNA pantalla, sin scroll. En vez de achicar todo con transform:scale
+   (que dejaba la letra en ~9px), fitSlide busca el tamaño de letra más grande que cabe en la
+   pantalla y lo deja en la variable --fs; todos los componentes se dimensionan a partir de ella.
+   Ancho de hasta 1760px (la slide 2 usa 1180px), barras de conteo compactas en una línea y la
+   columna de P3 (la más larga) con más ancho. */
+.rm-slide--wide .rm-slide-inner{padding-left:64px;padding-right:64px;} /* libra las flechas de navegación */
+.rm-slide-fit.rm-slide-fit--wide{--fs:15px;max-width:1760px;padding:calc(var(--fs)*1);}
+.rm-slide-fit--wide .rm-collapsible > summary{display:none;} /* el contador "3 / 3 · Trámites por paquete" ya lo titula */
+.rm-slide-fit--wide .rm-collapsible,.rm-slide-fit--wide .rm-collapsible-body{border:none;padding:0;margin:0;background:none;}
+.rm-slide-fit--wide .tram-total-row{margin-bottom:calc(var(--fs)*.5);}
+.rm-slide-fit--wide .tram-count-cards{margin-bottom:calc(var(--fs)*.7);gap:calc(var(--fs)*.7);grid-template-columns:.95fr 1fr 1.25fr;}
+.rm-slide-fit--wide .tram-pkg-cards{gap:calc(var(--fs)*.7);grid-template-columns:.95fr 1fr 1.25fr;}
+.rm-slide-fit--wide .tram-count-card{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:calc(var(--fs)*.8);row-gap:0;
+  padding:calc(var(--fs)*.45) calc(var(--fs)*1);}
+.rm-slide-fit--wide .tram-count-val{font-size:calc(var(--fs)*1.9);line-height:1.1;}
+.rm-slide-fit--wide .tram-count-card{flex-wrap:nowrap;}
+.rm-slide-fit--wide .tram-count-lbl{flex:1 1 0;min-width:0;font-size:calc(var(--fs)*.95);margin:0;}
+.rm-slide-fit--wide .tram-count-cert{flex:none;white-space:nowrap;font-size:calc(var(--fs)*.95);margin:0;}
+.rm-slide-fit--wide .tram-pkg-card-head{font-size:calc(var(--fs)*1.05);padding:calc(var(--fs)*.55) calc(var(--fs)*.9);}
+.rm-slide-fit--wide .tram-pkg-table{font-size:var(--fs);line-height:1.28;}
+.rm-slide-fit--wide .tram-pkg-table th{font-size:calc(var(--fs)*.8);padding:calc(var(--fs)*.3) calc(var(--fs)*.6);}
+.rm-slide-fit--wide .tram-pkg-table td{padding:calc(var(--fs)*.28) calc(var(--fs)*.6);}
+.rm-slide-fit--wide .tram-pkg-no{width:calc(var(--fs)*2.2);}
+.rm-slide-fit--wide .tram-estatus-chip{height:calc(var(--fs)*1.8);font-size:calc(var(--fs)*.85);padding:0 calc(var(--fs)*.9);}
 /* Red de seguridad: en pantallas muy angostas, si aun así la tabla de avances
    no entra ni escalada, que sea desplazable en vez de recortarse. */
 .rm-slide-fit .avances-wrap{overflow-x:auto;}
@@ -2100,6 +2107,29 @@
     +'</div>';
   }
 
+  // Búsqueda binaria del mayor --fs (px) tal que la slide entra completa en
+  // availH×availW. Tope de 20px: más grande no aporta y solo desperdicia
+  // espacio en pantallas enormes. Si ni siquiera 9px caben (pantalla muy
+  // chica), se cae a reescalar con transform como el resto de las slides.
+  function fitWideFont(fit, availH, availW){
+    var MIN = 9, MAX = 20, lo = MIN, hi = MAX, best = MIN;
+    function cabe(px){
+      fit.style.setProperty('--fs', px+'px');
+      return fit.offsetHeight <= availH - 6 && fit.scrollWidth <= availW + 1;
+    }
+    if(cabe(MAX)){ best = MAX; }
+    else {
+      for(var i=0;i<9;i++){
+        var mid = (lo + hi) / 2;
+        if(cabe(mid)){ best = mid; lo = mid; } else { hi = mid; }
+      }
+    }
+    fit.style.setProperty('--fs', best+'px');
+    if(fit.offsetHeight > availH - 6){
+      fit.style.transform = 'scale('+((availH - 6) / fit.offsetHeight)+')';
+    }
+  }
+
   // Ajusta el tamaño de una slide a la pantalla donde se está presentando:
   // mide el alto/ancho natural de su contenido (.rm-slide-fit) contra el
   // espacio disponible y, si no entra, lo achica con transform:scale (nunca
@@ -2111,10 +2141,6 @@
     var fit = slideEl.querySelector('.rm-slide-fit');
     if(!inner || !fit) return;
     fit.style.transform = 'none';
-    // Slide ancha (catálogo de trámites): no se reescala; si es más alta que
-    // la pantalla, .rm-slide-inner la desplaza en vertical. Reducirla para
-    // evitar el scroll era lo que dejaba la letra ilegible.
-    if(fit.classList.contains('rm-slide-fit--wide')) return;
     // clientHeight/clientWidth miden la caja de padding completa, no el
     // espacio real disponible para el hijo (que vive adentro, descontando
     // el padding de .rm-slide-inner) — sin restarlo, el cálculo de escala
@@ -2124,6 +2150,13 @@
     var padX = (parseFloat(innerCS.paddingLeft)||0) + (parseFloat(innerCS.paddingRight)||0);
     var availH = inner.clientHeight - padY;
     var availW = inner.clientWidth - padX;
+    // Slide ancha (catálogo de trámites): en vez de reescalar, se busca el
+    // tamaño de letra (--fs) más grande en el que TODO cabe en pantalla sin
+    // scroll. Los componentes salen de --fs, así que crecen o se encogen juntos.
+    if(fit.classList.contains('rm-slide-fit--wide')){
+      fitWideFont(fit, availH, availW);
+      return;
+    }
     // Contenedores internos con overflow:hidden (p.ej. .avances-wrap, para
     // redondear la tabla) esconden de scrollWidth el ancho real que la
     // tabla necesita — se destapan un instante para medir el tamaño
