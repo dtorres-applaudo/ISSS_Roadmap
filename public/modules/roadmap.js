@@ -416,6 +416,19 @@
 .rm-slide-fit{width:100%;max-width:1180px;transform-origin:top center;padding:var(--ds-space-300);background:var(--ds-surface);
   border-radius:var(--ds-radius-large);box-shadow:var(--ds-shadow-raised);}
 .rm-slide-fit > .section:first-child{padding-top:0;}
+/* Slide 3 (catálogo de trámites): tres tablas lado a lado con nombres largos. A 1180px los nombres
+   envuelven en varias líneas, la slide queda muy alta y fitSlide la achica hasta dejar la letra
+   diminuta; más ancho = menos líneas por trámite = menos alto = menos reducción. */
+.rm-slide-fit.rm-slide-fit--wide{max-width:1760px;}
+.rm-slide-fit--wide .tram-pkg-table{font-size:15px;line-height:1.35;}
+.rm-slide-fit--wide .tram-pkg-table th{font-size:12px;}
+.rm-slide-fit--wide .tram-pkg-card-head{font-size:15px;}
+/* Menos aire vertical: cada px de alto ahorrado deja fitSlide reducir menos la letra */
+.rm-slide-fit--wide .tram-pkg-table td{padding-top:5px;padding-bottom:5px;}
+.rm-slide-fit--wide .tram-pkg-card-head{padding-top:var(--ds-space-100);padding-bottom:var(--ds-space-100);}
+.rm-slide-fit--wide .tram-count-card{padding:var(--ds-space-100) var(--ds-space-200);}
+.rm-slide-fit--wide .tram-total-row{margin-bottom:var(--ds-space-100);}
+.rm-slide-fit--wide .tram-count-cards{margin-bottom:var(--ds-space-150);}
 /* Red de seguridad: en pantallas muy angostas, si aun así la tabla de avances
    no entra ni escalada, que sea desplazable en vez de recortarse. */
 .rm-slide-fit .avances-wrap{overflow-x:auto;}
@@ -2066,7 +2079,8 @@
   function renderReportCarousel(meta, paquetes, avancesRows, tramitesEstatus){
     var slides = buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus);
     var slidesHtml = slides.map(function(html, i){
-      return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="rm-slide-fit">'+html+'</div></div></div>';
+      var fitCls = (i===2) ? 'rm-slide-fit rm-slide-fit--wide' : 'rm-slide-fit';
+      return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="'+fitCls+'">'+html+'</div></div></div>';
     }).join('');
     var dots = slides.map(function(_, i){
       return '<button type="button" class="rm-dot'+(i===0?' active':'')+'" data-goto="'+i+'" aria-label="Ir a: '+REPORT_SLIDE_TITULOS[i]+'"></button>';
