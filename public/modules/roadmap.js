@@ -412,27 +412,47 @@
 .rm-report-carousel{position:relative;height:100vh;background:var(--ds-surface-sunken);overflow:hidden;}
 .rm-slide{display:none;height:100%;}
 .rm-slide.active{display:block;}
-.rm-slide-inner{height:100%;padding:64px 28px 64px;overflow-y:auto;display:flex;align-items:flex-start;justify-content:center;}
-.rm-slide-fit{width:100%;max-width:1180px;transform-origin:top center;padding:var(--ds-space-300);background:var(--ds-surface);
+/* Sin scroll: fitReportSlides escala las 3 slides para que quepan completas. El padding lateral de 64px
+   libra las flechas de navegación. */
+.rm-slide-inner{height:100%;padding:64px 64px 64px;overflow:hidden;display:flex;align-items:flex-start;justify-content:center;}
+/* Ancho, escala y margen inferior los fija fitReportSlides (mismo ancho y misma escala en las 3 slides);
+   el max-width es solo el valor de partida antes de que corra el JS. */
+.rm-slide-fit{--fs:14px;width:100%;max-width:1700px;flex:none;transform-origin:top center;padding:var(--ds-space-300);background:var(--ds-surface);
   border-radius:var(--ds-radius-large);box-shadow:var(--ds-shadow-raised);}
 .rm-slide-fit > .section:first-child{padding-top:0;}
-/* Slide 3 (catálogo de trámites): 24 trámites con nombres largos en tres tablas lado a lado, que
-   deben verse completos en UNA pantalla, sin scroll. En vez de achicar todo con transform:scale
-   (que dejaba la letra en ~9px), fitSlide busca el tamaño de letra más grande que cabe en la
-   pantalla y lo deja en la variable --fs; todos los componentes se dimensionan a partir de ella.
-   Ancho de hasta 1760px (la slide 2 usa 1180px), barras de conteo compactas en una línea y la
-   columna de P3 (la más larga) con más ancho. */
-.rm-slide--wide .rm-slide-inner{padding-left:64px;padding-right:64px;} /* libra las flechas de navegación */
-.rm-slide-fit.rm-slide-fit--wide{--fs:15px;max-width:1760px;padding:calc(var(--fs)*1);}
-.rm-slide-fit--wide .rm-collapsible > summary{display:none;} /* el contador "3 / 3 · Trámites por paquete" ya lo titula */
+/* Encabezado común de las 3 slides: mismo título, posición y estilo, más cuándo se generó el resumen */
+.rm-slide-head{display:flex;align-items:baseline;justify-content:space-between;gap:var(--ds-space-200);
+  padding-bottom:var(--ds-space-100);margin-bottom:var(--ds-space-200);border-bottom:1px solid var(--ds-border);}
+.rm-slide-title{font:var(--ds-font-heading-medium);color:var(--ds-text);}
+.rm-slide-sub{font:var(--ds-font-body-small);color:var(--ds-text-subtlest);white-space:nowrap;}
+/* El título de la slide 2 ya está en el encabezado: se oculta el duplicado de adentro */
+.rm-slide[data-slide="1"] .rm-slide-fit .section-h{display:none;}
+/* Estatus y prioridad con el MISMO componente en todo el resumen (slide 2 y slide 3, HTML y PDF):
+   pastilla redondeada, misma altura y misma capitalización. Los colores siguen saliendo de cada variante. */
+.rm-slide-fit :is(.est-badge,.tram-estatus-chip),.rm-print-slide :is(.est-badge,.tram-estatus-chip){
+  display:inline-flex;align-items:center;justify-content:center;height:24px;padding:0 var(--ds-space-150);
+  border-radius:var(--ds-radius-full);font:600 .8125rem/1 var(--ds-font-family-body);text-transform:none;letter-spacing:0;white-space:nowrap;}
+/* Slide 2: columnas con ancho propio (antes se repartían sin proporción) y etiquetas centradas */
+.avances-table--report{table-layout:fixed;}
+.avances-table--report th:nth-child(1){width:27%;}
+.avances-table--report th:nth-child(2){width:10%;}
+.avances-table--report th:nth-child(3){width:10%;}
+.avances-table--report th:nth-child(4){width:11%;}
+.avances-table--report th:nth-child(5){width:12%;}
+.avances-table--report th:nth-child(6){width:30%;}
+.avances-table--report :is(th,td):is(:nth-child(3),:nth-child(5)){text-align:center;}
+/* Slide 3 (catálogo de trámites): 24 trámites con nombres largos en tres tablas lado a lado. Sin el
+   encabezado plegable (lo reemplaza el encabezado común), barras de conteo compactas en una línea y
+   columna de P3 (la más larga) con más ancho; los tres paquetes miden lo mismo de alto. */
+.rm-slide-fit.rm-slide-fit--wide{--fs:14px;}
+.rm-slide-fit--wide .rm-collapsible > summary{display:none;}
 .rm-slide-fit--wide .rm-collapsible,.rm-slide-fit--wide .rm-collapsible-body{border:none;padding:0;margin:0;background:none;}
 .rm-slide-fit--wide .tram-total-row{margin-bottom:calc(var(--fs)*.5);}
 .rm-slide-fit--wide .tram-count-cards{margin-bottom:calc(var(--fs)*.7);gap:calc(var(--fs)*.7);grid-template-columns:.95fr 1fr 1.25fr;}
-.rm-slide-fit--wide .tram-pkg-cards{gap:calc(var(--fs)*.7);grid-template-columns:.95fr 1fr 1.25fr;}
-.rm-slide-fit--wide .tram-count-card{display:flex;flex-wrap:wrap;align-items:baseline;column-gap:calc(var(--fs)*.8);row-gap:0;
+.rm-slide-fit--wide .tram-pkg-cards{gap:calc(var(--fs)*.7);grid-template-columns:.95fr 1fr 1.25fr;align-items:stretch;}
+.rm-slide-fit--wide .tram-count-card{display:flex;flex-wrap:nowrap;align-items:baseline;column-gap:calc(var(--fs)*.8);row-gap:0;
   padding:calc(var(--fs)*.45) calc(var(--fs)*1);}
 .rm-slide-fit--wide .tram-count-val{font-size:calc(var(--fs)*1.9);line-height:1.1;}
-.rm-slide-fit--wide .tram-count-card{flex-wrap:nowrap;}
 .rm-slide-fit--wide .tram-count-lbl{flex:1 1 0;min-width:0;font-size:calc(var(--fs)*.95);margin:0;}
 .rm-slide-fit--wide .tram-count-cert{flex:none;white-space:nowrap;font-size:calc(var(--fs)*.95);margin:0;}
 .rm-slide-fit--wide .tram-pkg-card-head{font-size:calc(var(--fs)*1.05);padding:calc(var(--fs)*.55) calc(var(--fs)*.9);}
@@ -440,7 +460,6 @@
 .rm-slide-fit--wide .tram-pkg-table th{font-size:calc(var(--fs)*.8);padding:calc(var(--fs)*.3) calc(var(--fs)*.6);}
 .rm-slide-fit--wide .tram-pkg-table td{padding:calc(var(--fs)*.28) calc(var(--fs)*.6);}
 .rm-slide-fit--wide .tram-pkg-no{width:calc(var(--fs)*2.2);}
-.rm-slide-fit--wide .tram-estatus-chip{height:calc(var(--fs)*1.8);font-size:calc(var(--fs)*.85);padding:0 calc(var(--fs)*.9);}
 /* Red de seguridad: en pantallas muy angostas, si aun así la tabla de avances
    no entra ni escalada, que sea desplazable en vez de recortarse. */
 .rm-slide-fit .avances-wrap{overflow-x:auto;}
@@ -448,13 +467,20 @@
 .rm-slide-counter{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:20;white-space:nowrap;
   padding:var(--ds-space-075) var(--ds-space-200);border-radius:var(--ds-radius-full);background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-raised);
   font:var(--ds-font-body-small);color:var(--ds-text-subtle);}
-.rm-slide-nav{position:fixed;top:50%;transform:translateY(-50%);z-index:20;width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-overlay);
-  font-size:22px;line-height:1;color:var(--ds-text-subtle);}
-.rm-slide-nav:hover{background:var(--ds-surface-hovered);color:var(--ds-text);}
-.rm-slide-nav:disabled{opacity:.35;cursor:not-allowed;}
-.rm-slide-prev{left:20px;}
-.rm-slide-next{right:20px;}
+/* Flechas laterales: círculo con la flecha dibujada en SVG (antes era un carácter de texto "‹"/"›", que
+   la tipografía deja corrido respecto al centro). El SVG ocupa una caja simétrica, así que queda
+   centrado de verdad; trazo grueso y color de texto pleno para que se vea bien sobre el fondo gris.
+   En la primera slide no hay flecha izquierda y en la última no hay flecha derecha (atributo hidden). */
+.rm-slide-nav{position:fixed;top:50%;transform:translateY(-50%);z-index:20;width:44px;height:44px;padding:0;border-radius:50%;
+  border:1px solid var(--ds-border);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:var(--ds-surface);box-shadow:var(--ds-shadow-overlay);color:var(--ds-text);
+  transition:background var(--ds-motion),color var(--ds-motion),transform var(--ds-motion);}
+.rm-slide-nav[hidden]{display:none;}
+.rm-slide-nav svg{display:block;width:30px;height:30px;pointer-events:none;}
+.rm-slide-nav:hover{background:var(--ds-background-brand-bold);border-color:var(--ds-background-brand-bold);color:var(--ds-text-inverse);}
+.rm-slide-nav:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:2px;}
+.rm-slide-prev{left:12px;}
+.rm-slide-next{right:12px;}
 .rm-slide-dots{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:var(--ds-space-100);z-index:20;
   padding:var(--ds-space-075) var(--ds-space-150);border-radius:var(--ds-radius-full);background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-raised);}
 .rm-dot{width:8px;height:8px;padding:0;border:none;border-radius:var(--ds-radius-full);cursor:pointer;background:var(--ds-background-neutral-hovered);transition:width .15s,background .15s;}
@@ -2038,7 +2064,7 @@
   // exactamente el mismo código (tarjetas, tabla, catálogo) que la web app.
   window.RM_RENDER_REPORT_FROM_DATA = function(mountEl, data){
     data = data || {};
-    mountEl.innerHTML = renderReportCarousel(data.meta||{}, data.paquetes||[], data.avances||[], data.tramitesEstatus||{});
+    mountEl.innerHTML = renderReportCarousel(data.meta||{}, data.paquetes||[], data.avances||[], data.tramitesEstatus||{}, data.generado||null);
     initReportCarousel(mountEl);
   };
 
@@ -2057,10 +2083,11 @@
   // botón "+ Agregar actividad" (a pedido de Darío, 2026-09-22: el resumen
   // es para compartir, no para editar).
   function renderAvancesRowsReadOnly(rows){
-    if(!rows || !rows.length) return '<tr><td colspan="7" class="avances-empty">Sin actividades registradas.</td></tr>';
+    if(!rows || !rows.length) return '<tr><td colspan="6" class="avances-empty">Sin actividades registradas.</td></tr>';
+    // Sin la columna del ícono de origen (📋/➕): en el resumen no hay leyenda
+    // que lo explique y para quien lo lee es ruido (a pedido de Darío, 2026-10-05).
     return rows.map(function(r){
       return '<tr>'
-        +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
         +'<td>'+escapeHtml(r.actividad)+'</td>'
         +'<td>'+escapeHtml(r.asignado_a)+'</td>'
         +'<td><span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span></td>'
@@ -2079,8 +2106,8 @@
     var slide2 = '<div class="section" style="padding-top:0;">'
       +'<div class="section-h">Avances de actividades</div>'
       +'<div class="avances-wrap">'
-        +'<table class="avances-table">'
-          +'<thead><tr><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th></tr></thead>'
+        +'<table class="avances-table avances-table--report">'
+          +'<thead><tr><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th></tr></thead>'
           +'<tbody>'+renderAvancesRowsReadOnly(avancesRows)+'</tbody>'
         +'</table>'
       +'</div>'
@@ -2089,11 +2116,27 @@
     return [slide1, slide2, slide3];
   }
 
-  function renderReportCarousel(meta, paquetes, avancesRows, tramitesEstatus){
+  // Encabezado común de las 3 slides: mismo título, posición y estilo, y la
+  // fecha en que se generó el resumen (o, si el dato no viene, la del plan).
+  function reportSlideHead(i, meta, generadoIso){
+    var sub = '';
+    var d = generadoIso ? new Date(generadoIso) : null;
+    if(d && !isNaN(d.getTime())){
+      sub = 'Generado el ' + d.toLocaleString('es-SV', {day:'numeric', month:'short', year:'numeric', hour:'numeric', minute:'2-digit'});
+    } else if(meta && meta.actualizado){
+      sub = 'Plan actualizado: ' + meta.actualizado;
+    }
+    return '<div class="rm-slide-head">'
+      +'<div class="rm-slide-title">'+escapeHtml(REPORT_SLIDE_TITULOS[i]||'')+'</div>'
+      +'<div class="rm-slide-sub">Digitalización de Trámites ISSS'+(sub ? ' · '+escapeHtml(sub) : '')+'</div>'
+    +'</div>';
+  }
+
+  function renderReportCarousel(meta, paquetes, avancesRows, tramitesEstatus, generadoIso){
     var slides = buildReportSlides(meta, paquetes, avancesRows, tramitesEstatus);
     var slidesHtml = slides.map(function(html, i){
       var fitCls = (i===2) ? 'rm-slide-fit rm-slide-fit--wide' : 'rm-slide-fit';
-      return '<div class="rm-slide'+(i===2?' rm-slide--wide':'')+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="'+fitCls+'">'+html+'</div></div></div>';
+      return '<div class="rm-slide'+(i===0?' active':'')+'" data-slide="'+i+'"><div class="rm-slide-inner"><div class="'+fitCls+'">'+reportSlideHead(i, meta, generadoIso)+html+'</div></div></div>';
     }).join('');
     var dots = slides.map(function(_, i){
       return '<button type="button" class="rm-dot'+(i===0?' active':'')+'" data-goto="'+i+'" aria-label="Ir a: '+REPORT_SLIDE_TITULOS[i]+'"></button>';
@@ -2101,95 +2144,96 @@
     return '<div class="rm-report-carousel">'
       +'<div class="rm-slide-counter"><span class="rm-slide-counter-cur">1</span> / '+slides.length+' · <span class="rm-slide-counter-title">'+REPORT_SLIDE_TITULOS[0]+'</span></div>'
       + slidesHtml
-      +'<button class="rm-slide-nav rm-slide-prev" type="button" aria-label="Slide anterior" disabled>‹</button>'
-      +'<button class="rm-slide-nav rm-slide-next" type="button" aria-label="Slide siguiente">›</button>'
+      +'<button class="rm-slide-nav rm-slide-prev" type="button" aria-label="Slide anterior" hidden>'
+        +'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
+      +'<button class="rm-slide-nav rm-slide-next" type="button" aria-label="Slide siguiente">'
+        +'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'
       +'<div class="rm-slide-dots">'+dots+'</div>'
     +'</div>';
   }
 
-  // Búsqueda binaria del mayor --fs (px) tal que la slide entra completa en
-  // availH×availW. Tope de 20px: más grande no aporta y solo desperdicia
-  // espacio en pantallas enormes. Si ni siquiera 9px caben (pantalla muy
-  // chica), se cae a reescalar con transform como el resto de las slides.
-  function fitWideFont(fit, availH, availW){
-    var MIN = 9, MAX = 20, lo = MIN, hi = MAX, best = MIN;
-    function cabe(px){
-      fit.style.setProperty('--fs', px+'px');
-      return fit.offsetHeight <= availH - 6 && fit.scrollWidth <= availW + 1;
+  // ── Ajuste del carrusel a la pantalla ──────────────────────────────────
+  // Las 3 slides comparten el MISMO ancho visible y la MISMA escala, así que
+  // el ancho de la tarjeta y el tamaño de letra no cambian al pasar de una a
+  // otra (a pedido de Darío, 2026-10-05). Para cada slide se busca la mayor
+  // escala s en la que entra completa, sin scroll: la capa se maqueta a un
+  // ancho de W/s y se amplía o reduce con transform:scale(s), de modo que
+  // visualmente siempre mide W de ancho. Se aplica la menor s de las tres
+  // (la slide más cargada manda) para que la letra sea igual en todas.
+  var REPORT_MAX_W = 1700;   // ancho visible máximo de la tarjeta
+  var REPORT_S_MIN = 0.45;   // por debajo de esto no se sigue achicando
+  var REPORT_S_MAX = 1.5;    // por encima la letra pasa de grande a exagerada
+
+  function medirSlideReporte(slide){
+    var inner = slide.querySelector('.rm-slide-inner');
+    var fit = slide.querySelector('.rm-slide-fit');
+    if(!inner || !fit) return null;
+    fit.style.transform = 'none';
+    fit.style.marginBottom = '0';
+    fit.style.maxWidth = 'none';
+    // clientHeight/clientWidth incluyen el padding de .rm-slide-inner; el
+    // espacio real para la tarjeta es lo que queda adentro.
+    var cs = getComputedStyle(inner);
+    var padX = (parseFloat(cs.paddingLeft)||0) + (parseFloat(cs.paddingRight)||0);
+    var padY = (parseFloat(cs.paddingTop)||0) + (parseFloat(cs.paddingBottom)||0);
+    var availW = inner.clientWidth - padX;
+    var availH = inner.clientHeight - padY;
+    var W = Math.min(availW, REPORT_MAX_W);
+    if(!(W > 0) || !(availH > 0)) return null;
+    // 6px de margen: una medición justa al límite (p.ej. por una tipografía que
+    // termina de cargar después) no debe dejar el borde pegado al límite real.
+    function cabe(s){
+      fit.style.width = (W / s) + 'px';
+      return fit.offsetHeight * s <= availH - 6 && fit.scrollWidth <= Math.ceil(W / s) + 1;
     }
-    if(cabe(MAX)){ best = MAX; }
+    var best = REPORT_S_MIN, lo = REPORT_S_MIN, hi = REPORT_S_MAX;
+    if(cabe(hi)){ best = hi; }
     else {
-      for(var i=0;i<9;i++){
+      for(var i=0;i<11;i++){
         var mid = (lo + hi) / 2;
         if(cabe(mid)){ best = mid; lo = mid; } else { hi = mid; }
       }
+      if(!cabe(best)){ best = best * ((availH - 6) / (fit.offsetHeight * best)); }
     }
-    fit.style.setProperty('--fs', best+'px');
-    if(fit.offsetHeight > availH - 6){
-      fit.style.transform = 'scale('+((availH - 6) / fit.offsetHeight)+')';
-    }
+    return { fit: fit, W: W, s: best };
   }
 
-  // Ajusta el tamaño de una slide a la pantalla donde se está presentando:
-  // mide el alto/ancho natural de su contenido (.rm-slide-fit) contra el
-  // espacio disponible y, si no entra, lo achica con transform:scale (nunca
-  // lo agranda) — así se ve completo sin scroll en cualquier pantalla, como
-  // una slide real (a pedido de Darío, 2026-09-22).
-  function fitSlide(slideEl){
-    if(!slideEl) return;
-    var inner = slideEl.querySelector('.rm-slide-inner');
-    var fit = slideEl.querySelector('.rm-slide-fit');
-    if(!inner || !fit) return;
-    fit.style.transform = 'none';
-    // clientHeight/clientWidth miden la caja de padding completa, no el
-    // espacio real disponible para el hijo (que vive adentro, descontando
-    // el padding de .rm-slide-inner) — sin restarlo, el cálculo de escala
-    // quedaba corto y el contenido terminaba pasándose del borde inferior.
-    var innerCS = getComputedStyle(inner);
-    var padY = (parseFloat(innerCS.paddingTop)||0) + (parseFloat(innerCS.paddingBottom)||0);
-    var padX = (parseFloat(innerCS.paddingLeft)||0) + (parseFloat(innerCS.paddingRight)||0);
-    var availH = inner.clientHeight - padY;
-    var availW = inner.clientWidth - padX;
-    // Slide ancha (catálogo de trámites): en vez de reescalar, se busca el
-    // tamaño de letra (--fs) más grande en el que TODO cabe en pantalla sin
-    // scroll. Los componentes salen de --fs, así que crecen o se encogen juntos.
-    if(fit.classList.contains('rm-slide-fit--wide')){
-      fitWideFont(fit, availH, availW);
-      return;
+  function fitReportSlides(root){
+    var slides = root.querySelectorAll('.rm-slide');
+    if(!slides.length) return;
+    // Las slides inactivas están en display:none (sin layout): se muestran
+    // fuera de vista (invisibles) solo el instante que dura la medición.
+    function conSlideVisible(slide, fn){
+      var activa = slide.classList.contains('active');
+      var prev = slide.style.cssText;
+      if(!activa){ slide.style.cssText = prev + ';display:block;visibility:hidden;position:absolute;top:0;left:0;right:0;bottom:0;height:auto;'; }
+      var r = fn();
+      if(!activa) slide.style.cssText = prev;
+      return r;
     }
-    // Contenedores internos con overflow:hidden (p.ej. .avances-wrap, para
-    // redondear la tabla) esconden de scrollWidth el ancho real que la
-    // tabla necesita — se destapan un instante para medir el tamaño
-    // natural completo y se restauran enseguida (a pedido de Darío,
-    // 2026-09-22: antes esa parte se recortaba en vez de achicarse).
-    var clipped = fit.querySelectorAll('*');
-    var restore = [];
-    for(var i=0;i<clipped.length;i++){
-      var el = clipped[i];
-      var cs = getComputedStyle(el);
-      if(cs.overflowX==='hidden' || cs.overflow==='hidden'){
-        restore.push([el, el.style.overflow, el.style.overflowX]);
-        el.style.overflow = 'visible';
-        el.style.overflowX = 'visible';
-      }
-    }
-    var naturalH = fit.scrollHeight;
-    var naturalW = fit.scrollWidth;
-    restore.forEach(function(r){ r[0].style.overflow = r[1]; r[0].style.overflowX = r[2]; });
-    if(!availH || !naturalH) return;
-    // Margen de seguridad de unos px: sin esto, una medición justa al
-    // límite (p.ej. por la tipografía Nunito terminando de cargar después
-    // de esta pasada) puede dejar el borde inferior pegado al límite real
-    // y forzar scroll por un puñado de píxeles.
-    var scale = Math.min((availH-6)/naturalH, availW/naturalW, 1);
-    if(scale < 0.999){
-      fit.style.transform = 'scale('+scale+')';
-    }
+    var medidas = [];
+    slides.forEach(function(slide){ medidas.push(conSlideVisible(slide, function(){ return medirSlideReporte(slide); })); });
+    var validas = medidas.filter(Boolean);
+    if(!validas.length) return;
+    var S = Math.min.apply(null, validas.map(function(m){ return m.s; }));
+    var W = validas[0].W;
+    slides.forEach(function(slide, i){
+      if(!medidas[i]) return;
+      conSlideVisible(slide, function(){
+        var fit = medidas[i].fit;
+        fit.style.width = (W / S) + 'px';
+        fit.style.transformOrigin = 'top center';
+        fit.style.transform = (Math.abs(S - 1) < 0.001) ? 'none' : 'scale(' + S + ')';
+        // transform no reduce la caja de layout: al achicar (S<1) se recorta el
+        // alto sobrante con margen negativo para que no quede hueco ni scroll.
+        fit.style.marginBottom = S < 1 ? (fit.offsetHeight * (S - 1)) + 'px' : '0';
+      });
+    });
   }
 
-  // Navegación del carrusel: flechas, puntos y flechas de teclado. Cada
-  // slide se reescala (fitSlide) al mostrarla y al cambiar el tamaño de
-  // ventana, para que quede ajustada a la pantalla donde se presenta.
+  // Navegación del carrusel: flechas, puntos y flechas de teclado. Las slides
+  // se reajustan (fitReportSlides) al mostrarse y al cambiar el tamaño de la
+  // ventana, para que queden ajustadas a la pantalla donde se presenta.
   function initReportCarousel(root){
     var slides = root.querySelectorAll('.rm-slide');
     var dots   = root.querySelectorAll('.rm-dot');
@@ -2202,11 +2246,12 @@
       idx = Math.max(0, Math.min(slides.length-1, i));
       slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
       dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
-      if(prevBtn) prevBtn.disabled = idx===0;
-      if(nextBtn) nextBtn.disabled = idx===slides.length-1;
+      // Primera slide: sin flecha izquierda; última: sin flecha derecha.
+      if(prevBtn){ prevBtn.hidden = idx===0; prevBtn.disabled = idx===0; }
+      if(nextBtn){ nextBtn.hidden = idx===slides.length-1; nextBtn.disabled = idx===slides.length-1; }
       if(counterCur) counterCur.textContent = idx+1;
       if(counterTitle) counterTitle.textContent = REPORT_SLIDE_TITULOS[idx]||'';
-      requestAnimationFrame(function(){ fitSlide(slides[idx]); });
+      requestAnimationFrame(function(){ fitReportSlides(root); });
     }
     if(prevBtn) prevBtn.addEventListener('click', function(){ show(idx-1); });
     if(nextBtn) nextBtn.addEventListener('click', function(){ show(idx+1); });
@@ -2216,16 +2261,15 @@
       if(e.key==='ArrowRight') show(idx+1);
       if(e.key==='ArrowLeft') show(idx-1);
     });
-    window.addEventListener('resize', function(){ fitSlide(slides[idx]); });
+    window.addEventListener('resize', function(){ fitReportSlides(root); });
     show(0);
-    // Nunito carga async (Google Fonts) — si todavía no había terminado en
-    // el primer fitSlide(), el alto medido con la tipografía de respaldo
-    // no coincide con el alto real una vez que Nunito entra, y el margen
-    // de la escala calculada queda corto. Se vuelve a ajustar apenas carga.
+    // La tipografía web puede terminar de cargar después del primer ajuste y
+    // cambiar las alturas medidas: se vuelve a ajustar apenas termina.
     if(document.fonts && document.fonts.ready){
-      document.fonts.ready.then(function(){ fitSlide(slides[idx]); });
+      document.fonts.ready.then(function(){ fitReportSlides(root); });
     }
   }
+
 
   // Fuente de este mismo archivo (roadmap.js), pedida una sola vez y
   // cacheada — se embebe tal cual en el resumen HTML (ver más abajo) en vez
@@ -2253,7 +2297,7 @@
 
   function construirReporteHTMLStandalone(scriptSource){
     if(!_lastRoadmapData) return null;
-    var payload = { meta:_lastRoadmapData.meta, paquetes:_lastRoadmapData.paquetes, avances:avancesSnapshotParaReporte(), tramitesEstatus:_tramitesEstatus };
+    var payload = { meta:_lastRoadmapData.meta, paquetes:_lastRoadmapData.paquetes, avances:avancesSnapshotParaReporte(), tramitesEstatus:_tramitesEstatus, generado:new Date().toISOString() };
     // Escapar "<" evita que un nombre de trámite/actividad con literalmente
     // "</script>" cierre el bloque de datos antes de tiempo — JSON.parse lo
     // revierte igual.
