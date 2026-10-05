@@ -383,7 +383,9 @@
   background:var(--ds-background-danger);color:var(--ds-text);font:var(--ds-font-body);}
 .avance-export-body{text-align:center;background:var(--ds-surface-sunken);border-radius:var(--ds-radius-small);padding:var(--ds-space-200) !important;margin:0 var(--ds-space-300);}
 .avance-export-status{padding:var(--ds-space-500);color:var(--ds-text-subtlest);}
-.avance-export-img{max-width:100%;display:none;border:1px solid var(--ds-border);border-radius:var(--ds-radius-small);}
+.avance-export-img{width:100%;max-width:100%;box-sizing:border-box;display:none;border:1px solid var(--ds-border);border-radius:var(--ds-radius-small);}
+/* Vista previa del PNG: el modal estándar (560px) deja el texto de una imagen de 3840px ilegible; se ensancha para leerlo sin descargar */
+#avanceExportModal .avance-modal{width:min(1400px,96vw);}
 
 /* ── "Generar resumen": opciones y estados ── */
 .rm-report-options{display:flex;flex-direction:column;gap:var(--ds-space-100);}
@@ -1420,9 +1422,10 @@
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
       var editing = (_avanceEditingId === r.id);
 
-      var fechaCell, asignadoCell, prioridadCell, estatusCell, comentarioCell, accionesCell;
+      var actividadCell, fechaCell, asignadoCell, prioridadCell, estatusCell, comentarioCell, accionesCell;
       if(editing){
-        fechaCell = '<input type="date" class="avance-inline-input" id="edit-fecha-'+escapeHtml(r.id)+'" value="'+escapeHtml(isoDateOnly(r.fecha_planeada))+'">';
+        actividadCell = '<input type="text" class="avance-inline-input" id="edit-actividad-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.actividad||'')+'" placeholder="Nombre de la actividad">';
+        fechaCell ='<input type="date" class="avance-inline-input" id="edit-fecha-'+escapeHtml(r.id)+'" value="'+escapeHtml(isoDateOnly(r.fecha_planeada))+'">';
         asignadoCell = '<input type="text" class="avance-inline-input" id="edit-asignado-'+escapeHtml(r.id)+'" value="'+escapeHtml(r.asignado_a||'')+'">';
         prioridadCell = '<select class="avance-inline-input" id="edit-prioridad-'+escapeHtml(r.id)+'">'
           + PRIORIDAD_AVANCE.map(function(c){ return '<option value="'+c+'"'+(c===(r.prioridad||PRIORIDAD_DEFAULT)?' selected':'')+'>'+c+'</option>'; }).join('')
@@ -1434,6 +1437,7 @@
         accionesCell = '<button class="avances-edit-btn avances-save-btn" type="button" data-save-id="'+escapeHtml(r.id)+'" title="Guardar cambios">✓<span class="av-btn-txt">Guardar</span></button>'
           +'<button class="avances-edit-btn" type="button" data-cancel-id="'+escapeHtml(r.id)+'" title="Cancelar">✕<span class="av-btn-txt">Cancelar</span></button>';
       } else {
+        actividadCell = escapeHtml(r.actividad);
         fechaCell = fmtLong(r.fecha_planeada);
         asignadoCell = escapeHtml(r.asignado_a);
         prioridadCell = '<span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span>';
@@ -1454,7 +1458,7 @@
         +'</td>'
         // data-label y el texto del origen solo se ven en mobile (tarjetas).
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'<span class="av-origen-txt">'+(r.origen!=='adicional'?'Del plan de trabajo':'Actividad adicional')+'</span></td>'
-        +'<td class="av-c-act">'+escapeHtml(r.actividad)+'</td>'
+        +'<td class="av-c-act">'+actividadCell+'</td>'
         +'<td class="av-c-resp" data-label="Responsables">'+asignadoCell+'</td>'
         +'<td class="av-c-prio" data-label="Prioridad">'+prioridadCell+'</td>'
         +'<td class="avances-date" data-label="Fecha">'+fechaCell+'</td>'
@@ -1478,11 +1482,11 @@
           +'<button class="avances-add-btn avances-preview-btn" id="btnPreviewAvances" type="button">Vista previa (PNG)</button>'
         +'</div>'
       +'</div>'
-      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Fecha/Asignado a/Estatus/Comentarios de una fila ya guardada.</div>'
+      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Actividad/Responsable/Prioridad/Fecha/Estatus/Comentarios de una fila ya guardada.</div>'
     +'</div>'
     // Modal de vista previa / descarga de imagen
     +'<div class="avance-modal-overlay" id="avanceExportModal" aria-hidden="true">'
-      +'<div class="avance-modal" style="width:min(880px,100%);">'
+      +'<div class="avance-modal">'
         +'<div class="avance-modal-head">'
           +'<span class="avance-modal-title">Vista previa — Avances de actividades</span>'
           +'<button class="avance-modal-close" id="btnCloseAvanceExport" type="button">✕</button>'
@@ -1753,8 +1757,14 @@
           DS.flag('La fecha no tiene un formato válido. Usá el selector de calendario o completá día, mes y año.', 'warning');
           return;
         }
+        var actividadVal = document.getElementById('edit-actividad-'+editId).value.trim();
+        if(!actividadVal){
+          DS.flag('El nombre de la actividad no puede quedar vacío.', 'warning');
+          return;
+        }
         var updated = {
           id: editId,
+          actividad: actividadVal,
           fecha_planeada: fechaVal,
           asignado_a: document.getElementById('edit-asignado-'+editId).value,
           prioridad: document.getElementById('edit-prioridad-'+editId).value || PRIORIDAD_DEFAULT,
@@ -1765,6 +1775,7 @@
         postAvances({
           action: 'update_avance',
           id: updated.id,
+          actividad: updated.actividad,
           fecha_planeada: updated.fecha_planeada,
           asignado_a: updated.asignado_a,
           prioridad: updated.prioridad,
@@ -1773,6 +1784,7 @@
         }, function(err){
           saveBtn.disabled = false;
           if(err){ DS.flag('No se pudieron guardar los cambios: '+err, 'error'); return; }
+          row.actividad = updated.actividad;
           row.fecha_planeada = updated.fecha_planeada;
           row.asignado_a = updated.asignado_a;
           row.prioridad = updated.prioridad;
@@ -1827,17 +1839,19 @@
       .catch(function(){});
   }
 
-  // ── Exportar "Avances de actividades" como PNG 4K (3840×2160, 16:9) ──────────
-  // Misma resolución que ya usa la exportación del cronograma — pensada para
-  // usarse en una presentación sin perder nitidez. Misma idea que esa
-  // exportación: se construye una copia limpia (sin los botones de
-  // reordenar/editar/eliminar) fuera de pantalla, se escala para que el ancho
-  // quede en proporción 16:9 respecto a su alto natural, se captura con
-  // html2canvas y por las dudas se redibuja sobre un canvas del tamaño exacto
-  // para garantizar el tamaño final sin importar pequeñas diferencias de medición.
+  // ── Exportar "Avances de actividades" como PNG 4K (3840 px de ancho) ─────────
+  // Se construye una copia limpia (sin los botones de reordenar/editar/
+  // eliminar) fuera de pantalla con un ancho fijo en px de CSS
+  // (AVANCES_EXPORT_CSS_W) y se captura con html2canvas escalado a 3840 px de
+  // ancho. El lienzo final es 3840×2160 (16:9, para presentaciones) o más
+  // alto si la tabla lo necesita, y la captura se pega SIN estirarla: antes se
+  // forzaba el ancho del clon a una proporción 16:9 y se dibujaba la captura
+  // estirada sobre 3840×2160, lo que, al ser el contenido más ancho que ese
+  // ancho forzado, aplastaba el texto hasta volverlo ilegible.
   var AVANCES_EXPORT_W = 3840;
   var AVANCES_EXPORT_H = 2160;
   var AVANCES_EXPORT_PADDING = 36;
+  var AVANCES_EXPORT_CSS_W = 1400;
 
   // Desde el celular, html2canvas evalúa las media queries con el ancho del
   // teléfono: se le da un viewport de desktop para que el PNG/PDF sea idéntico.
@@ -1857,7 +1871,7 @@
     wrap.style.padding = AVANCES_EXPORT_PADDING+'px';
     wrap.style.fontFamily = DS.token('--ds-font-family-body','sans-serif');
     wrap.style.boxSizing = 'border-box';
-    wrap.style.width = 'max-content';
+    wrap.style.width = AVANCES_EXPORT_CSS_W+'px';
 
     var title = document.createElement('div');
     title.textContent = 'Avances de actividades — Digitalización de Trámites ISSS';
@@ -1879,29 +1893,18 @@
 
     var tableWrap = document.createElement('div');
     tableWrap.className = 'avances-wrap';
-    tableWrap.style.width = 'max-content';
-    tableWrap.innerHTML = '<table class="avances-table" style="font-size:17px;">'
+    tableWrap.style.width = '100%';
+    tableWrap.innerHTML = '<table class="avances-table" style="font-size:17px;width:100%;">'
       +'<thead><tr><th></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th></tr></thead>'
       +'<tbody>'+rowsHtml+'</tbody></table>';
     wrap.appendChild(tableWrap);
 
     document.body.appendChild(wrap);
 
-    // Alto natural (a lo ancho que el contenido pida por sí solo) — a partir de
-    // ahí se calcula el ancho necesario para que la proporción quede en 16:9.
-    var naturalHeight = wrap.getBoundingClientRect().height;
-    var neededWidth = naturalHeight * (AVANCES_EXPORT_W / AVANCES_EXPORT_H);
-    wrap.style.width = neededWidth+'px';
-    tableWrap.style.width = '100%';
-
-    // Ensanchar puede achicar un poco el alto (texto que ya no necesita ajustarse
-    // en varias líneas) — se remide una vez más para afinar el ancho final.
-    var finalHeight = wrap.getBoundingClientRect().height;
-    var finalWidth = finalHeight * (AVANCES_EXPORT_W / AVANCES_EXPORT_H);
-    wrap.style.width = finalWidth+'px';
-
-    var scale = AVANCES_EXPORT_W / finalWidth;
-    return { wrap: wrap, scale: scale, cssWidth: finalWidth };
+    // Ancho fijo → los textos largos hacen salto de línea en vez de ensanchar
+    // la tabla; la escala lleva ese ancho exacto a 3840 px.
+    var scale = AVANCES_EXPORT_W / AVANCES_EXPORT_CSS_W;
+    return { wrap: wrap, scale: scale, cssWidth: AVANCES_EXPORT_CSS_W };
   }
 
   function captureAvancesCanvas(then){
@@ -1915,16 +1918,16 @@
       setTimeout(function(){
         window.html2canvas(wrap, Object.assign({ scale: built.scale, backgroundColor: DS.token('--ds-surface','#FFFFFF') }, rmH2cViewport())).then(function(canvas){
           document.body.removeChild(wrap);
-          // Se redibuja sobre un canvas de tamaño exacto 3840×2160 — cualquier
-          // pequeño desvío de medición queda absorbido acá, sin depender de que
-          // html2canvas haya redondeado al pixel exacto.
+          // Lienzo 3840 de ancho y al menos 2160 de alto (16:9). La captura se
+          // pega a su tamaño natural, centrada en vertical, sin escalarla ni
+          // estirarla: el texto conserva su proporción.
           var finalCanvas = document.createElement('canvas');
           finalCanvas.width = AVANCES_EXPORT_W;
-          finalCanvas.height = AVANCES_EXPORT_H;
+          finalCanvas.height = Math.max(AVANCES_EXPORT_H, canvas.height);
           var ctx = finalCanvas.getContext('2d');
           ctx.fillStyle = DS.token('--ds-surface','#FFFFFF');
-          ctx.fillRect(0, 0, AVANCES_EXPORT_W, AVANCES_EXPORT_H);
-          ctx.drawImage(canvas, 0, 0, AVANCES_EXPORT_W, AVANCES_EXPORT_H);
+          ctx.fillRect(0, 0, finalCanvas.width, finalCanvas.height);
+          ctx.drawImage(canvas, Math.round((AVANCES_EXPORT_W - canvas.width) / 2), Math.round((finalCanvas.height - canvas.height) / 2));
           then(null, finalCanvas, built.cssWidth);
         }).catch(function(err){
           document.body.removeChild(wrap);
