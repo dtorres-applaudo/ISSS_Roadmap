@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-10-05",
+    "actualizado": "2026-10-06",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -27,14 +27,14 @@
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 44,
-      "peso": 32.6
+      "avance_total": 44.1,
+      "peso": 32.7
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
       "avance_total": 5.5,
-      "peso": 41.5
+      "peso": 41.4
     }
   ],
   "tramites": [
@@ -54,7 +54,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 11.99
+      "peso": 11.98
     },
     {
       "paquete": "P2",
@@ -62,17 +62,17 @@
       "nombre": "Modificación en la inscripción de patronos",
       "grupo": "T02",
       "hu_count": 2,
-      "tareas_construccion": 7300,
-      "bugs": 34,
-      "horas_esperadas": 44900,
+      "tareas_construccion": 7500,
+      "bugs": 36,
+      "horas_esperadas": 45800,
       "multiplicador": 1.35,
-      "horas_ponderadas": 606,
-      "avance_desarrollo": 79.5,
+      "horas_ponderadas": 618,
+      "avance_desarrollo": 79.6,
       "aprobado_qa": "No",
       "aporte_desarrollo": 55.7,
       "aporte_qa": 0,
       "avance_total": 55.7,
-      "peso": 5.21
+      "peso": 5.31
     },
     {
       "paquete": "P2",
@@ -126,7 +126,7 @@
       "aporte_desarrollo": 56.9,
       "aporte_qa": 0,
       "avance_total": 56.9,
-      "peso": 1.86
+      "peso": 1.85
     },
     {
       "paquete": "P1",
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 7.22
+      "peso": 7.21
     },
     {
       "paquete": "P3",
@@ -296,7 +296,7 @@
       "nombre": "Pago por pensión por invalidez por riesgo profesional",
       "grupo": "T15",
       "hu_count": 3,
-      "tareas_construccion": 0,
+      "tareas_construccion": 400,
       "bugs": 0,
       "horas_esperadas": 56000,
       "multiplicador": 1.9,
@@ -306,7 +306,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 9.14
+      "peso": 9.13
     },
     {
       "paquete": "P3",
@@ -314,7 +314,7 @@
       "nombre": "Pensión por muerte por riesgo profesional",
       "grupo": "T16",
       "hu_count": 2,
-      "tareas_construccion": 0,
+      "tareas_construccion": 400,
       "bugs": 0,
       "horas_esperadas": 40000,
       "multiplicador": 1.9,
@@ -324,7 +324,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 6.53
+      "peso": 6.52
     },
     {
       "paquete": "P1",
@@ -351,7 +351,7 @@
       "grupo": "T18",
       "hu_count": 2,
       "tareas_construccion": 3100,
-      "bugs": 5,
+      "bugs": 7,
       "horas_esperadas": 20000,
       "multiplicador": 1.6,
       "horas_ponderadas": 320,
@@ -378,7 +378,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.31
+      "peso": 1.3
     },
     {
       "paquete": "P3",
@@ -504,7 +504,7 @@
       "aporte_desarrollo": 49.1,
       "aporte_qa": 0,
       "avance_total": 49.1,
-      "peso": 1.86
+      "peso": 1.85
     }
   ]
 }
