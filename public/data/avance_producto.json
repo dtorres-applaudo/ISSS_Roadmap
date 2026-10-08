@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 32.1,
-    "aporte_desarrollo": 32.1,
+    "avance_total": 34.5,
+    "aporte_desarrollo": 34.5,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -22,19 +22,19 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 57.9,
-      "peso": 25.9
+      "peso": 28.8
     },
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 44.2,
-      "peso": 32.8
+      "avance_total": 44.9,
+      "peso": 33.3
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 6.2,
-      "peso": 41.3
+      "avance_total": 7.5,
+      "peso": 37.9
     }
   ],
   "tramites": [
@@ -235,42 +235,6 @@
       "aporte_qa": 0,
       "avance_total": 45.4,
       "peso": 1.52
-    },
-    {
-      "paquete": "P2",
-      "orden": 12,
-      "nombre": "Anulación de inscripciones",
-      "grupo": "T12",
-      "hu_count": 2,
-      "tareas_construccion": 3600,
-      "bugs": 4,
-      "horas_esperadas": 26600,
-      "multiplicador": 1.2,
-      "horas_ponderadas": 319,
-      "avance_desarrollo": 52.1,
-      "aprobado_qa": "No",
-      "aporte_desarrollo": 36.5,
-      "aporte_qa": 0,
-      "avance_total": 36.5,
-      "peso": 2.73
-    },
-    {
-      "paquete": "P3",
-      "orden": 13,
-      "nombre": "Trámite y pago de subsidio",
-      "grupo": "T13",
-      "hu_count": 2,
-      "tareas_construccion": 200,
-      "bugs": 0,
-      "horas_esperadas": 48000,
-      "multiplicador": 1.75,
-      "horas_ponderadas": 840,
-      "avance_desarrollo": 0,
-      "aprobado_qa": "No",
-      "aporte_desarrollo": 0,
-      "aporte_qa": 0,
-      "avance_total": 0,
-      "peso": 7.19
     },
     {
       "paquete": "P3",

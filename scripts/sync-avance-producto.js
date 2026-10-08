@@ -159,6 +159,13 @@ const PAQUETE_NOMBRES_FALLBACK = {
   P3: 'Inspecciones y Prestaciones Económicas'
 };
 
+// Trámites eliminados del alcance: 12 (Anulación de inscripciones) y 13
+// (Trámite y pago de subsidio). Igual que el catálogo del Roadmap
+// (TRAMITES_CATALOGO en public/modules/roadmap.js), no se publican ni cuentan
+// en el avance de paquetes/producto, aunque sigan como filas en el Sheet
+// (a pedido de Darío, 2026-10-08).
+const TRAMITES_EXCLUIDOS = [12, 13];
+
 // Parámetros del modelo de madurez confirmados con Darío — se usan solo si no
 // se logran leer desde 'datos_hu' (celdas B2:B7). Si el Sheet los trae, esos
 // mandan.
@@ -234,7 +241,7 @@ async function main() {
     aporte_qa: pctToNumber(col(r, '% Aporte QA')),
     avance_total: pctToNumber(col(r, '% Avance Total')),
     peso: pctToNumber(col(r, '% Peso'))
-  })).filter(t => t.nombre);
+  })).filter(t => t.nombre && !TRAMITES_EXCLUIDOS.includes(t.orden));
 
   const camposClave = ['avance_total', 'peso', 'aporte_desarrollo', 'aporte_qa'];
   camposClave.forEach(campo => {
@@ -259,6 +266,9 @@ async function main() {
     return sumaPeso > 0 ? Math.round((sumaPonderada / sumaPeso) * 10) / 10 : null;
   }
 
+  // "% Peso" del Sheet suma 100 con los 26 trámites; sin los excluidos se
+  // re-normaliza para que el peso de los 3 paquetes vuelva a sumar 100%.
+  const pesoTotal = tramites.reduce((s, t) => s + (parseFloat(t.peso) || 0), 0);
   const paquetesIds = Array.from(new Set(tramites.map(t => t.paquete).filter(Boolean))).sort();
   const paquetes = paquetesIds.map(id => {
     const grupo = tramites.filter(t => t.paquete === id);
@@ -267,7 +277,7 @@ async function main() {
       paquete: id,
       nombre: PAQUETE_NOMBRES_FALLBACK[id] || null,
       avance_total: promedioPonderado(grupo, 'avance_total'),
-      peso: Math.round(pesoGrupo * 10) / 10
+      peso: pesoTotal > 0 ? Math.round(pesoGrupo / pesoTotal * 1000) / 10 : 0
     };
   });
 
@@ -279,7 +289,7 @@ async function main() {
 
   console.log(`\n=== RESUMEN ===`);
   console.log(`Paquetes detectados: ${paquetes.length} (esperado: 3)`);
-  console.log(`Trámites detectados: ${tramites.length} (esperado: 26)`);
+  console.log(`Trámites detectados: ${tramites.length} (esperado: 24 — sin los excluidos ${TRAMITES_EXCLUIDOS.join(', ')})`);
   paquetes.forEach(p => console.log(`  ${p.paquete} — ${p.nombre}: avance ${p.avance_total}%, peso ${p.peso}%`));
   console.log(`  Producto — avance ${producto.avance_total}%, aporte Desarrollo ${producto.aporte_desarrollo}%, aporte QA ${producto.aporte_qa}%`);
 
