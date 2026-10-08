@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 31.9,
-    "aporte_desarrollo": 31.9,
+    "avance_total": 32.1,
+    "aporte_desarrollo": 32.1,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -27,14 +27,14 @@
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 44.1,
-      "peso": 32.7
+      "avance_total": 44.2,
+      "peso": 32.8
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 6,
-      "peso": 41.4
+      "avance_total": 6.2,
+      "peso": 41.3
     }
   ],
   "tramites": [
@@ -64,15 +64,15 @@
       "hu_count": 2,
       "tareas_construccion": 7600,
       "bugs": 37,
-      "horas_esperadas": 46400,
+      "horas_esperadas": 46700,
       "multiplicador": 1.35,
-      "horas_ponderadas": 626,
+      "horas_ponderadas": 630,
       "avance_desarrollo": 79.7,
       "aprobado_qa": "No",
       "aporte_desarrollo": 55.8,
       "aporte_qa": 0,
       "avance_total": 55.8,
-      "peso": 5.37
+      "peso": 5.4
     },
     {
       "paquete": "P2",
@@ -85,11 +85,11 @@
       "horas_esperadas": 48800,
       "multiplicador": 1.2,
       "horas_ponderadas": 586,
-      "avance_desarrollo": 65.8,
+      "avance_desarrollo": 66.9,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 46.1,
+      "aporte_desarrollo": 46.8,
       "aporte_qa": 0,
-      "avance_total": 46.1,
+      "avance_total": 46.8,
       "peso": 5.02
     },
     {
@@ -99,7 +99,7 @@
       "grupo": "T04",
       "hu_count": 4,
       "tareas_construccion": 12000,
-      "bugs": 65,
+      "bugs": 66,
       "horas_esperadas": 60300,
       "multiplicador": 1.35,
       "horas_ponderadas": 814,
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 7.2
+      "peso": 7.19
     },
     {
       "paquete": "P3",
@@ -278,16 +278,16 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 3000,
+      "tareas_construccion": 3300,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
       "horas_ponderadas": 420,
-      "avance_desarrollo": 55.1,
+      "avance_desarrollo": 57.6,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 38.6,
+      "aporte_desarrollo": 40.4,
       "aporte_qa": 0,
-      "avance_total": 38.6,
+      "avance_total": 40.4,
       "peso": 3.6
     },
     {
@@ -296,17 +296,17 @@
       "nombre": "Pago por pensión por invalidez por riesgo profesional",
       "grupo": "T15",
       "hu_count": 3,
-      "tareas_construccion": 400,
+      "tareas_construccion": 2200,
       "bugs": 0,
       "horas_esperadas": 56000,
       "multiplicador": 1.9,
       "horas_ponderadas": 1064,
-      "avance_desarrollo": 1,
+      "avance_desarrollo": 1.4,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 0.7,
+      "aporte_desarrollo": 1,
       "aporte_qa": 0,
-      "avance_total": 0.7,
-      "peso": 9.12
+      "avance_total": 1,
+      "peso": 9.11
     },
     {
       "paquete": "P3",
@@ -314,7 +314,7 @@
       "nombre": "Pensión por muerte por riesgo profesional",
       "grupo": "T16",
       "hu_count": 2,
-      "tareas_construccion": 400,
+      "tareas_construccion": 900,
       "bugs": 0,
       "horas_esperadas": 40000,
       "multiplicador": 1.9,
@@ -477,7 +477,7 @@
       "grupo": "T25",
       "hu_count": 3,
       "tareas_construccion": 5500,
-      "bugs": 5,
+      "bugs": 6,
       "horas_esperadas": 38900,
       "multiplicador": 1.35,
       "horas_ponderadas": 525,
