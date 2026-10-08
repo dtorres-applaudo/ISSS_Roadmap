@@ -721,8 +721,8 @@
     drawBurndown(dayRows, nDiasHabilesSprint(_burndownData.sprint, _burndownData.sa, dayRows));
   }
 
-  // opts.layout: 'tabs' en el portal (5c: una sección a la vez); por defecto
-  // 'stack' (reporte standalone y generación desatendida: todo apilado, como siempre).
+  // opts.layout: 'tabs' en el portal mobile (una sección a la vez); por defecto
+  // 'stack' (portal desktop, reporte standalone y generación desatendida: todo apilado).
   function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle, opts){
     var tabs = !!(opts && opts.layout === 'tabs');
     var k = computeResumenKpis(activo, transiciones, diario, detalle);
@@ -802,7 +802,7 @@
     // ── ACTIVIDAD POR SPRINT (Burndown + Distribución por tipo + Evolución
     // diaria + Detalle de work items, un solo set de tabs de sprint controla
     // las cuatro visualizaciones a la vez — ver buildActividadSprintHTML). ──
-    var actividad = buildActividadSprintHTML(sa, diario||[], detalle||[]);
+    var actividad = buildActividadSprintHTML(sa, diario||[], detalle||[], { newestFirst: tabs });
 
     // ── DEUDA TÉCNICA (se muestra al final de la página, ver mount.innerHTML) ──
     var deudaHTML = buildDeudaEjecutivo(deudaTotal, deudaAbiertos, deudaCerrados, deudaEnSprint, deudaBacklog);
@@ -1317,7 +1317,7 @@
   // de sprint (todas leen de sprint_diario_acumulado vía diarioDayRows).
   // Seleccionar un sprint pasado cambia las cuatro visualizaciones a la vez.
   // ══════════════════════════════════════════════════════════════
-  function buildActividadSprintHTML(sa, diario, detalle){
+  function buildActividadSprintHTML(sa, diario, detalle, opts){
     var sprintActivo = sa ? sa.sprint : null;
 
     var sprintMap={};
@@ -1327,8 +1327,9 @@
     var lastSp=sprints[sprints.length-1]||sprintActivo;
 
     var tabsHTML='<div class="seg-tabs" id="actividad-sprint-tabs">';
-    // 5d: el sprint más reciente (activo por defecto) va primero.
-    sprints.slice().reverse().forEach(function(sp){ tabsHTML+='<button class="seg-tab'+(sp===lastSp?' active':'')+'" data-sp="'+sp+'">'+sp+'</button>'; });
+    // En mobile el sprint más reciente (activo por defecto) va primero; en desktop
+    // y en el standalone, del más antiguo al más reciente.
+    (opts && opts.newestFirst ? sprints.slice().reverse() : sprints).forEach(function(sp){ tabsHTML+='<button class="seg-tab'+(sp===lastSp?' active':'')+'" data-sp="'+sp+'">'+sp+'</button>'; });
     tabsHTML+='</div>';
 
     // Distribución por tipo: un panel pre-renderizado por sprint (mismo
@@ -1558,6 +1559,7 @@
   // sobre avance de desarrollo puro, no sobre este modelo ponderado).
   // ══════════════════════════════════════════════════════════════
   var _prodFiltro = 'all';
+  var _prodData = null;
   function aplicarFiltroProducto(mount, sel, paquetes){
     var bar = mount.querySelector('.ds-pkgtabs[data-pkg-group="producto"]');
     if(!bar) return;
@@ -1607,9 +1609,16 @@
 
     var tramitesOrdenados = tramites.slice().sort(function(a,b){ return (parseInt(a.orden,10)||0)-(parseInt(b.orden,10)||0); });
 
+    // Mobile: control segmentado unificado. Desktop: tabs "Todos / Paquete N".
+    var mobile = segIsMobile();
     html += '<div class="seg-section seg-section--tramites"><div class="seg-sh">Avance por trámite</div>'
-      +DS.pkgTabs.html({ group:'producto', mode:'filter', includeAll:true, active:'all',
-          items: paquetes.map(function(p){ return { id:fmt(p.paquete), name:fmt(p.nombre) }; }) })
+      +(mobile
+        ? DS.pkgTabs.html({ group:'producto', mode:'filter', includeAll:true, active:'all',
+            items: paquetes.map(function(p){ return { id:fmt(p.paquete), name:fmt(p.nombre) }; }) })
+        : '<div class="seg-tabs" id="prod-tramite-filtro">'
+            +'<button class="seg-tab active" data-paquete-filtro="all">Todos</button>'
+            +paquetes.map(function(p){ return '<button class="seg-tab" data-paquete-filtro="'+fmt(p.paquete)+'">Paquete '+String(p.paquete||'').replace(/\D/g,'')+'</button>'; }).join('')
+          +'</div>')
       +'<div class="seg-table-wrap"><table class="seg-table seg-table--cards seg-table--tramites">'
       +'<thead><tr><th>Paquete</th><th>No</th><th>Trámite</th><th>Avance (Desarrollo + QA)</th></tr></thead><tbody>';
     tramitesOrdenados.forEach(function(t){
@@ -1640,9 +1649,25 @@
       +'</div>';
 
     mount.innerHTML = html;
+    _prodData = data;
 
-    // 5b: siempre arranca en "Todos"; la elección se conserva en memoria (sobrevive
-    // a la revalidación silenciosa) y, si es un paquete, el Roadmap la sigue.
+    // Siempre arranca en "Todos"; la elección se conserva en memoria (sobrevive
+    // a la revalidación silenciosa). En mobile, si es un paquete, el Roadmap la sigue.
+    if(!mobile){
+      var tabsBar = mount.querySelector('#prod-tramite-filtro');
+      var aplicar = function(sel){
+        if(!tabsBar.querySelector('[data-paquete-filtro="'+sel+'"]')) sel = 'all';
+        tabsBar.querySelectorAll('[data-paquete-filtro]').forEach(function(x){ x.classList.toggle('active', x.dataset.paqueteFiltro===sel); });
+        mount.querySelectorAll('[data-paquete-row]').forEach(function(tr){
+          tr.style.display = (sel==='all' || tr.dataset.paqueteRow===sel) ? '' : 'none';
+        });
+      };
+      tabsBar.querySelectorAll('[data-paquete-filtro]').forEach(function(btn){
+        btn.addEventListener('click', function(){ _prodFiltro = btn.dataset.paqueteFiltro; aplicar(_prodFiltro); });
+      });
+      aplicar(_prodFiltro);
+      return;
+    }
     var filtroBar = mount.querySelector('.ds-pkgtabs[data-pkg-group="producto"]');
     if(filtroBar){
       filtroBar.id = 'prod-tramite-filtro';
@@ -1858,7 +1883,7 @@
       var st = (m.dataset.rendered && segIsMobile()) ? segCaptureState(m) : null;
       m.dataset.rendered='1';
       _lastResumenData = data;
-      buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle,{layout:'tabs'});
+      buildEjecutivo(m,data.activo,data.trans,data.diario,data.roadmap,data.obsGen,data.obsUx,data.detalle,{layout: segIsMobile() ? 'tabs' : 'stack'});
       if(st) segRestoreState(m, st);
     });
   }
@@ -2293,6 +2318,15 @@
     _segMqWired = true;
     DS.onMobileChange(function(mobile){
       var tt = document.getElementById('seg-bd-tt'); if(tt) tt.style.display = 'none';
+      // Desktop (apilado) y mobile (pestañas) tienen distribuciones distintas:
+      // se repintan Resumen y Producto con los datos ya cargados.
+      var rm = document.getElementById('seg-resumen-mount');
+      if(rm && rm.dataset.rendered && _lastResumenData){
+        var d = _lastResumenData;
+        buildEjecutivo(rm,d.activo,d.trans,d.diario,d.roadmap,d.obsGen,d.obsUx,d.detalle,{layout: mobile ? 'tabs' : 'stack'});
+      }
+      var pm = document.getElementById('seg-producto-mount');
+      if(pm && pm.dataset.rendered && _prodData) buildAvanceProducto(pm, _prodData);
       redrawBurndown();
       if(mobile) requestAnimationFrame(function(){ segRevealSprintTab(document.getElementById('seg-resumen-mount')); });
     });

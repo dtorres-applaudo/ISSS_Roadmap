@@ -81,7 +81,21 @@
 .sum-rel span{font:var(--ds-font-body-small);color:var(--ds-text-subtlest);}
 .sum-rel strong{font:var(--ds-font-heading-xsmall);color:var(--ds-text);font-variant-numeric:tabular-nums;}
 
-/* ── Pestañas de sección y de paquete (componentes .ds-sectabs / .ds-pkgtabs de ds.js) ── */
+/* ── Tabs de paquete en desktop (Gantt, detalle, estilo ADS) ── */
+.g-tabs,.pkg-tabs{display:flex;gap:var(--ds-space-050);margin-bottom:var(--ds-space-200);box-shadow:inset 0 -2px 0 var(--ds-border);overflow-x:auto;}
+.g-tab,.pkg-tab{flex:none;display:flex;align-items:center;gap:var(--ds-space-100);cursor:pointer;
+  padding:var(--ds-space-100) var(--ds-space-100);margin:0;border:none;border-bottom:2px solid transparent;border-radius:0;background:none;
+  font:500 .875rem/1.25rem var(--ds-font-family-body);color:var(--ds-text-subtle);text-align:left;white-space:nowrap;
+  transition:color var(--ds-motion),border-color var(--ds-motion);}
+.g-tab:hover,.pkg-tab:hover{color:var(--ds-text);border-bottom-color:var(--ds-border-bold);}
+.g-tab.is-active,.pkg-tab.is-active{color:var(--ds-text-selected);border-bottom-color:var(--ds-border-selected);}
+.pkg-tab .tab-id{width:24px;height:24px;flex:none;border-radius:var(--ds-radius-small);display:flex;align-items:center;justify-content:center;
+  font:700 .6875rem/1 var(--ds-font-family-body);color:var(--ds-text-inverse);background:var(--ds-pkg-1);}
+.pkg-tab[data-target="P2"] .tab-id{background:var(--ds-pkg-2);}
+.pkg-tab[data-target="P3"] .tab-id{background:var(--ds-pkg-3);}
+.pkg-tab .tab-title{max-width:280px;overflow:hidden;text-overflow:ellipsis;}
+
+/* ── Pestañas de sección y de paquete en mobile (componentes .ds-sectabs / .ds-pkgtabs de ds.js) ── */
 #roadmap-mount .rm-sectabs{margin-top:var(--ds-space-400);}
 #roadmap-mount .ds-secpanel > .section{padding-top:0 !important;}
 .pkg-panel,.g-panel{display:none;}
@@ -197,7 +211,7 @@
    en el último carril (paquete inferior); los demás quedan sincronizados igual. */
 .gantt-in-modal .modal-pkg-block:not(:last-child) .g-lanes-scroll{scrollbar-width:none;-ms-overflow-style:none;}
 .gantt-in-modal .modal-pkg-block:not(:last-child) .g-lanes-scroll::-webkit-scrollbar{display:none;}
-@media print{.g-panel{display:block !important;}.pkg-panel{display:block !important;margin-bottom:24px !important;}}
+@media print{.g-tabs{display:none !important;}.g-panel{display:block !important;}.pkg-tabs{display:none !important;}.pkg-panel{display:block !important;margin-bottom:24px !important;}}
 
 /* ── Detalle por paquete ── */
 .pkg{border:1px solid var(--ds-border);border-radius:var(--ds-radius-large);overflow:hidden;background:var(--ds-surface);}
@@ -901,12 +915,17 @@
   }
 
   // ── Render sección gantt completo ─────────────────────────────────────────────
-  function renderGanttSection(meta, paquetes, axisStart, totalDays, activePkg){
+  // legacy: tabs "Paquete N" de desktop; si no, pestañas unificadas de mobile.
+  function renderGanttSection(meta, paquetes, axisStart, totalDays, activePkg, legacy){
     var monthHead = renderMonthHead(axisStart, totalDays);
     activePkg = activePkg || (paquetes[0] && paquetes[0].id);
 
-    var tabsHtml = DS.pkgTabs.html({ group:'gantt', active:activePkg, controlsPrefix:'rm-gpanel-',
-      items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
+    var tabsHtml = legacy
+      ? '<div class="g-tabs">'+paquetes.map(function(p){
+          return '<button class="g-tab'+(p.id===activePkg?' is-active':'')+'" data-gtarget="PP'+p.id.replace('P','')+'" type="button">Paquete '+p.id.replace('P','')+'</button>';
+        }).join('')+'</div>'
+      : DS.pkgTabs.html({ group:'gantt', active:activePkg, controlsPrefix:'rm-gpanel-',
+          items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
 
     var panelsHtml = paquetes.map(function(p){ return renderGanttPanel(p, axisStart, totalDays, p.id===activePkg, false); }).join('');
 
@@ -1274,10 +1293,17 @@
   }
 
   // ── Render detalle por paquete ────────────────────────────────────────────────
-  function renderDetalle(paquetes, activePkg){
+  function renderDetalle(paquetes, activePkg, legacy){
     activePkg = activePkg || (paquetes[0] && paquetes[0].id);
-    var tabs = DS.pkgTabs.html({ group:'detalle', active:activePkg, controlsPrefix:'rm-pkgpanel-',
-      items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
+    var tabs = legacy
+      ? '<div class="pkg-tabs">'+paquetes.map(function(p){
+          return '<button class="pkg-tab'+(p.id===activePkg?' is-active':'')+'" data-target="'+p.id+'" type="button">'
+            +'<span class="tab-id">'+p.id+'</span>'
+            +'<span class="tab-title">'+p.nombre+'</span>'
+          +'</button>';
+        }).join('')+'</div>'
+      : DS.pkgTabs.html({ group:'detalle', active:activePkg, controlsPrefix:'rm-pkgpanel-',
+          items: paquetes.map(function(p){ return { id:p.id, name:p.nombre }; }) });
 
     var panels = paquetes.map(function(p,i){
       // Sprints range label
@@ -2490,8 +2516,27 @@
     var axisStart = parseDate(data.meta.gantt_inicio);
     var axisEnd   = parseDate(data.meta.gantt_fin);
     var totalDays = (axisEnd - axisStart) / 86400000;
+    // Mobile: pestañas de sección y paquete sincronizado. Desktop: todo apilado,
+    // con las tabs de paquete independientes y el catálogo colapsable.
+    var mobile = DS.isMobile();
     var sec = rmGetSection();
-    var pkg = rmInitialPkg(data.paquetes);
+    var pkg = mobile ? rmInitialPkg(data.paquetes) : null;
+    var body = mobile
+      ? rmSecTabsHtml(sec)
+        + '<div class="rm-sec-stack">'
+          + rmSecPanel('resumen',     renderResumen(data.paquetes), sec)
+          + rmSecPanel('cronograma',  renderGanttSection(data.meta, data.paquetes, axisStart, totalDays, pkg), sec)
+          + rmSecPanel('avances',     renderAvancesSection(), sec)
+          + rmSecPanel('tramites',    renderCatalogoTramites(data.paquetes, {forceOpen:true}), sec)
+          + rmSecPanel('detalle',     renderDetalle(data.paquetes, pkg), sec)
+          + rmSecPanel('transversal', renderTransversal(data.transversal), sec)
+        + '</div>'
+      : renderResumen(data.paquetes)
+        + renderGanttSection(data.meta, data.paquetes, axisStart, totalDays, null, true)
+        + renderAvancesSection()
+        + renderCatalogoTramites(data.paquetes)
+        + renderDetalle(data.paquetes, null, true)
+        + renderTransversal(data.transversal);
 
     mount.innerHTML =
       '<div class="page-header page-header-row">'
@@ -2500,15 +2545,7 @@
         +'<button class="rm-btn-report" id="rm-btn-generar-resumen" type="button">Generar resumen</button>'
       +'</div>'
       + renderMetaBar(data.meta)
-      + rmSecTabsHtml(sec)
-      + '<div class="rm-sec-stack">'
-        + rmSecPanel('resumen',     renderResumen(data.paquetes), sec)
-        + rmSecPanel('cronograma',  renderGanttSection(data.meta, data.paquetes, axisStart, totalDays, pkg), sec)
-        + rmSecPanel('avances',     renderAvancesSection(), sec)
-        + rmSecPanel('tramites',    renderCatalogoTramites(data.paquetes, {forceOpen:true}), sec)
-        + rmSecPanel('detalle',     renderDetalle(data.paquetes, pkg), sec)
-        + rmSecPanel('transversal', renderTransversal(data.transversal), sec)
-      + '</div>'
+      + body
       + '<div class="docfoot">'
           +'<div>Roadmap de Producto · Digitalización de Trámites ISSS</div>'
           +'<div class="mono">Plan actualizado: '+data.meta.actualizado+'</div>'
@@ -2620,6 +2657,29 @@
     if(persist !== false) DS.pkg.set(id, 'roadmap');
   }
 
+  // ── Tabs de paquete de desktop: Cronograma y Detalle independientes ───────────
+  function rmSelectLegacyTab(t){
+    var gantt = t.classList.contains('g-tab');
+    var target = t.getAttribute(gantt ? 'data-gtarget' : 'data-target');
+    mount.querySelectorAll(gantt ? '.g-tab' : '.pkg-tab').forEach(function(x){ x.classList.toggle('is-active', x === t); });
+    mount.querySelectorAll(gantt ? '.g-stack > .g-panel' : '.pkg-stack > .pkg-panel').forEach(function(p){
+      p.classList.toggle('is-active', p.getAttribute(gantt ? 'data-gpkg' : 'data-pkg') === target);
+    });
+    if(!gantt) return;
+    setTimeout(function(){
+      // El panel recién activado hereda el scroll del encabezado (que nunca está
+      // oculto), por si el navegador no conservó el scroll de un panel que estuvo
+      // en display:none.
+      var g = mount.querySelector('.gantt:not(.gantt-in-modal)');
+      if(g){
+        var headScroll = g.querySelector('.g-head-scroll');
+        var activeLanes = g.querySelector('.g-panel.is-active .g-lanes-scroll');
+        if(headScroll && activeLanes) activeLanes.scrollLeft = headScroll.scrollLeft;
+      }
+      positionTodayLines();
+    }, 30);
+  }
+
   // Listeners delegados: se registran una sola vez aunque render() corra varias
   // veces (caché + revalidación).
   function rmWireOnce(){
@@ -2629,14 +2689,19 @@
       var st = e.target.closest('.rm-sectabs .ds-sectab');
       if(st && mount.contains(st)){ rmActivateSection(st.getAttribute('data-rm-sec'), true); return; }
       var pt = e.target.closest('.ds-pkgtabs[data-pkg-group="gantt"] .ds-pkgtab, .ds-pkgtabs[data-pkg-group="detalle"] .ds-pkgtab');
-      if(pt && mount.contains(pt)) rmSelectPkg(pt.getAttribute('data-pkg'));
+      if(pt && mount.contains(pt)){ rmSelectPkg(pt.getAttribute('data-pkg')); return; }
+      var lt = e.target.closest('.g-tab, .pkg-tab');
+      if(lt && mount.contains(lt)) rmSelectLegacyTab(lt);
     });
     window.addEventListener('resize', function(){ positionTodayLines(); });
     document.addEventListener('ds:pkgchange', function(e){
-      if(e.detail && e.detail.source !== 'roadmap') rmSelectPkg(e.detail.pkg, false);
+      // La sincronización entre Producto y Roadmap es solo de mobile.
+      if(e.detail && e.detail.source !== 'roadmap' && DS.isMobile()) rmSelectPkg(e.detail.pkg, false);
     });
     DS.onMobileChange(function(){
-      closeTramiteEstatusMenu();
+      // Desktop y mobile tienen distribuciones distintas: se repinta con los datos en caché.
+      rmCloseOverlays();
+      if(_lastRoadmapData) render(_lastRoadmapData);
       mount.querySelectorAll('.gantt').forEach(function(g){ g.__autoScrolled = false; }); // re-centra en hoy
       positionTodayLines();
       DS.tabs.reveal(mount.querySelector('.rm-sectabs .ds-sectab.is-active'));
