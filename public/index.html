@@ -428,30 +428,23 @@ html[data-auth="app"] #app-shell{display:flex !important;}
         <span class="sb-label">Roadmap</span>
       </div>
 
-      <!-- Seguimiento -->
-      <div class="sb-item" id="nav-seguimiento" data-group="seguimiento" role="button" tabindex="0" title="Seguimiento">
+      <!-- Resumen ejecutivo (antes sub-ítem de "Seguimiento"; el menú ya no tiene grupos desplegables) -->
+      <div class="sb-item" data-page="seg-resumen" role="button" tabindex="0" title="Resumen ejecutivo">
         <span class="sb-icon">
-          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="3.5" width="13" height="18" rx="2" stroke="currentColor" stroke-width="1.6"/>
-            <path d="M9 3H15A1 1 0 0 1 16 4V4.5A1 1 0 0 1 15 5.5H9A1 1 0 0 1 8 4.5V4A1 1 0 0 1 9 3Z" stroke="currentColor" stroke-width="1.6"/>
-            <path d="M8 9L9.3 10.3L11.5 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M13.5 9H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M8 13.5L9.3 14.8L11.5 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M13.5 13.5H17" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M16.2 16.3L19.2 13.3L20.7 14.8L17.7 17.8L15.8 18.2L16.2 16.3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" stroke-linecap="round"/>
-          </svg>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 19.5h16M7 16V11m5 5V7m5 9v-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         </span>
-        <span class="sb-label">Seguimiento</span>
-        <span class="sb-chevron"><svg viewBox="0 0 16 16" fill="none"><path d="M6 3.5 10.5 8 6 12.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span class="sb-label">Resumen ejecutivo</span>
       </div>
-      <div class="sb-subnav" id="subnav-seguimiento">
-        <div class="sb-subitem" data-page="seg-resumen" role="button" tabindex="0">Resumen ejecutivo</div>
-        <!-- "Resumen por paquete" oculto a pedido de Darío (2026-09-16) — el
-             código del módulo sigue intacto en seguimiento.js, solo se quitó
-             la entrada de navegación. Para reactivarlo, descomentar esta
-             línea y la entrada 'seg-paquetes' en el objeto `pages` de abajo. -->
-        <!-- <div class="sb-subitem" data-page="seg-paquetes" role="button" tabindex="0">Resumen por paquete</div> -->
-        <div class="sb-subitem" data-page="seg-producto" role="button" tabindex="0">Avance de Producto</div>
+
+      <!-- Avance por paquete (antes "Avance de Producto") -->
+      <!-- "Resumen por paquete" (seg-paquetes) sigue oculto a pedido de Darío (2026-09-16):
+           el código del módulo sigue intacto en seguimiento.js. Para reactivarlo, agregar
+           aquí un .sb-item con data-page="seg-paquetes" y su entrada en `pages`. -->
+      <div class="sb-item" data-page="seg-producto" role="button" tabindex="0" title="Avance por paquete">
+        <span class="sb-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12V3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="sb-label">Avance por paquete</span>
       </div>
     </div>
 
@@ -495,10 +488,10 @@ html[data-auth="app"] #app-shell{display:flex !important;}
         </div>
       </div>
 
-      <!-- PAGE: Seguimiento — Avance de Producto -->
+      <!-- PAGE: Avance por paquete -->
       <div class="page" id="page-seg-producto">
         <div class="page-header">
-          <div class="page-title">Avance de Producto</div>
+          <div class="page-title">Avance por paquete</div>
         </div>
         <div class="ds-empty-state">
           <div class="ds-empty-state-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12V3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></div>
@@ -526,7 +519,7 @@ html[data-auth="app"] #app-shell{display:flex !important;}
         <span class="mnav-label">Resumen ejecutivo</span></a></li>
       <li><a class="mnav-item" href="#" data-page="seg-producto">
         <span class="mnav-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5H12V3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg></span>
-        <span class="mnav-label">Avance de Producto</span></a></li>
+        <span class="mnav-label">Avance por paquete</span></a></li>
     </ul>
   </nav>
 </div><!-- /app-shell -->
@@ -727,13 +720,15 @@ document.querySelectorAll('.sb-item, .sb-subitem').forEach(el => {
 });
 document.getElementById('tn-home').addEventListener('click', e => { e.preventDefault(); goTo('roadmap'); });
 
-// group = id del grupo del menú lateral (nav-<group> / subnav-<group>).
+// Las 3 páginas son de primer nivel (sin grupos): breadcrumb "ISSS-SYDT / <página>".
+// group (opcional) = id de un grupo desplegable del menú lateral (nav-<group> / subnav-<group>).
 // moduleHome = página a la que lleva el nivel "módulo" del breadcrumb.
+// Los ids seg-* se conservan para no perder la última pestaña guardada ni los mounts de seguimiento.js.
 const pages = {
   roadmap:        { title:'Roadmap de Producto', module:'Roadmap de Producto', moduleHome:'roadmap' },
-  'seg-resumen':  { title:'Resumen ejecutivo',    module:'Seguimiento', group:'seguimiento', moduleHome:'seg-resumen' },
-  // 'seg-paquetes' oculto a pedido de Darío (2026-09-16) — ver nota en el subnav de arriba.
-  'seg-producto': { title:'Avance de Producto',   module:'Seguimiento', group:'seguimiento', moduleHome:'seg-resumen' },
+  'seg-resumen':  { title:'Resumen ejecutivo',    module:'Resumen ejecutivo',   moduleHome:'seg-resumen' },
+  // 'seg-paquetes' oculto a pedido de Darío (2026-09-16) — ver nota en el menú lateral.
+  'seg-producto': { title:'Avance por paquete',   module:'Avance por paquete',  moduleHome:'seg-producto' },
 };
 
 // Navega y además abre el grupo del menú lateral de la página destino, para
@@ -811,7 +806,7 @@ document.querySelectorAll('#mobile-nav .mnav-item').forEach(a => {
 window.PortalNav = Object.freeze({ goTo: (id) => goTo(id) });
 
 // Restaura la pestaña donde estaba el usuario antes de recargar (F5). Si la
-// pestaña guardada es un sub-ítem (Seguimiento), también abre su grupo para
+// pestaña guardada es un sub-ítem de un grupo, también abre su grupo para
 // que quede visible y marcada, no solo activa por debajo del acordeón cerrado.
 function restoreLastPage(){
   let last = 'roadmap';
@@ -827,10 +822,10 @@ function restoreLastPage(){
   navigate(last);
 }
 
-// group toggles
-['seguimiento'].forEach(group => {
-  const btn    = document.getElementById('nav-'+group);
-  const subnav = document.getElementById('subnav-'+group);
+// group toggles (hoy no hay grupos desplegables; queda listo por si vuelven)
+document.querySelectorAll('.sb-item[data-group]').forEach(btn => {
+  const subnav = document.getElementById('subnav-'+btn.dataset.group);
+  if(!subnav) return;
   btn.addEventListener('click', () => {
     const isOpen = subnav.classList.contains('open');
     // close all

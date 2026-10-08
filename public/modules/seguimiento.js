@@ -1830,7 +1830,7 @@
     var pp=document.getElementById('page-seg-paquetes');
     if(pp) pp.innerHTML='<div class="page-header"><div class="page-title">Resumen por paquete</div><div class="page-desc">Avance real vs. planificado, SPI y actividades por paquete (P1/P2/P3).</div></div><div id="seg-paquetes-mount"></div>';
     var pd=document.getElementById('page-seg-producto');
-    if(pd) pd.innerHTML='<div class="page-header"><div class="page-title">Avance de Producto</div><div class="page-desc">Avance real del producto por trámite y paquete, ponderado por Desarrollo y QA.</div></div><div id="seg-producto-mount"></div>';
+    if(pd) pd.innerHTML='<div class="page-header"><div class="page-title">Avance por paquete</div><div class="page-desc">Avance real del producto por trámite y paquete, ponderado por Desarrollo y QA.</div></div><div id="seg-producto-mount"></div>';
   }
 
   // Las mismas 7 fuentes que alimentan el Resumen Ejecutivo, factorizadas
