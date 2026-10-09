@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 34.5,
-    "aporte_desarrollo": 34.5,
+    "avance_total": 34.7,
+    "aporte_desarrollo": 34.7,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -22,19 +22,19 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 57.9,
-      "peso": 28.8
+      "peso": 29
     },
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 44.9,
-      "peso": 33.3
+      "avance_total": 45.8,
+      "peso": 32.8
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 7.5,
-      "peso": 37.9
+      "avance_total": 7.6,
+      "peso": 38.2
     }
   ],
   "tramites": [
@@ -45,16 +45,16 @@
       "grupo": "T01",
       "hu_count": 2,
       "tareas_construccion": 18500,
-      "bugs": 162,
-      "horas_esperadas": 85200,
+      "bugs": 161,
+      "horas_esperadas": 85800,
       "multiplicador": 1.65,
-      "horas_ponderadas": 1406,
+      "horas_ponderadas": 1416,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 12.04
+      "peso": 12.19
     },
     {
       "paquete": "P2",
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.8,
       "aporte_qa": 0,
       "avance_total": 55.8,
-      "peso": 5.4
+      "peso": 5.43
     },
     {
       "paquete": "P2",
@@ -80,17 +80,17 @@
       "nombre": "Registro de pasividad o de reanudación de labores del patrono",
       "grupo": "T03",
       "hu_count": 3,
-      "tareas_construccion": 6600,
-      "bugs": 8,
-      "horas_esperadas": 48800,
+      "tareas_construccion": 6900,
+      "bugs": 10,
+      "horas_esperadas": 42700,
       "multiplicador": 1.2,
-      "horas_ponderadas": 586,
-      "avance_desarrollo": 66.9,
+      "horas_ponderadas": 512,
+      "avance_desarrollo": 76.8,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 46.8,
+      "aporte_desarrollo": 53.7,
       "aporte_qa": 0,
-      "avance_total": 46.8,
-      "peso": 5.02
+      "avance_total": 53.7,
+      "peso": 4.41
     },
     {
       "paquete": "P1",
@@ -108,7 +108,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 6.97
+      "peso": 7.01
     },
     {
       "paquete": "P2",
@@ -117,16 +117,16 @@
       "grupo": "T05",
       "hu_count": 1,
       "tareas_construccion": 2900,
-      "bugs": 5,
+      "bugs": 7,
       "horas_esperadas": 16000,
       "multiplicador": 1.35,
       "horas_ponderadas": 216,
-      "avance_desarrollo": 81.3,
+      "avance_desarrollo": 79.7,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 56.9,
+      "aporte_desarrollo": 55.8,
       "aporte_qa": 0,
-      "avance_total": 56.9,
-      "peso": 1.85
+      "avance_total": 55.8,
+      "peso": 1.86
     },
     {
       "paquete": "P1",
@@ -144,7 +144,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.28
+      "peso": 1.29
     },
     {
       "paquete": "P1",
@@ -162,7 +162,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.28
+      "peso": 1.29
     },
     {
       "paquete": "P3",
@@ -180,7 +180,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 4.8
+      "peso": 4.82
     },
     {
       "paquete": "P2",
@@ -188,17 +188,17 @@
       "nombre": "Renovación de tarjetas (patrono, niños, trabajador extranjero)",
       "grupo": "T09",
       "hu_count": 1,
-      "tareas_construccion": 2900,
-      "bugs": 0,
-      "horas_esperadas": 14100,
+      "tareas_construccion": 3000,
+      "bugs": 1,
+      "horas_esperadas": 14200,
       "multiplicador": 1,
-      "horas_ponderadas": 141,
+      "horas_ponderadas": 142,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.21
+      "peso": 1.22
     },
     {
       "paquete": "P3",
@@ -216,7 +216,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 1.99
+      "peso": 2
     },
     {
       "paquete": "P1",
@@ -252,7 +252,7 @@
       "aporte_desarrollo": 40.4,
       "aporte_qa": 0,
       "avance_total": 40.4,
-      "peso": 3.6
+      "peso": 3.62
     },
     {
       "paquete": "P3",
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 1,
       "aporte_qa": 0,
       "avance_total": 1,
-      "peso": 9.11
+      "peso": 9.16
     },
     {
       "paquete": "P3",
@@ -288,7 +288,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 6.51
+      "peso": 6.54
     },
     {
       "paquete": "P1",
@@ -315,7 +315,7 @@
       "grupo": "T18",
       "hu_count": 2,
       "tareas_construccion": 3100,
-      "bugs": 7,
+      "bugs": 9,
       "horas_esperadas": 20000,
       "multiplicador": 1.6,
       "horas_ponderadas": 320,
@@ -324,7 +324,7 @@
       "aporte_desarrollo": 52.7,
       "aporte_qa": 0,
       "avance_total": 52.7,
-      "peso": 2.74
+      "peso": 2.76
     },
     {
       "paquete": "P3",
@@ -342,7 +342,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.3
+      "peso": 1.31
     },
     {
       "paquete": "P3",
@@ -360,7 +360,7 @@
       "aporte_desarrollo": 6.7,
       "aporte_qa": 0,
       "avance_total": 6.7,
-      "peso": 2.6
+      "peso": 2.62
     },
     {
       "paquete": "P3",
@@ -378,7 +378,7 @@
       "aporte_desarrollo": 2.2,
       "aporte_qa": 0,
       "avance_total": 2.2,
-      "peso": 2.6
+      "peso": 2.62
     },
     {
       "paquete": "P3",
@@ -396,7 +396,7 @@
       "aporte_desarrollo": 1.6,
       "aporte_qa": 0,
       "avance_total": 1.6,
-      "peso": 1.64
+      "peso": 1.65
     },
     {
       "paquete": "P2",
@@ -414,7 +414,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.65
+      "peso": 4.67
     },
     {
       "paquete": "P2",
@@ -432,7 +432,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.65
+      "peso": 4.67
     },
     {
       "paquete": "P2",
@@ -441,7 +441,7 @@
       "grupo": "T25",
       "hu_count": 3,
       "tareas_construccion": 5500,
-      "bugs": 6,
+      "bugs": 7,
       "horas_esperadas": 38900,
       "multiplicador": 1.35,
       "horas_ponderadas": 525,
@@ -450,7 +450,7 @@
       "aporte_desarrollo": 55.5,
       "aporte_qa": 0,
       "avance_total": 55.5,
-      "peso": 4.5
+      "peso": 4.52
     },
     {
       "paquete": "P1",
@@ -468,7 +468,7 @@
       "aporte_desarrollo": 49.1,
       "aporte_qa": 0,
       "avance_total": 49.1,
-      "peso": 1.85
+      "peso": 1.86
     }
   ]
 }
