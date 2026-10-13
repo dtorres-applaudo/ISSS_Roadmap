@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-10-12",
+    "actualizado": "2026-10-13",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -13,28 +13,28 @@
     }
   },
   "producto": {
-    "avance_total": 34.9,
-    "aporte_desarrollo": 34.9,
+    "avance_total": 34.8,
+    "aporte_desarrollo": 34.8,
     "aporte_qa": 0
   },
   "paquetes": [
     {
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
-      "avance_total": 57.9,
-      "peso": 29
+      "avance_total": 57.5,
+      "peso": 29.2
     },
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
       "avance_total": 46,
-      "peso": 32.9
+      "peso": 32.8
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
       "avance_total": 7.7,
-      "peso": 38.1
+      "peso": 38
     }
   ],
   "tramites": [
@@ -54,7 +54,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 12.18
+      "peso": 12.16
     },
     {
       "paquete": "P2",
@@ -63,7 +63,7 @@
       "grupo": "T02",
       "hu_count": 2,
       "tareas_construccion": 7800,
-      "bugs": 37,
+      "bugs": 38,
       "horas_esperadas": 47300,
       "multiplicador": 1.35,
       "horas_ponderadas": 639,
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.9,
       "aporte_qa": 0,
       "avance_total": 55.9,
-      "peso": 5.49
+      "peso": 5.48
     },
     {
       "paquete": "P2",
@@ -80,17 +80,17 @@
       "nombre": "Registro de pasividad o de reanudación de labores del patrono",
       "grupo": "T03",
       "hu_count": 3,
-      "tareas_construccion": 6900,
+      "tareas_construccion": 7000,
       "bugs": 10,
       "horas_esperadas": 42700,
       "multiplicador": 1.2,
       "horas_ponderadas": 512,
-      "avance_desarrollo": 77.9,
+      "avance_desarrollo": 77.6,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 54.6,
+      "aporte_desarrollo": 54.3,
       "aporte_qa": 0,
-      "avance_total": 54.6,
-      "peso": 4.41
+      "avance_total": 54.3,
+      "peso": 4.4
     },
     {
       "paquete": "P1",
@@ -108,7 +108,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 7
+      "peso": 6.99
     },
     {
       "paquete": "P2",
@@ -134,17 +134,17 @@
       "nombre": "Inscripción de beneficiario (a) esposo (a) o compañero (a) de vida",
       "grupo": "G-06-07",
       "hu_count": 2,
-      "tareas_construccion": 2950,
+      "tareas_construccion": 3100,
       "bugs": 8,
-      "horas_esperadas": 11100,
+      "horas_esperadas": 11900,
       "multiplicador": 1.35,
-      "horas_ponderadas": 150,
-      "avance_desarrollo": 85,
+      "horas_ponderadas": 161,
+      "avance_desarrollo": 79.3,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 59.5,
+      "aporte_desarrollo": 55.5,
       "aporte_qa": 0,
-      "avance_total": 59.5,
-      "peso": 1.29
+      "avance_total": 55.5,
+      "peso": 1.38
     },
     {
       "paquete": "P1",
@@ -152,17 +152,17 @@
       "nombre": "Inscripción de beneficiario hijo (a) de 0 a 18 años",
       "grupo": "G-06-07",
       "hu_count": 2,
-      "tareas_construccion": 2950,
+      "tareas_construccion": 3100,
       "bugs": 8,
-      "horas_esperadas": 11100,
+      "horas_esperadas": 11900,
       "multiplicador": 1.35,
-      "horas_ponderadas": 150,
-      "avance_desarrollo": 85,
+      "horas_ponderadas": 161,
+      "avance_desarrollo": 79.3,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 59.5,
+      "aporte_desarrollo": 55.5,
       "aporte_qa": 0,
-      "avance_total": 59.5,
-      "peso": 1.29
+      "avance_total": 55.5,
+      "peso": 1.38
     },
     {
       "paquete": "P3",
@@ -180,7 +180,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 4.82
+      "peso": 4.81
     },
     {
       "paquete": "P2",
@@ -216,7 +216,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 2
+      "peso": 1.99
     },
     {
       "paquete": "P1",
@@ -242,16 +242,16 @@
       "nombre": "Trámite y pago de auxilio de sepelio",
       "grupo": "T14",
       "hu_count": 2,
-      "tareas_construccion": 3300,
+      "tareas_construccion": 3500,
       "bugs": 0,
       "horas_esperadas": 24000,
       "multiplicador": 1.75,
       "horas_ponderadas": 420,
-      "avance_desarrollo": 59.4,
+      "avance_desarrollo": 60.2,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 41.6,
+      "aporte_desarrollo": 42.2,
       "aporte_qa": 0,
-      "avance_total": 41.6,
+      "avance_total": 42.2,
       "peso": 3.61
     },
     {
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 1,
       "aporte_qa": 0,
       "avance_total": 1,
-      "peso": 9.16
+      "peso": 9.14
     },
     {
       "paquete": "P3",
@@ -288,7 +288,7 @@
       "aporte_desarrollo": 0,
       "aporte_qa": 0,
       "avance_total": 0,
-      "peso": 6.54
+      "peso": 6.53
     },
     {
       "paquete": "P1",
@@ -360,7 +360,7 @@
       "aporte_desarrollo": 6.7,
       "aporte_qa": 0,
       "avance_total": 6.7,
-      "peso": 2.62
+      "peso": 2.61
     },
     {
       "paquete": "P3",
@@ -378,7 +378,7 @@
       "aporte_desarrollo": 2.2,
       "aporte_qa": 0,
       "avance_total": 2.2,
-      "peso": 2.62
+      "peso": 2.61
     },
     {
       "paquete": "P3",
@@ -414,7 +414,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.67
+      "peso": 4.66
     },
     {
       "paquete": "P2",
@@ -432,7 +432,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.67
+      "peso": 4.66
     },
     {
       "paquete": "P2",
@@ -441,7 +441,7 @@
       "grupo": "T25",
       "hu_count": 3,
       "tareas_construccion": 5500,
-      "bugs": 7,
+      "bugs": 8,
       "horas_esperadas": 38900,
       "multiplicador": 1.35,
       "horas_ponderadas": 525,
@@ -450,7 +450,7 @@
       "aporte_desarrollo": 55.5,
       "aporte_qa": 0,
       "avance_total": 55.5,
-      "peso": 4.52
+      "peso": 4.51
     },
     {
       "paquete": "P1",
