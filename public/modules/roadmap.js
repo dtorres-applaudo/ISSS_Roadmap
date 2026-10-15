@@ -306,6 +306,21 @@
   background:var(--ds-background-input);border:1px solid var(--ds-border-input);border-radius:var(--ds-radius-small);outline:none;}
 .avance-inline-input:focus{border-color:var(--ds-border-focused);box-shadow:inset 0 0 0 1px var(--ds-border-focused);}
 .avances-foot{display:flex;gap:var(--ds-space-100);padding:var(--ds-space-150);border-top:1px solid var(--ds-border);background:var(--ds-surface);}
+/* Estatus editable directo: droplist con aspecto de lozenge. El color lo da la
+   clase est-* del contenedor (misma paleta que .est-badge). */
+.est-select-wrap{position:relative;display:inline-flex;align-items:center;height:20px;border-radius:var(--ds-radius-xsmall);
+  vertical-align:middle;transition:filter var(--ds-motion);}
+.est-select-wrap::after{content:"";position:absolute;right:7px;top:50%;width:4px;height:4px;margin-top:-4px;pointer-events:none;
+  border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(45deg);}
+.est-select-wrap:hover{filter:brightness(.95);}
+.est-select-wrap:focus-within{outline:2px solid var(--ds-border-focused);outline-offset:1px;}
+.avance-estatus-select{appearance:none;-webkit-appearance:none;height:100%;min-width:0;margin:0;padding:0 20px 0 var(--ds-space-050);
+  border:0;border-radius:inherit;background:transparent;color:inherit;cursor:pointer;outline:none;
+  font:700 .6875rem/16px var(--ds-font-family-body);text-transform:uppercase;}
+.avance-estatus-select option{color:var(--ds-text);background:var(--ds-surface);text-transform:none;font-weight:400;}
+/* Contenedor colapsado de actividades cerradas */
+.avances-cerradas{margin-top:var(--ds-space-200);}
+.avances-cerradas-count{font:var(--ds-font-body);font-weight:400;color:var(--ds-text-subtle);}
 .origen-badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;flex:none;overflow:hidden;
   border-radius:var(--ds-radius-small);font-size:11px;line-height:1;}
 .origen-plan{background:var(--ds-background-neutral);}
@@ -634,6 +649,10 @@
   #roadmap-mount .origen-badge{width:24px;height:24px;font-size:14px;}
   #roadmap-mount .av-origen-txt{display:inline;font:var(--ds-font-body-small);color:var(--ds-text-subtle);}
   #roadmap-mount .avance-inline-input{height:44px;font-size:16px;}
+  #roadmap-mount .est-select-wrap{height:44px;max-width:100%;}
+  #roadmap-mount .avance-estatus-select{max-width:100%;}
+  #roadmap-mount .est-select-wrap::after{right:14px;width:6px;height:6px;margin-top:-5px;}
+  #roadmap-mount .avance-estatus-select{padding:0 36px 0 var(--ds-space-150);font-size:16px;font-weight:600;line-height:1;}
   #roadmap-mount .avance-inline-input[type=date]{-webkit-appearance:none;appearance:none;text-align:left;}
   #roadmap-mount .avances-foot{flex-direction:column;}
   #roadmap-mount .avances-foot .avances-add-btn{width:100%;min-height:44px;}
@@ -1475,14 +1494,30 @@
     });
   }
 
+  // Una actividad cerrada (Finalizado o N/A) sale de la tabla principal y
+  // vive en el contenedor "Actividades cerradas". No se guarda en otra hoja:
+  // es la misma fila de avances_actividades, solo cambia en cuál tabla se ve
+  // (a pedido de Darío, 2026-10-15). Tampoco entra al reporte ni al PNG.
+  function esAvanceCerrado(r){
+    var k = String((r && r.estatus) || '').trim().toLowerCase();
+    return k==='finalizado' || k==='n/a';
+  }
+  function getAvancesAbiertas(){ return getSortedAvances().filter(function(r){ return !esAvanceCerrado(r); }); }
+  function getAvancesCerradas(){ return getSortedAvances().filter(esAvanceCerrado); }
+
   function moveAvance(id, dir){
+    // El orden manual aplica solo a las abiertas: el vecino es la fila abierta
+    // contigua, no la contigua en la lista completa (podría ser una cerrada
+    // oculta y la fila no se movería a la vista).
     var sorted = getSortedAvances();
+    var abiertas = sorted.filter(function(r){ return !esAvanceCerrado(r); });
     var idx = -1;
-    for(var i=0;i<sorted.length;i++){ if(sorted[i].id===id){ idx=i; break; } }
+    for(var i=0;i<abiertas.length;i++){ if(abiertas[i].id===id){ idx=i; break; } }
     if(idx<0) return;
-    var swapIdx = dir==='up' ? idx-1 : idx+1;
-    if(swapIdx<0 || swapIdx>=sorted.length) return;
-    var tmp = sorted[idx]; sorted[idx] = sorted[swapIdx]; sorted[swapIdx] = tmp;
+    var vecino = abiertas[dir==='up' ? idx-1 : idx+1];
+    if(!vecino) return;
+    var a = sorted.indexOf(abiertas[idx]), b = sorted.indexOf(vecino);
+    var tmp = sorted[a]; sorted[a] = sorted[b]; sorted[b] = tmp;
     sorted.forEach(function(r, i){ r.orden = i; });
     refreshAvancesTable();
     var idsCsv = sorted.map(function(r){ return r.id; }).join(',');
@@ -1493,8 +1528,25 @@
 
   var _avanceEditingId = null;
 
-  function renderAvancesRows(rows){
-    if(!rows.length) return '<tr class="avances-empty-row"><td colspan="9" class="avances-empty">Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.</td></tr>';
+  // Estatus editable directo desde la tabla (droplist con aspecto de lozenge):
+  // cambiar la opción guarda al instante, sin pasar por el modo edición de la
+  // fila. El color sigue al estatus vigente porque la clase est-* va en el
+  // contenedor. Un estatus fuera del catálogo (dato viejo) se conserva como
+  // primera opción para no mostrar otro valor por error.
+  function estatusSelectHtml(r){
+    var est = r.estatus || 'Pendiente';
+    var opciones = ESTADOS_AVANCE.indexOf(est)===-1 ? [est].concat(ESTADOS_AVANCE) : ESTADOS_AVANCE;
+    return '<span class="est-select-wrap '+estadoBadgeClass(est)+'">'
+      +'<select class="avance-estatus-select" data-estatus-id="'+escapeHtml(r.id)+'" aria-label="Estatus de la actividad «'+escapeHtml(r.actividad)+'»">'
+      + opciones.map(function(e){ return '<option value="'+escapeHtml(e)+'"'+(e===est?' selected':'')+'>'+escapeHtml(e)+'</option>'; }).join('')
+      +'</select></span>';
+  }
+
+  // opts.cerradas → fila de la tabla "Actividades cerradas" (sin flechas de
+  // orden, una columna menos). opts.vacio → texto cuando no hay filas.
+  function renderAvancesRows(rows, opts){
+    opts = opts || {};
+    if(!rows.length) return '<tr class="avances-empty-row"><td colspan="'+(opts.cerradas?8:9)+'" class="avances-empty">'+escapeHtml(opts.vacio || 'Sin actividades agregadas todavía. Usá "Agregar actividad" abajo.')+'</td></tr>';
     return rows.map(function(r, i){
       var upDisabled = i===0 ? 'disabled' : '';
       var downDisabled = i===rows.length-1 ? 'disabled' : '';
@@ -1519,7 +1571,7 @@
         fechaCell = fmtLong(r.fecha_planeada);
         asignadoCell = escapeHtml(r.asignado_a);
         prioridadCell = '<span class="est-badge '+prioridadBadgeClass(r.prioridad)+'">'+escapeHtml(r.prioridad||PRIORIDAD_DEFAULT)+'</span>';
-        estatusCell = '<span class="est-badge '+estadoBadgeClass(r.estatus)+'">'+escapeHtml(r.estatus||'Pendiente')+'</span>';
+        estatusCell = estatusSelectHtml(r);
         comentarioCell = escapeHtml(r.comentario||'');
         accionesCell = '<button class="avances-edit-btn" type="button" data-edit-id="'+escapeHtml(r.id)+'" title="Editar">✎<span class="av-btn-txt">Editar</span></button>'
           +'<button class="avances-edit-btn avances-del-btn" type="button" data-del-id="'+escapeHtml(r.id)+'" title="Eliminar">✕<span class="av-btn-txt">Eliminar</span></button>';
@@ -1530,10 +1582,10 @@
       // % de avance, que no se usaba) — reorder y origen quedan al inicio,
       // acciones al final, sin cambios.
       return '<tr data-avance-id="'+escapeHtml(r.id)+'">'
-        +'<td class="avances-reorder-col">'
+        +(opts.cerradas ? '' : '<td class="avances-reorder-col">'
           +'<button class="avances-move-btn" type="button" data-move="up" data-id="'+escapeHtml(r.id)+'" '+upDisabled+' title="Subir" aria-label="Subir">▲</button>'
           +'<button class="avances-move-btn" type="button" data-move="down" data-id="'+escapeHtml(r.id)+'" '+downDisabled+' title="Bajar" aria-label="Bajar">▼</button>'
-        +'</td>'
+        +'</td>')
         // data-label y el texto del origen solo se ven en mobile (tarjetas).
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'<span class="av-origen-txt">'+(r.origen!=='adicional'?'Del plan de trabajo':'Actividad adicional')+'</span></td>'
         +'<td class="av-c-act">'+actividadCell+'</td>'
@@ -1560,7 +1612,19 @@
           +'<button class="avances-add-btn avances-preview-btn" id="btnPreviewAvances" type="button">Vista previa (PNG)</button>'
         +'</div>'
       +'</div>'
-      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas y ✎ para editar Actividad/Responsable/Prioridad/Fecha/Estatus/Comentarios de una fila ya guardada.</div>'
+      +'<div class="note">Seguimiento manual de hitos clave del plan de trabajo. La descripción puede elegirse del catálogo de actividades del cronograma (📋) o escribirse como actividad adicional cuando no está en el plan (➕). Usá las flechas ▲▼ para reordenar filas, el estatus de cada fila para cambiarlo al instante (al pasar a Finalizado o N/A la actividad se mueve a «Actividades cerradas») y ✎ para editar Actividad/Responsable/Prioridad/Fecha/Estatus/Comentarios de una fila ya guardada.</div>'
+      +'<details class="rm-collapsible avances-cerradas" id="avancesCerradasDetails">'
+        +'<summary>Actividades cerradas <span class="avances-cerradas-count" id="avancesCerradasCount">(0)</span></summary>'
+        +'<div class="rm-collapsible-body">'
+          +'<div class="avances-wrap">'
+            +'<table class="avances-table avances-table--cerradas">'
+              +'<thead><tr><th title="Origen de la actividad"></th><th>Actividades</th><th>Responsables</th><th>Prioridad</th><th>Fecha</th><th>Estatus</th><th>Comentarios</th><th></th></tr></thead>'
+              +'<tbody id="avancesCerradasTbody"><tr class="avances-empty-row"><td colspan="8" class="avances-empty">Cargando…</td></tr></tbody>'
+            +'</table>'
+          +'</div>'
+          +'<div class="note">Actividades finalizadas o que no aplican (N/A). No se muestran en la tabla principal ni en el resumen/PNG. Cambiá su estatus para reabrirlas.</div>'
+        +'</div>'
+      +'</details>'
     +'</div>'
     // Modal de vista previa / descarga de imagen
     +'<div class="avance-modal-overlay" id="avanceExportModal" aria-hidden="true">'
@@ -1711,8 +1775,49 @@
   }
 
   function refreshAvancesTable(){
+    var abiertas = getAvancesAbiertas();
+    var cerradas = getAvancesCerradas();
     var tbody = document.getElementById('avancesTbody');
-    if(tbody) tbody.innerHTML = renderAvancesRows(getSortedAvances());
+    if(tbody) tbody.innerHTML = renderAvancesRows(abiertas, cerradas.length
+      ? { vacio:'No hay actividades abiertas. Las finalizadas o N/A están en «Actividades cerradas», más abajo.' }
+      : null);
+    var tbodyC = document.getElementById('avancesCerradasTbody');
+    if(tbodyC) tbodyC.innerHTML = renderAvancesRows(cerradas, { cerradas:true, vacio:'Todavía no hay actividades cerradas. Aparecen aquí cuando su estatus pasa a Finalizado o N/A.' });
+    var count = document.getElementById('avancesCerradasCount');
+    if(count) count.textContent = '('+cerradas.length+')';
+  }
+
+  // Cambio directo de estatus desde el droplist de la fila. Se actualiza la
+  // vista al instante (la fila cambia de tabla si pasa a/sale de cerrada) y
+  // se revierte con aviso si el guardado falla. update_avance recibe la fila
+  // completa, como en la edición normal, para no pisar otros campos.
+  function cambiarEstatusAvance(id, nuevo){
+    var row = _avancesRows.filter(function(r){ return r.id===id; })[0];
+    if(!row) return;
+    var previo = row.estatus;
+    if(previo===nuevo) return;
+    var eraCerrada = esAvanceCerrado(row);
+    row.estatus = nuevo;
+    refreshAvancesTable();
+    postAvances({
+      action: 'update_avance',
+      id: row.id,
+      actividad: row.actividad,
+      fecha_planeada: isoDateOnly(row.fecha_planeada),
+      asignado_a: row.asignado_a || '',
+      prioridad: row.prioridad || PRIORIDAD_DEFAULT,
+      estatus: nuevo,
+      comentario: row.comentario || ''
+    }, function(err){
+      if(err){
+        row.estatus = previo;
+        refreshAvancesTable();
+        DS.flag('No se pudo guardar el estatus: '+err, 'error');
+        return;
+      }
+      if(!eraCerrada && esAvanceCerrado(row)) DS.flag('«'+row.actividad+'» pasó a Actividades cerradas.', 'success');
+      else if(eraCerrada && !esAvanceCerrado(row)) DS.flag('«'+row.actividad+'» volvió a la tabla principal.', 'success');
+    });
   }
 
   function wireAvancesUI(){
@@ -1803,8 +1908,8 @@
       });
     });
 
-    var tbody = document.getElementById('avancesTbody');
-    if(tbody) tbody.addEventListener('click', function(e){
+    // Mismo manejador para la tabla principal y la de actividades cerradas.
+    function onAvancesTbodyClick(e){
       var moveBtn = e.target.closest('.avances-move-btn');
       if(moveBtn){
         if(moveBtn.disabled) return;
@@ -1862,6 +1967,7 @@
         }, function(err){
           saveBtn.disabled = false;
           if(err){ DS.flag('No se pudieron guardar los cambios: '+err, 'error'); return; }
+          var eraCerrada = esAvanceCerrado(row);
           row.actividad = updated.actividad;
           row.fecha_planeada = updated.fecha_planeada;
           row.asignado_a = updated.asignado_a;
@@ -1870,6 +1976,8 @@
           row.comentario = updated.comentario;
           _avanceEditingId = null;
           refreshAvancesTable();
+          if(!eraCerrada && esAvanceCerrado(row)) DS.flag('«'+row.actividad+'» pasó a Actividades cerradas.', 'success');
+          else if(eraCerrada && !esAvanceCerrado(row)) DS.flag('«'+row.actividad+'» volvió a la tabla principal.', 'success');
         });
         return;
       }
@@ -1883,6 +1991,15 @@
         if(err){ DS.flag('No se pudo eliminar: '+err, 'error'); btn.disabled = false; return; }
         _avancesRows = _avancesRows.filter(function(r){ return r.id!==id; });
         refreshAvancesTable();
+      });
+    }
+    ['avancesTbody','avancesCerradasTbody'].forEach(function(tid){
+      var tb = document.getElementById(tid);
+      if(!tb) return;
+      tb.addEventListener('click', onAvancesTbodyClick);
+      tb.addEventListener('change', function(e){
+        var sel = e.target.closest('.avance-estatus-select');
+        if(sel) cambiarEstatusAvance(sel.getAttribute('data-estatus-id'), sel.value);
       });
     });
   }
@@ -1956,7 +2073,8 @@
     title.style.cssText = 'font-size:22px;font-weight:600;color:'+DS.token('--ds-text','#292A2E')+';margin-bottom:18px;white-space:nowrap;';
     wrap.appendChild(title);
 
-    var rows = getSortedAvances();
+    // Las actividades cerradas (Finalizado / N/A) no van en el PNG.
+    var rows = getAvancesAbiertas();
     var rowsHtml = rows.length ? rows.map(function(r){
       return '<tr>'
         +'<td class="avances-origen-col">'+origenBadge(r.origen)+'</td>'
@@ -2095,7 +2213,8 @@
   };
 
   function avancesSnapshotParaReporte(){
-    return getSortedAvances().map(function(r){
+    // Las actividades cerradas (Finalizado / N/A) no van en el resumen/reporte.
+    return getAvancesAbiertas().map(function(r){
       return {
         actividad: r.actividad, asignado_a: r.asignado_a, prioridad: r.prioridad,
         fecha_planeada: r.fecha_planeada, estatus: r.estatus, comentario: r.comentario,
@@ -2109,7 +2228,10 @@
   // botón "+ Agregar actividad" (a pedido de Darío, 2026-09-22: el resumen
   // es para compartir, no para editar).
   function renderAvancesRowsReadOnly(rows){
-    if(!rows || !rows.length) return '<tr><td colspan="6" class="avances-empty">Sin actividades registradas.</td></tr>';
+    // Filtro defensivo: resúmenes ya generados con datos viejos podrían traer
+    // actividades cerradas; nunca se muestran.
+    rows = (rows || []).filter(function(r){ return !esAvanceCerrado(r); });
+    if(!rows.length) return '<tr><td colspan="6" class="avances-empty">Sin actividades registradas.</td></tr>';
     // Sin la columna del ícono de origen (📋/➕): en el resumen no hay leyenda
     // que lo explique y para quien lo lee es ruido (a pedido de Darío, 2026-10-05).
     return rows.map(function(r){
