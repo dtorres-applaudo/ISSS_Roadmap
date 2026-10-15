@@ -2013,25 +2013,61 @@
       .then(function(d){ _avancesCatalogo = d || []; })
       .catch(function(){ _avancesCatalogo = []; });
     if(!SH){ refreshAvancesTable(); return; }
-    fetch(SH+'?sheet=avances_actividades')
+    cargarAvancesSheet();
+    cargarTramitesSheet();
+  }
+
+  // Cada carga deja su promesa (true = ok, false = falló) en _sheetCarga: el
+  // resumen la espera antes de generarse. Sin esa espera, un resumen pedido
+  // antes de que respondiera el Apps Script salía con 0 actividades y todos los
+  // trámites en Pendiente (bug reportado 2026-10-15).
+  var _sheetCarga = { avances:null, tramites:null };
+
+  function cargarAvancesSheet(){
+    _sheetCarga.avances = fetch(SH+'?sheet=avances_actividades')
       .then(function(r){ return r.json(); })
       .then(function(d){
-        _avancesRows = (d && d.rows) ? d.rows : [];
+        if(!d || !Array.isArray(d.rows)) throw new Error('respuesta inválida');
+        _avancesRows = d.rows;
         refreshAvancesTable();
+        return true;
       })
       .catch(function(){
-        _avancesRows = [];
         refreshAvancesTable();
+        return false;
       });
-    fetch(SH+'?sheet=tramites_estatus')
+  }
+
+  function cargarTramitesSheet(){
+    _sheetCarga.tramites = fetch(SH+'?sheet=tramites_estatus')
       .then(function(r){ return r.json(); })
       .then(function(d){
+        if(!d || !Array.isArray(d.rows)) throw new Error('respuesta inválida');
         var map = {};
-        (d && d.rows ? d.rows : []).forEach(function(r){ if(r.no!=null) map[r.no] = r.estatus; });
+        d.rows.forEach(function(r){ if(r.no!=null) map[r.no] = r.estatus; });
         _tramitesEstatus = map;
         refreshCatalogoTramites();
+        return true;
       })
-      .catch(function(){});
+      .catch(function(){ return false; });
+  }
+
+  // Resuelve true cuando actividades y estatus de trámites ya están cargados
+  // (reintenta una vez si alguna carga falló); false si siguen sin llegar.
+  function esperarDatosSheet(){
+    if(!SH) return Promise.resolve(true);
+    function estado(){
+      return Promise.all([_sheetCarga.avances, _sheetCarga.tramites].map(function(p){ return p || Promise.resolve(true); }))
+        .then(function(r){ return r[0] && r[1]; });
+    }
+    var espera = estado().then(function(ok){
+      if(ok) return true;
+      cargarAvancesSheet();
+      cargarTramitesSheet();
+      return estado();
+    });
+    var limite = new Promise(function(res){ setTimeout(function(){ res(false); }, 30000); });
+    return Promise.race([espera, limite]);
   }
 
   // ── Exportar "Avances de actividades" como PNG 4K (3840 px de ancho) ─────────
@@ -2586,8 +2622,22 @@
           wireFoot();
           return;
         }
-        body.innerHTML = '<div class="rm-report-status"><div class="rm-spinner"></div>Generando resumen…</div>';
+        body.innerHTML = '<div class="rm-report-status"><div class="rm-spinner"></div>Cargando datos…</div>';
         foot.innerHTML = '';
+        // El resumen debe salir con las mismas actividades y estatus que ve la web
+        // app: si todavía no respondió la hoja, se espera en vez de generar vacío.
+        esperarDatosSheet().then(function(ok){
+          if(!ok){
+            body.innerHTML = '<div class="rm-report-error">No se pudieron cargar las actividades y estatus de trámites desde la hoja. No se generó el resumen para que no salga incompleto; intentá de nuevo en unos segundos.</div>';
+            foot.innerHTML = '<button class="rm-btn-secondary" id="rm-report-cancel">Cerrar</button>';
+            wireFoot();
+            return;
+          }
+          body.innerHTML = '<div class="rm-report-status"><div class="rm-spinner"></div>Generando resumen…</div>';
+          generarSegunFormato();
+        });
+      }
+      function generarSegunFormato(){
         // setTimeout deja pintar el spinner antes del trabajo síncrono (el
         // print() bloquea hasta cerrar el diálogo).
         setTimeout(function(){
