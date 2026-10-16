@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-10-15",
+    "actualizado": "2026-10-16",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 36.2,
-    "aporte_desarrollo": 36.2,
+    "avance_total": 36.3,
+    "aporte_desarrollo": 36.3,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -22,7 +22,7 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 57.9,
-      "peso": 29.1
+      "peso": 29.2
     },
     {
       "paquete": "P2",
@@ -33,7 +33,7 @@
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 9.9,
+      "avance_total": 10.2,
       "peso": 37.6
     }
   ],
@@ -54,7 +54,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 12.17
+      "peso": 12.16
     },
     {
       "paquete": "P2",
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.9,
       "aporte_qa": 0,
       "avance_total": 55.9,
-      "peso": 5.49
+      "peso": 5.48
     },
     {
       "paquete": "P2",
@@ -90,7 +90,7 @@
       "aporte_desarrollo": 58.2,
       "aporte_qa": 0,
       "avance_total": 58.2,
-      "peso": 4.84
+      "peso": 4.83
     },
     {
       "paquete": "P1",
@@ -136,15 +136,15 @@
       "hu_count": 2,
       "tareas_construccion": 3150,
       "bugs": 8,
-      "horas_esperadas": 11400,
+      "horas_esperadas": 11700,
       "multiplicador": 1.35,
-      "horas_ponderadas": 154,
+      "horas_ponderadas": 158,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.32
+      "peso": 1.36
     },
     {
       "paquete": "P1",
@@ -154,15 +154,15 @@
       "hu_count": 2,
       "tareas_construccion": 3150,
       "bugs": 8,
-      "horas_esperadas": 11400,
+      "horas_esperadas": 11700,
       "multiplicador": 1.35,
-      "horas_ponderadas": 154,
+      "horas_ponderadas": 158,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.32
+      "peso": 1.36
     },
     {
       "paquete": "P3",
@@ -247,11 +247,11 @@
       "horas_esperadas": 21200,
       "multiplicador": 1.75,
       "horas_ponderadas": 371,
-      "avance_desarrollo": 70.7,
+      "avance_desarrollo": 75.8,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 49.5,
+      "aporte_desarrollo": 53,
       "aporte_qa": 0,
-      "avance_total": 49.5,
+      "avance_total": 53,
       "peso": 3.19
     },
     {
