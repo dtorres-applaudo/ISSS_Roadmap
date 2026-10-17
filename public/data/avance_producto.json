@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-10-16",
+    "actualizado": "2026-10-17",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -27,8 +27,8 @@
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 46.7,
-      "peso": 33.3
+      "avance_total": 46.9,
+      "peso": 33.2
     },
     {
       "paquete": "P3",
@@ -54,7 +54,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 12.16
+      "peso": 12.17
     },
     {
       "paquete": "P2",
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 55.9,
       "aporte_qa": 0,
       "avance_total": 55.9,
-      "peso": 5.48
+      "peso": 5.49
     },
     {
       "paquete": "P2",
@@ -82,15 +82,15 @@
       "hu_count": 3,
       "tareas_construccion": 7000,
       "bugs": 11,
-      "horas_esperadas": 46900,
+      "horas_esperadas": 45900,
       "multiplicador": 1.2,
-      "horas_ponderadas": 563,
-      "avance_desarrollo": 83.2,
+      "horas_ponderadas": 551,
+      "avance_desarrollo": 85,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 58.2,
+      "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
-      "avance_total": 58.2,
-      "peso": 4.83
+      "avance_total": 59.5,
+      "peso": 4.74
     },
     {
       "paquete": "P1",
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 6.9,
       "aporte_qa": 0,
       "avance_total": 6.9,
-      "peso": 9.14
+      "peso": 9.15
     },
     {
       "paquete": "P3",
