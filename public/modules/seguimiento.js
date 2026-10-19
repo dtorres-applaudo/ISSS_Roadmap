@@ -424,6 +424,20 @@
 .seg-report-status{display:flex;align-items:center;gap:var(--ds-space-150);padding:var(--ds-space-100) 0;color:var(--ds-text-subtle);}
 .seg-report-error{padding:var(--ds-space-200);border-radius:var(--ds-radius-small);background:var(--ds-background-danger);color:var(--ds-text);}
 .seg-report-ok{padding:var(--ds-space-200);border-radius:var(--ds-radius-small);background:var(--ds-background-success);color:var(--ds-text);font-weight:600;}
+/* Fecha de corte del reporte */
+.seg-report-field{margin-top:var(--ds-space-250);}
+.seg-report-lbl{display:block;font:var(--ds-font-heading-xsmall);color:var(--ds-text);margin-bottom:var(--ds-space-050);}
+.seg-report-date{display:block;width:100%;height:var(--ds-touch-target);padding:0 var(--ds-space-150);font:var(--ds-font-body);color:var(--ds-text);
+  background:var(--ds-background-input);border:none;border-radius:var(--ds-radius-small);box-shadow:inset 0 0 0 1px var(--ds-border-input);}
+.seg-report-date:hover{background:var(--ds-background-input-hovered);}
+.seg-report-date:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:1px;}
+.seg-report-hint{margin-top:var(--ds-space-075);font:var(--ds-font-body-small);color:var(--ds-text-subtle);min-height:1.25em;}
+.seg-report-hint.is-error{color:var(--ds-text-danger);}
+@media screen and (max-width: 767.98px){.seg-report-date{font-size:16px;}}
+/* Aviso de corte histórico (reporte a una fecha pasada) */
+.seg-asof-note{margin:0 0 var(--ds-space-200);padding:var(--ds-space-150) var(--ds-space-200);border-radius:var(--ds-radius-small);
+  background:var(--ds-background-information);box-shadow:inset 3px 0 0 var(--ds-border-information);font:var(--ds-font-body);color:var(--ds-text);}
+.seg-asof-note strong{font-weight:600;}
 
 @media print{
   @page{ size:landscape; margin:12mm; }
@@ -725,6 +739,8 @@
   // 'stack' (portal desktop, reporte standalone y generación desatendida: todo apilado).
   function buildEjecutivo(mount, activo, transiciones, diario, roadmap, obsGen, obsUx, detalle, opts){
     var tabs = !!(opts && opts.layout === 'tabs');
+    // Reporte con corte a una fecha pasada (YYYY-MM-DD); null = datos actuales.
+    var alCorte = (opts && opts.alCorte) || null;
     var k = computeResumenKpis(activo, transiciones, diario, detalle);
     var sa=k.sa, avance=k.avance, cerrado=k.cerrado, total=k.total, burnRate=k.burnRate, sprintNom=k.sprintNom;
     var diasT=k.diasT, diasH=k.diasH, tiempoPct=k.tiempoPct;
@@ -802,7 +818,7 @@
     // ── ACTIVIDAD POR SPRINT (Burndown + Distribución por tipo + Evolución
     // diaria + Detalle de work items, un solo set de tabs de sprint controla
     // las cuatro visualizaciones a la vez — ver buildActividadSprintHTML). ──
-    var actividad = buildActividadSprintHTML(sa, diario||[], detalle||[], { newestFirst: tabs });
+    var actividad = buildActividadSprintHTML(sa, diario||[], detalle||[], { newestFirst: tabs, sinDetalle: !!alCorte });
 
     // ── DEUDA TÉCNICA (se muestra al final de la página, ver mount.innerHTML) ──
     var deudaHTML = buildDeudaEjecutivo(deudaTotal, deudaAbiertos, deudaCerrados, deudaEnSprint, deudaBacklog);
@@ -818,6 +834,14 @@
     // porque no hay pestañas de sección encima. Sin regla base: desktop no cambia.
     mount.classList.toggle('seg-layout-stack', !tabs);
 
+    // En un corte pasado, el detalle de work items y las observaciones no se
+    // incluyen (solo existen con su estado actual); se avisa en el propio reporte.
+    var corteNote = alCorte
+      ? '<div class="seg-asof-note"><strong>Corte al '+fechaDDMMYYYY(alCorte)+'.</strong> Sprint, burndown y cumplimiento según el último registro de esa fecha. '
+        +'La deuda técnica se reconstruye con el historial de transiciones; el detalle de work items y las observaciones UAT no se incluyen en cortes anteriores a hoy.</div>'
+      : '';
+    var tsLabel = alCorte ? 'Último registro del corte' : 'Último sync';
+
     var sprintHTML = '<div class="seg-section"><div class="seg-sh">Sprint activo — '+sprintNom+'</div>'
       +kpisHTML+'</div>'
       +dualesHTML;
@@ -830,7 +854,8 @@
           +' role="tabpanel" aria-labelledby="seg-sec-tab-'+key+'">'+body+'</div>';
       };
       mount.innerHTML =
-        '<div class="seg-ts seg-ts--head">Último sync: '+ts+'</div>'
+        corteNote
+        +'<div class="seg-ts seg-ts--head">'+tsLabel+': '+ts+'</div>'
         +'<div class="ds-sectabs seg-sectabs" role="tablist" aria-label="Secciones del Resumen ejecutivo">'
           +SEG_SECTIONS.map(function(sx){
             var on = sx.id===act;
@@ -846,12 +871,13 @@
       segWireSecTabs(mount);
     } else {
       mount.innerHTML =
-        sprintHTML
+        corteNote
+        +sprintHTML
         +actividad.html
         +histHTML
         +deudaHTML
         +obsHTML
-        +'<div class="seg-ts">Último sync: '+ts+'</div>';
+        +'<div class="seg-ts">'+tsLabel+': '+ts+'</div>';
     }
 
     // Dibujar canvas del sprint seleccionado por defecto (el más reciente)
@@ -1405,10 +1431,11 @@
       +'</div>'
       +'<div class="seg-sh" style="margin-top:20px;">Evolución diaria — <span id="seg-diario-sp-label">'+fmt(lastSp)+'</span></div>'
       +panelsHTML
-      +'<details class="seg-collapsible" id="detalle-wi-collapsible" style="margin-top:16px;">'
-        +'<summary>Detalle de work items — '+fmt(lastSp)+'</summary>'
-        +'<div class="seg-collapsible-body">'+detallePanelsHTML+'</div>'
-      +'</details>'
+      +(opts && opts.sinDetalle ? '' :
+        '<details class="seg-collapsible" id="detalle-wi-collapsible" style="margin-top:16px;">'
+          +'<summary>Detalle de work items — '+fmt(lastSp)+'</summary>'
+          +'<div class="seg-collapsible-body">'+detallePanelsHTML+'</div>'
+        +'</details>')
     +'</div>';
 
     return { html: html, lastSp: lastSp };
@@ -2013,8 +2040,54 @@
   // usa exactamente el mismo código que la web app — cero lógica duplicada.
   window.SEG_RENDER_REPORT_FROM_DATA = function(mount, data){
     data = data || {};
-    buildEjecutivo(mount, data.activo||[], data.trans||[], data.diario||[], data.roadmap||null, data.obsGen||[], data.obsUx||[], data.detalle||[]);
+    buildEjecutivo(mount, data.activo||[], data.trans||[], data.diario||[], data.roadmap||null, data.obsGen||[], data.obsUx||[], data.detalle||[],
+      data.alCorte ? { alCorte: data.alCorte } : undefined);
   };
+
+  // ── Fecha de corte del reporte ────────────────────────────────
+  // sprint_activo, sprint_diario_acumulado y transiciones son historiales que
+  // solo crecen (varias corridas por día, fechadas a medianoche CST), así que
+  // el reporte "al cierre del día D" se arma con lo registrado hasta D. El
+  // "cierre" de un día es la última corrida registrada de esa fecha (las
+  // hojas no guardan hora). work_items_detalle y las observaciones solo
+  // existen con su estado actual: en un corte pasado no se incluyen.
+  function fechaDeFila(v){ return String(v||'').slice(0,10); } // YYYY-MM-DD en CST
+  function hoyLocalISO(){
+    var d = new Date();
+    function p(n){ return (n<10?'0':'')+n; }
+    return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());
+  }
+  function primeraFechaConDatos(data){
+    var min = '';
+    ((data && data.activo) || []).forEach(function(r){
+      var f = fechaDeFila(r.timestamp);
+      if(f && (!min || f < min)) min = f;
+    });
+    return min;
+  }
+  // Devuelve { data, sa, ultimaFecha } con las mismas 7 fuentes recortadas a la
+  // fecha, o null si no hay ningún registro de sprint hasta ese día.
+  function resumenAlCorte(data, fecha){
+    var activo = ((data && data.activo) || []).filter(function(r){ return fechaDeFila(r.timestamp) <= fecha; });
+    if(!activo.length) return null;
+    var diario = ((data && data.diario) || []).filter(function(r){ return fechaDeFila(r.fecha_cst) <= fecha; });
+    var trans  = ((data && data.trans)  || []).filter(function(r){ return fechaDeFila(r.fecha_cambio_cst) <= fecha; });
+    // Estado de cada ítem a la fecha = último cambio de "Estado" hasta ese día.
+    // Alimenta solo la deuda técnica (no trae sprint, así que no genera tabla).
+    var ultimo = {};
+    trans.forEach(function(r){
+      if(String(r.campo||'').trim().toLowerCase() !== 'estado') return;
+      var rev = parseInt(r.revision)||0;
+      if(!ultimo[r.id] || rev >= ultimo[r.id].rev) ultimo[r.id] = { rev: rev, estado: r.valor_nuevo };
+    });
+    var detalle = Object.keys(ultimo).map(function(id){ return { id: id, estado: ultimo[id].estado }; });
+    var sa = activo[activo.length-1];
+    return {
+      data: { activo: activo, trans: trans, diario: diario, roadmap: data.roadmap||null, obsGen: [], obsUx: [], detalle: detalle },
+      sa: sa,
+      ultimaFecha: fechaDeFila(sa.timestamp)
+    };
+  }
 
   // Fuente de modules/ds.js + este mismo archivo, pedida una sola vez y
   // embebida tal cual en el reporte — igual que el resumen del Roadmap. Antes
@@ -2032,17 +2105,24 @@
       .catch(function(){ cb(null); });
   }
 
-  function construirReporteHTMLStandalone(scriptSource){
+  // corte (opcional) = { fecha:'YYYY-MM-DD', data:<fuentes recortadas> }: reporte
+  // al cierre de un día pasado. Sin corte, sale exactamente como siempre.
+  function construirReporteHTMLStandalone(scriptSource, corte){
     if(!_lastResumenData) return null;
     // Escapar "<" evita que un título/observación con literalmente "</script>"
     // cierre el bloque de datos antes de tiempo — JSON.parse lo revierte igual.
-    var dataJson = JSON.stringify(_lastResumenData).replace(/</g,'\\u003c');
+    var payload = _lastResumenData;
+    if(corte){
+      payload = {}; Object.keys(corte.data).forEach(function(k){ payload[k] = corte.data[k]; });
+      payload.alCorte = corte.fecha;
+    }
+    var dataJson = JSON.stringify(payload).replace(/</g,'\\u003c');
     var scriptSafe = String(scriptSource||'').replace(/<\/script/gi, '<\\/script');
     var generadoTs = new Date().toLocaleString('es-SV', {dateStyle:'medium', timeStyle:'short'});
     return '<!doctype html>'
       +'<html lang="es"><head><meta charset="utf-8">'
       +'<meta name="viewport" content="width=device-width, initial-scale=1">'
-      +'<title>Reporte ejecutivo — ISSS-SYDT</title>'
+      +'<title>Reporte ejecutivo — ISSS-SYDT'+(corte ? ' · corte '+fechaDDMMYYYY(corte.fecha) : '')+'</title>'
       +'<style>'
         +'*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}'
         +'body{background:var(--ds-surface-sunken);color:var(--ds-text);font:var(--ds-font-body);-webkit-font-smoothing:antialiased;}'
@@ -2056,7 +2136,7 @@
       +'</style>'
       +'</head><body>'
       +'<div class="seg-report-wrap">'
-        +'<div class="seg-report-head"><div class="seg-report-title">Resumen ejecutivo — ISSS-SYDT</div><div class="seg-report-sub">Reporte generado el '+generadoTs+'</div></div>'
+        +'<div class="seg-report-head"><div class="seg-report-title">Resumen ejecutivo — ISSS-SYDT</div><div class="seg-report-sub">Reporte generado el '+generadoTs+(corte ? ' · Corte al '+fechaDDMMYYYY(corte.fecha) : '')+'</div></div>'
         +'<div id="seg-resumen-mount"><div class="seg-report-boot">Cargando reporte…</div></div>'
       +'</div>'
       +'<script type="application/json" id="seg-report-data">'+dataJson+'<\/script>'
@@ -2153,16 +2233,26 @@
   // ni de sesión/login: pide las mismas 7 fuentes directamente y arma el
   // HTML standalone + el cuerpo del correo (texto y HTML, distinto según el
   // día del sprint) + los KPIs. cb(err, { html, summaryText, summaryHtml, kpis }).
-  window.SEG_GENERATE_REPORT_STANDALONE = function(cb){
+  // opts.fecha (YYYY-MM-DD, opcional) genera el reporte al cierre de esa fecha.
+  // La automatización no lo pasa: sin fecha (o con la de hoy) todo igual que siempre.
+  window.SEG_GENERATE_REPORT_STANDALONE = function(cb, opts){
     fetchResumenSources(function(err, data){
       if(err){ cb(err); return; }
       _lastResumenData = data;
-      var k = computeResumenKpis(data.activo, data.trans, data.diario, data.detalle);
+      var fecha = opts && opts.fecha;
+      var corte = null;
+      if(fecha && fecha !== hoyLocalISO()){
+        var rc = resumenAlCorte(data, fecha);
+        if(!rc){ cb(new Error('No hay datos de sprint hasta el '+fecha)); return; }
+        corte = { fecha: fecha, data: rc.data };
+      }
+      var src0 = corte ? corte.data : data;
+      var k = computeResumenKpis(src0.activo, src0.trans, src0.diario, src0.detalle);
       var correo = buildCorreoResumen(k);
       fetchSegScriptSource(function(src){
         if(!src){ cb(new Error('No se pudo cargar el código fuente (ds.js/seguimiento.js) para el reporte')); return; }
-        var html = construirReporteHTMLStandalone(src);
-        var motivo = SEND_DAY_MOTIVOS[k.diasT] || null;
+        var html = construirReporteHTMLStandalone(src, corte);
+        var motivo = corte ? null : (SEND_DAY_MOTIVOS[k.diasT] || null);
         cb(null, { html: html, summaryText: correo.text, summaryHtml: correo.html, kpis: {
           sprint: k.sprintNom, avance_pct: k.avance, cerrados: k.cerrado, total: k.total,
           burn_rate: k.burnRate, dia_sprint: k.diasT, dias_habiles_total: k.diasH,
@@ -2185,9 +2275,17 @@
   // PDF = lo que se ve ahora mismo en pantalla, impreso por el navegador
   // (Guardar como PDF). Se abren los colapsables temporalmente porque el
   // PDF es estático: no hay forma de "expandir" nada después de generado.
-  function generarReportePDF(){
+  // corte (opcional) = { fecha, data }: con un corte pasado se repinta la vista
+  // con los datos de esa fecha solo mientras se imprime y luego se restaura.
+  function generarReportePDF(corte){
     var mount = document.getElementById('seg-resumen-mount');
     if(!mount) return false;
+    var estadoPrevio = null;
+    if(corte){
+      estadoPrevio = segCaptureState(mount);
+      var c = corte.data;
+      buildEjecutivo(mount, c.activo, c.trans, c.diario, c.roadmap, c.obsGen, c.obsUx, c.detalle, { layout:'stack', alCorte: corte.fecha });
+    }
     var reabrir = [];
     mount.querySelectorAll('details:not([open])').forEach(function(d){ d.open=true; reabrir.push(d); });
     // Con pestañas (5c) solo hay un panel visible: el PDF debe traer todas las
@@ -2196,11 +2294,16 @@
     mount.classList.add('seg-printing');
     redrawBurndown();
     var tituloOriginal = document.title;
-    document.title = 'Reporte ejecutivo ISSS-SYDT ' + new Date().toISOString().slice(0,10);
+    document.title = 'Reporte ejecutivo ISSS-SYDT ' + (corte ? corte.fecha : hoyLocalISO());
     function restaurar(){
       reabrir.forEach(function(d){ d.open=false; });
       document.title = tituloOriginal;
       mount.classList.remove('seg-printing');
+      if(corte && _lastResumenData){
+        var d0 = _lastResumenData;
+        buildEjecutivo(mount, d0.activo, d0.trans, d0.diario, d0.roadmap, d0.obsGen, d0.obsUx, d0.detalle, { layout: segIsMobile() ? 'tabs' : 'stack' });
+        segRestoreState(mount, estadoPrevio);
+      }
       redrawBurndown();
       window.removeEventListener('afterprint', restaurar);
     }
@@ -2220,7 +2323,7 @@
       '<div class="seg-modal">'
         +'<div class="seg-modal-head"><div class="seg-modal-title">Generar reporte</div><button class="seg-modal-close" id="seg-report-close" aria-label="Cerrar">✕</button></div>'
         +'<div class="seg-modal-body" id="seg-report-body">'
-          +'<div class="seg-report-desc">Elegí el formato del reporte del Resumen ejecutivo.</div>'
+          +'<div class="seg-report-desc">Elegí el formato y la fecha de corte del reporte del Resumen ejecutivo.</div>'
           +'<div class="seg-report-options">'
             +'<button type="button" class="seg-report-opt active" data-fmt="html">'
               +'<span class="seg-report-opt-radio"></span>'
@@ -2230,6 +2333,11 @@
               +'<span class="seg-report-opt-radio"></span>'
               +'<span class="seg-report-opt-title">PDF</span>'
             +'</button>'
+          +'</div>'
+          +'<div class="seg-report-field">'
+            +'<label class="seg-report-lbl" for="seg-report-fecha">Fecha del reporte</label>'
+            +'<input type="date" class="seg-report-date" id="seg-report-fecha">'
+            +'<div class="seg-report-hint" id="seg-report-hint" aria-live="polite"></div>'
           +'</div>'
         +'</div>'
         +'<div class="seg-modal-foot" id="seg-report-foot">'
@@ -2250,10 +2358,48 @@
       foot.innerHTML = footHTMLOriginal;
       fmtSeleccionado = 'html';
       wireOpciones();
+      wireFecha();
       wireFoot();
       overlay.classList.add('seg-modal-open');
     }
     function cerrar(){ overlay.classList.remove('seg-modal-open'); }
+
+    // Fecha de corte: por defecto hoy (= datos actuales, igual que antes). Se
+    // valida contra el rango con datos y muestra qué sprint/día queda en ese corte.
+    function validarFecha(){
+      var inp = body.querySelector('#seg-report-fecha');
+      var hint = body.querySelector('#seg-report-hint');
+      var gen = foot.querySelector('#seg-report-generar');
+      if(!inp || !hint) return null;
+      var hoy = hoyLocalISO(), f = inp.value;
+      function err(msg){ hint.textContent = msg; hint.classList.add('is-error'); if(gen) gen.disabled = true; return null; }
+      hint.classList.remove('is-error'); if(gen) gen.disabled = false;
+      if(!f) return err('Elegí una fecha.');
+      if(f > hoy) return err('La fecha no puede ser futura.');
+      if(!_lastResumenData){ hint.textContent = ''; return { fecha: f, hoy: f===hoy }; }
+      var min = primeraFechaConDatos(_lastResumenData);
+      if(min && f < min) return err('No hay datos antes del '+fechaDDMMYYYY(min)+'.');
+      if(f === hoy){ hint.textContent = 'Datos actuales.'; return { fecha: f, hoy: true }; }
+      var rc = resumenAlCorte(_lastResumenData, f);
+      if(!rc) return err('No hay datos de sprint hasta esa fecha.');
+      var sa = rc.sa;
+      hint.textContent = 'Corte: '+fmt(sa.sprint)+' · día '+fmt(sa.dias_transcurridos)+' de '+fmt(sa.dias_habiles_total)+' · '
+        +fmt(sa.closed)+' de '+fmt(sa.total_items)+' ítems cerrados'
+        +(rc.ultimaFecha !== f ? ' (último registro: '+fechaDDMMYYYY(rc.ultimaFecha)+')' : '')+'.';
+      return { fecha: f, hoy: false, corte: rc };
+    }
+    function wireFecha(){
+      var inp = body.querySelector('#seg-report-fecha');
+      if(!inp) return;
+      var hoy = hoyLocalISO();
+      inp.max = hoy;
+      var min = _lastResumenData ? primeraFechaConDatos(_lastResumenData) : '';
+      if(min) inp.min = min;
+      inp.value = hoy;
+      inp.addEventListener('input', validarFecha);
+      inp.addEventListener('change', validarFecha);
+      validarFecha();
+    }
 
     function wireOpciones(){
       body.querySelectorAll('.seg-report-opt').forEach(function(opt){
@@ -2279,13 +2425,17 @@
         wireFoot();
         return;
       }
+      var sel = validarFecha();
+      if(!sel) return; // fecha inválida: el aviso ya está en el modal
+      // Hoy = datos actuales (sin recorte); otra fecha = corte al cierre de ese día.
+      var corte = sel.hoy ? null : { fecha: sel.fecha, data: sel.corte.data };
       body.innerHTML = '<div class="seg-report-status"><div class="seg-spinner"></div>Generando reporte…</div>';
       foot.innerHTML = '';
       // setTimeout deja pintar el spinner antes del trabajo síncrono (armar
       // el HTML embebido, o el print() que bloquea hasta cerrar el diálogo).
       setTimeout(function(){
         if(fmtSeleccionado==='pdf'){
-          generarReportePDF();
+          generarReportePDF(corte);
           cerrar();
           return;
         }
@@ -2296,8 +2446,8 @@
             wireFoot();
             return;
           }
-          var html = construirReporteHTMLStandalone(src);
-          var fecha = new Date().toISOString().slice(0,10);
+          var html = construirReporteHTMLStandalone(src, corte);
+          var fecha = corte ? corte.fecha : hoyLocalISO();
           descargarArchivo('reporte-ejecutivo-isss-sydt-'+fecha+'.html', html, 'text/html;charset=utf-8');
           body.innerHTML = '<div class="seg-report-ok">✓ Reporte descargado.</div>';
           setTimeout(cerrar, 900);
