@@ -434,10 +434,6 @@
 .seg-report-hint{margin-top:var(--ds-space-075);font:var(--ds-font-body-small);color:var(--ds-text-subtle);min-height:1.25em;}
 .seg-report-hint.is-error{color:var(--ds-text-danger);}
 @media screen and (max-width: 767.98px){.seg-report-date{font-size:16px;}}
-/* Aviso de corte histórico (reporte a una fecha pasada) */
-.seg-asof-note{margin:0 0 var(--ds-space-200);padding:var(--ds-space-150) var(--ds-space-200);border-radius:var(--ds-radius-small);
-  background:var(--ds-background-information);box-shadow:inset 3px 0 0 var(--ds-border-information);font:var(--ds-font-body);color:var(--ds-text);}
-.seg-asof-note strong{font-weight:600;}
 
 @media print{
   @page{ size:landscape; margin:12mm; }
@@ -834,12 +830,8 @@
     // porque no hay pestañas de sección encima. Sin regla base: desktop no cambia.
     mount.classList.toggle('seg-layout-stack', !tabs);
 
-    // En un corte pasado, el detalle de work items y las observaciones no se
-    // incluyen (solo existen con su estado actual); se avisa en el propio reporte.
-    var corteNote = alCorte
-      ? '<div class="seg-asof-note"><strong>Corte al '+fechaDDMMYYYY(alCorte)+'.</strong> Sprint, burndown y cumplimiento según el último registro de esa fecha. '
-        +'La deuda técnica se reconstruye con el historial de transiciones; el detalle de work items y las observaciones UAT no se incluyen en cortes anteriores a hoy.</div>'
-      : '';
+    // En un corte pasado no se incluyen el detalle de work items ni las
+    // observaciones (solo existen con su estado actual).
     var tsLabel = alCorte ? 'Último registro del corte' : 'Último sync';
 
     var sprintHTML = '<div class="seg-section"><div class="seg-sh">Sprint activo — '+sprintNom+'</div>'
@@ -854,8 +846,7 @@
           +' role="tabpanel" aria-labelledby="seg-sec-tab-'+key+'">'+body+'</div>';
       };
       mount.innerHTML =
-        corteNote
-        +'<div class="seg-ts seg-ts--head">'+tsLabel+': '+ts+'</div>'
+        '<div class="seg-ts seg-ts--head">'+tsLabel+': '+ts+'</div>'
         +'<div class="ds-sectabs seg-sectabs" role="tablist" aria-label="Secciones del Resumen ejecutivo">'
           +SEG_SECTIONS.map(function(sx){
             var on = sx.id===act;
@@ -871,8 +862,7 @@
       segWireSecTabs(mount);
     } else {
       mount.innerHTML =
-        corteNote
-        +sprintHTML
+        sprintHTML
         +actividad.html
         +histHTML
         +deudaHTML
