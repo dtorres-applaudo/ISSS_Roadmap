@@ -1168,6 +1168,15 @@
   function renderCatalogoTramites(paquetes, opts){
     opts = opts || {};
     var totalCount = TRAMITES_CATALOGO.length;
+    // En la web app el catálogo va siempre visible (sin contenedor colapsable),
+    // a pedido de Darío, 2026-10-20. El resumen/PDF (readOnly) conserva su marcado:
+    // la slide 3 ya oculta el encabezado del <details> con CSS.
+    if(!opts.readOnly){
+      return '<div class="section" style="padding-top:0;">'
+        +'<div class="section-h">Catálogo de trámites por paquete ('+totalCount+')</div>'
+        +'<div id="catalogoTramitesBody">'+renderCatalogoTramitesBody(paquetes, opts)+'</div>'
+      +'</div>';
+    }
     return '<div class="section" style="padding-top:0;">'
       +'<details class="rm-collapsible"'+(opts.forceOpen?' open':'')+'>'
         +'<summary>Catálogo de trámites por paquete ('+totalCount+')</summary>'
