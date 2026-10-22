@@ -87,8 +87,3 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           projectId: product-roadmap-isss
           channelId: live
-          # firebase-tools 15.34.1 (2026-10-21) exige serviceusage.services.get a
-          # la cuenta de servicio y el deploy falla con 403. Se fija la ultima
-          # version que funcionaba hasta darle ese permiso (rol Service Usage
-          # Consumer) a la cuenta de servicio en Google Cloud.
-          firebaseToolsVersion: '15.34.0'

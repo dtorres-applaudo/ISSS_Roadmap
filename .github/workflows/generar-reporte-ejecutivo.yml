@@ -61,6 +61,3 @@ jobs:
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
           projectId: product-roadmap-isss
           channelId: live
-          # Ver nota en sync-avance-producto.yml: firebase-tools 15.34.1 falla con
-          # 403 (serviceusage.services.get); se fija la version anterior.
-          firebaseToolsVersion: '15.34.0'
