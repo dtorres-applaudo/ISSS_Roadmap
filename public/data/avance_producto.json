@@ -1,6 +1,6 @@
 {
   "meta": {
-    "actualizado": "2026-10-25",
+    "actualizado": "2026-10-26",
     "parametros": {
       "techos": {
         "closed": 100,
@@ -13,15 +13,15 @@
     }
   },
   "producto": {
-    "avance_total": 36.4,
-    "aporte_desarrollo": 36.4,
+    "avance_total": 36.9,
+    "aporte_desarrollo": 36.9,
     "aporte_qa": 0
   },
   "paquetes": [
     {
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
-      "avance_total": 57.7,
+      "avance_total": 57.8,
       "peso": 29.9
     },
     {
@@ -33,7 +33,7 @@
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
-      "avance_total": 10.4,
+      "avance_total": 11.7,
       "peso": 37.7
     }
   ],
@@ -44,8 +44,8 @@
       "nombre": "Inscripción de patronos",
       "grupo": "T01",
       "hu_count": 2,
-      "tareas_construccion": 19500,
-      "bugs": 162,
+      "tareas_construccion": 19600,
+      "bugs": 163,
       "horas_esperadas": 90000,
       "multiplicador": 1.65,
       "horas_ponderadas": 1485,
@@ -98,16 +98,16 @@
       "nombre": "Inscripción de trabajadores",
       "grupo": "T04",
       "hu_count": 4,
-      "tareas_construccion": 13200,
-      "bugs": 67,
+      "tareas_construccion": 13300,
+      "bugs": 68,
       "horas_esperadas": 64900,
       "multiplicador": 1.35,
       "horas_ponderadas": 876,
-      "avance_desarrollo": 83.3,
+      "avance_desarrollo": 83.9,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 58.3,
+      "aporte_desarrollo": 58.7,
       "aporte_qa": 0,
-      "avance_total": 58.3,
+      "avance_total": 58.7,
       "peso": 7.34
     },
     {
@@ -247,11 +247,11 @@
       "horas_esperadas": 27900,
       "multiplicador": 1.75,
       "horas_ponderadas": 488,
-      "avance_desarrollo": 55.2,
+      "avance_desarrollo": 70.7,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 38.6,
+      "aporte_desarrollo": 49.5,
       "aporte_qa": 0,
-      "avance_total": 38.6,
+      "avance_total": 49.5,
       "peso": 4.09
     },
     {
