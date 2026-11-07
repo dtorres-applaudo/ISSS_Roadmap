@@ -22,19 +22,19 @@
       "paquete": "P1",
       "nombre": "Constancias, Certificados e Inscripciones",
       "avance_total": 58.1,
-      "peso": 30.5
+      "peso": 30.6
     },
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 47.3,
+      "avance_total": 47.1,
       "peso": 32.4
     },
     {
       "paquete": "P3",
       "nombre": "Inspecciones y Prestaciones Económicas",
       "avance_total": 13.4,
-      "peso": 37.1
+      "peso": 37
     }
   ],
   "tramites": [
@@ -54,7 +54,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 12.59
+      "peso": 12.57
     },
     {
       "paquete": "P2",
@@ -62,7 +62,7 @@
       "nombre": "Modificación en la inscripción de patronos",
       "grupo": "T02",
       "hu_count": 2,
-      "tareas_construccion": 8300,
+      "tareas_construccion": 8400,
       "bugs": 40,
       "horas_esperadas": 49400,
       "multiplicador": 1.35,
@@ -72,7 +72,7 @@
       "aporte_desarrollo": 56,
       "aporte_qa": 0,
       "avance_total": 56,
-      "peso": 5.47
+      "peso": 5.46
     },
     {
       "paquete": "P2",
@@ -90,7 +90,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 4.52
+      "peso": 4.51
     },
     {
       "paquete": "P1",
@@ -108,7 +108,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 7.91
+      "peso": 7.89
     },
     {
       "paquete": "P2",
@@ -116,17 +116,17 @@
       "nombre": "Modificación de información del derechohabiente",
       "grupo": "T05",
       "hu_count": 1,
-      "tareas_construccion": 3300,
-      "bugs": 10,
-      "horas_esperadas": 18000,
+      "tareas_construccion": 3400,
+      "bugs": 11,
+      "horas_esperadas": 18600,
       "multiplicador": 1.35,
-      "horas_ponderadas": 243,
-      "avance_desarrollo": 85,
+      "horas_ponderadas": 251,
+      "avance_desarrollo": 82.2,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 59.5,
+      "aporte_desarrollo": 57.6,
       "aporte_qa": 0,
-      "avance_total": 59.5,
-      "peso": 1.99
+      "avance_total": 57.6,
+      "peso": 2.06
     },
     {
       "paquete": "P1",
@@ -134,17 +134,17 @@
       "nombre": "Inscripción de beneficiario (a) esposo (a) o compañero (a) de vida",
       "grupo": "G-06-07",
       "hu_count": 2,
-      "tareas_construccion": 3250,
+      "tareas_construccion": 3350,
       "bugs": 10,
-      "horas_esperadas": 13500,
+      "horas_esperadas": 13800,
       "multiplicador": 1.35,
-      "horas_ponderadas": 182,
+      "horas_ponderadas": 186,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.49
+      "peso": 1.53
     },
     {
       "paquete": "P1",
@@ -152,17 +152,17 @@
       "nombre": "Inscripción de beneficiario hijo (a) de 0 a 18 años",
       "grupo": "G-06-07",
       "hu_count": 2,
-      "tareas_construccion": 3250,
+      "tareas_construccion": 3350,
       "bugs": 10,
-      "horas_esperadas": 13500,
+      "horas_esperadas": 13800,
       "multiplicador": 1.35,
-      "horas_ponderadas": 182,
+      "horas_ponderadas": 186,
       "avance_desarrollo": 85,
       "aprobado_qa": "No",
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.49
+      "peso": 1.53
     },
     {
       "paquete": "P3",
@@ -188,16 +188,16 @@
       "nombre": "Renovación de tarjetas (patrono, niños, trabajador extranjero)",
       "grupo": "T09",
       "hu_count": 1,
-      "tareas_construccion": 3300,
+      "tareas_construccion": 3700,
       "bugs": 4,
       "horas_esperadas": 16000,
       "multiplicador": 1,
       "horas_ponderadas": 160,
-      "avance_desarrollo": 80.2,
+      "avance_desarrollo": 76.6,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 56.2,
+      "aporte_desarrollo": 53.6,
       "aporte_qa": 0,
-      "avance_total": 56.2,
+      "avance_total": 53.6,
       "peso": 1.31
     },
     {
@@ -252,7 +252,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 4.32
+      "peso": 4.31
     },
     {
       "paquete": "P3",
@@ -270,7 +270,7 @@
       "aporte_desarrollo": 6.9,
       "aporte_qa": 0,
       "avance_total": 6.9,
-      "peso": 8.73
+      "peso": 8.71
     },
     {
       "paquete": "P3",
@@ -288,7 +288,7 @@
       "aporte_desarrollo": 5.2,
       "aporte_qa": 0,
       "avance_total": 5.2,
-      "peso": 6.23
+      "peso": 6.22
     },
     {
       "paquete": "P1",
@@ -342,7 +342,7 @@
       "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
       "avance_total": 59.5,
-      "peso": 1.25
+      "peso": 1.24
     },
     {
       "paquete": "P3",
@@ -414,7 +414,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.45
+      "peso": 4.44
     },
     {
       "paquete": "P2",
@@ -432,7 +432,7 @@
       "aporte_desarrollo": 25.9,
       "aporte_qa": 0,
       "avance_total": 25.9,
-      "peso": 4.45
+      "peso": 4.44
     },
     {
       "paquete": "P2",
@@ -440,17 +440,17 @@
       "nombre": "Solicitud de información de instituciones públicas",
       "grupo": "T25",
       "hu_count": 3,
-      "tareas_construccion": 5600,
-      "bugs": 10,
+      "tareas_construccion": 5800,
+      "bugs": 11,
       "horas_esperadas": 38900,
       "multiplicador": 1.35,
       "horas_ponderadas": 525,
-      "avance_desarrollo": 79.9,
+      "avance_desarrollo": 79.6,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 55.9,
+      "aporte_desarrollo": 55.7,
       "aporte_qa": 0,
-      "avance_total": 55.9,
-      "peso": 4.31
+      "avance_total": 55.7,
+      "peso": 4.3
     },
     {
       "paquete": "P1",
