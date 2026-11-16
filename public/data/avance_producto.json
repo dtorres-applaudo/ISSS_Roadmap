@@ -13,8 +13,8 @@
     }
   },
   "producto": {
-    "avance_total": 38.2,
-    "aporte_desarrollo": 38.2,
+    "avance_total": 38.4,
+    "aporte_desarrollo": 38.4,
     "aporte_qa": 0
   },
   "paquetes": [
@@ -27,7 +27,7 @@
     {
       "paquete": "P2",
       "nombre": "Modificaciones, Anulaciones y Devoluciones",
-      "avance_total": 47.5,
+      "avance_total": 48,
       "peso": 32.5
     },
     {
@@ -193,11 +193,11 @@
       "horas_esperadas": 16600,
       "multiplicador": 1,
       "horas_ponderadas": 166,
-      "avance_desarrollo": 72.7,
+      "avance_desarrollo": 85,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 50.9,
+      "aporte_desarrollo": 59.5,
       "aporte_qa": 0,
-      "avance_total": 50.9,
+      "avance_total": 59.5,
       "peso": 1.35
     },
     {
@@ -391,11 +391,11 @@
       "horas_esperadas": 16000,
       "multiplicador": 1.2,
       "horas_ponderadas": 192,
-      "avance_desarrollo": 1.9,
+      "avance_desarrollo": 3.2,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 1.3,
+      "aporte_desarrollo": 2.2,
       "aporte_qa": 0,
-      "avance_total": 1.3,
+      "avance_total": 2.2,
       "peso": 1.56
     },
     {
@@ -445,11 +445,11 @@
       "horas_esperadas": 40100,
       "multiplicador": 1.35,
       "horas_ponderadas": 541,
-      "avance_desarrollo": 82.1,
+      "avance_desarrollo": 83.3,
       "aprobado_qa": "No",
-      "aporte_desarrollo": 57.5,
+      "aporte_desarrollo": 58.3,
       "aporte_qa": 0,
-      "avance_total": 57.5,
+      "avance_total": 58.3,
       "peso": 4.41
     },
     {
